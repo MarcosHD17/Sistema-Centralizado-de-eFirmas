@@ -1,0 +1,161 @@
+<h1>Propuesta de Desarrollo y Alcance: Sistema Centralizado de eFirmas</h1>
+<p><strong>Cliente:</strong> SAT Control Manager / Proyecto e-Firma</p>
+<p><strong>Fecha:</strong> 22 de junio de 2026</p>
+<p><strong>Preparado por:</strong> Área de Arquitectura de Software y Análisis Funcional</p>
+
+<hr>
+
+<h2>1. Introducción y Objetivos del Proyecto</h2>
+<p>La gestión de firmas electrónicas avanzadas (e.firma / FIEL del SAT) representa un punto crítico para los despachos contables y administradores de múltiples razones sociales. La pérdida de vigencia de una e.firma paraliza la operación fiscal y de facturación de un contribuyente, generando retrasos y multas. El objetivo de este proyecto es desarrollar un sistema web SaaS centralizado que automatice el monitoreo de vigencias, centralice el almacenamiento de expedientes digitales y emita alertas oportunas multicanal.</p>
+
+<h3>Objetivos Principales:</h3>
+<ul>
+    <li><strong>Automatización del Control:</strong> Eliminar el registro manual de fechas mediante la lectura automatizada de certificados.</li>
+    <li><strong>Mitigación de Riesgos:</strong> Implementar alertas preventivas vía Correo Electrónico y WhatsApp.</li>
+    <li><strong>Seguridad de la Información:</strong> Garantizar el resguardo cifrado de archivos fiscales y contraseñas.</li>
+    <li><strong>Auditoría Completa:</strong> Mantener un registro estricto de accesos y descargas por parte del personal contable.</li>
+</ul>
+
+<br>
+
+<h2>2. Alcance Funcional del Sistema (Módulos del MVP)</h2>
+
+<h3>Módulo 1: Tablero Ejecutivo (Dashboard)</h3>
+<p>Pantalla principal con indicadores clave de rendimiento (KPIs) visuales de rápido diagnóstico:</p>
+<ul>
+    <li>Contadores globales de e.firmas totales, vigentes, próximas a vencer y vencidas.</li>
+    <li>Gráficos de distribución por estatus y asignación por responsable interno.</li>
+    <li>Sección de "Atención Urgente" con ordenamiento prioritario de firmas según los días restantes de vigencia.</li>
+</ul>
+
+<h3>Módulo 2: Registro Automatizado de Contribuyentes</h3>
+<p>Formulario de carga de expedientes fiscales diseñado para mitigar errores humanos:</p>
+<ul>
+    <li>Carga obligatoria de archivos <code>.cer</code>, <code>.key</code> y contraseña.</li>
+    <li><strong>Extracción Automatizada (X.509):</strong> Lectura en tiempo real del archivo <code>.cer</code> para recuperar RFC, Nombre o Razón Social, Fecha de Emisión y Fecha de Vencimiento de forma automática.</li>
+    <li>Almacenamiento opcional de documentos de soporte (Acuse de renovación, captura de trámite, avisos del SAT).</li>
+</ul>
+
+<h3>Módulo 3: Motor de Alertas Semafóricas y Notificaciones</h3>
+<p>Lógica interna automatizada que clasifica el estatus de las e.firmas diariamente:</p>
+<ul>
+    <li><strong>Estatus Verde:</strong> Más de 90 días de vigencia restante.</li>
+    <li><strong>Estatus Amarillo:</strong> Entre 30 y 90 días de vigencia restante. Detona notificaciones preventivas quincenales por correo electrónico.</li>
+    <li><strong>Estatus Rojo:</strong> Menos de 30 días de vigencia restante o e.firma ya vencida. Detona alertas semanales por correo electrónico y alertas directas vía integración de WhatsApp a los contactos clave.</li>
+</ul>
+
+<h3>Módulo 4: Gestión de Usuarios, Roles y Seguridad</h3>
+<p>Control de acceso basado en roles (RBAC) para el personal de la firma contable:</p>
+<ul>
+    <li><strong>Administrador General:</strong> Acceso total al sistema, reportes financieros, configuración de integraciones y creación de usuarios.</li>
+    <li><strong>Supervisor:</strong> Asignación de contribuyentes a operadores, revisión de bitácoras y gestión de alertas.</li>
+    <li><strong>Operador:</strong> Consulta de e.firmas asignadas, actualización de archivos por renovación y descarga de acuses.</li>
+</ul>
+
+<h3>Módulo 5: Historial, Bitácora y Reportes</h3>
+<ul>
+    <li><strong>Línea de Tiempo de Renovaciones:</strong> Historial completo por cliente que permite almacenar certificados anteriores de forma organizada (Expediente Digital Histórico).</li>
+    <li><strong>Bitácora de Auditoría (Logs):</strong> Registro inmutable de cada acción en el sistema (Inicio de sesión, consulta de contraseñas, descarga de certificados), guardando IP, usuario, fecha, hora y acción exacta.</li>
+    <li><strong>Exportación de Datos:</strong> Generación de reportes maestros en formatos CSV y Excel.</li>
+</ul>
+
+<br>
+
+<h2>3. Arquitectura Tecnológica y Seguridad</h2>
+<p>Para cumplir con los requerimientos funcionales y de seguridad planteados, se propone una arquitectura robusta basada en microservicios en la nube:</p>
+
+<ul>
+    <li><strong>Backend de Procesamiento:</strong> Desarrollado en Node.js, utilizando la suite OpenSSL para el procesamiento seguro de criptografía asimétrica y la lectura nativa de certificados X.509 (archivos <code>.cer</code>).</li>
+    <li><strong>Capa de Datos y Almacenamiento Seguro:</strong> 
+        <ul>
+            <li>Los documentos complementarios y llaves públicas/privadas (<code>.cer</code> y <code>.key</code>) se resguardarán en contenedores cifrados dentro de la nube (AWS S3 o MinIO).</li>
+            <li><strong>Seguridad de Contraseñas (Esquema Híbrido):</strong> Las contraseñas de las claves privadas no serán expuestas en texto plano ni almacenadas en bases de datos compartidas en la nube. Se implementará un mecanismo de almacenamiento local en el cliente o descifrado simétrico en memoria mediante llaves derivadas del usuario en sesión, garantizando que el personal operativo pueda utilizarlas para trámites sin comprometer la seguridad central.</li>
+        </ul>
+    </li>
+    <li><strong>Infraestructura de Despliegue:</strong> Contenedores Docker orquestados, garantizando un escalamiento ágil a medida que se incorporen más contribuyentes.</li>
+</ul>
+
+<br>
+
+<h2>4. Plan de Trabajo y Cronograma Estimado</h2>
+<p>El proyecto se ejecutará en un esquema de desarrollo ágil durante un periodo estimado de 8 semanas, dividido en las siguientes fases:</p>
+
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; width:100%; border: 1px solid #002855;">
+    <thead>
+        <tr style="background-color: #002855; color: white;">
+            <th align="left">Fase / Entregable</th>
+            <th align="left">Descripción</th>
+            <th align="center">Duración Estimada</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td align="left"><strong>Fase 1: Análisis y Diseño de Base de Datos</strong></td>
+            <td align="left">Modelado de base de datos relacional, diseño de arquitectura de seguridad e interfaces de usuario preliminares.</td>
+            <td align="center">Semana 1 - 2</td>
+        </tr>
+        <tr style="background-color: #f2f4f8;">
+            <td align="left"><strong>Fase 2: Core de Lectura y Criptografía</strong></td>
+            <td align="left">Desarrollo del módulo de carga y lectura automatizada de archivos X.509 (.cer), extracción de metadatos y lógica de descifrado local.</td>
+            <td align="center">Semana 3 - 4</td>
+        </tr>
+        <tr>
+            <td align="left"><strong>Fase 3: Dashboard y Motor de Alertas</strong></td>
+            <td align="left">Desarrollo de las interfaces del tablero de control, implementación de la lógica del semáforo y las integraciones de Correo y WhatsApp.</td>
+            <td align="center">Semana 5 - 6</td>
+        </tr>
+        <tr style="background-color: #f2f4f8;">
+            <td align="left"><strong>Fase 4: Roles, Bitácora y Pruebas</strong></td>
+            <td align="left">Implementación del módulo RBAC, bitácora de auditoría inmutable, pruebas de penetración de seguridad y despliegue del MVP.</td>
+            <td align="center">Semana 7 - 8</td>
+        </tr>
+    </tbody>
+</table>
+
+<br>
+
+<h2>5. Modelo de Costos y Presupuesto</h2>
+<p>El presupuesto contempla las actividades de análisis funcional, arquitectura de software, desarrollo backend/frontend, control de calidad y puesta en marcha del producto mínimo viable (MVP).</p>
+
+<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse; width:100%; border: 1px solid #002855;">
+    <thead>
+        <tr style="background-color: #002855; color: white;">
+            <th align="left">Concepto de Inversión</th>
+            <th align="left">Descripción del Entregable</th>
+            <th align="right">Costo (MXN / USD)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td align="left"><strong>Diseño de Arquitectura y Base de Datos</strong></td>
+            <td align="left">Modelado relacional de datos y especificación del esquema de seguridad híbrido para llaves privadas.</td>
+            <td align="right">$25,000.00</td>
+        </tr>
+        <tr style="background-color: #f2f4f8;">
+            <td align="left"><strong>Desarrollo Backend y Lógica X.509</strong></td>
+            <td align="left">Programación del motor en Node.js, procesamiento de criptografía con OpenSSL y automatización de la lectura de archivos.</td>
+            <td align="right">$45,000.00</td>
+        </tr>
+        <tr>
+            <td align="left"><strong>Desarrollo Frontend e Interfaz SaaS</strong></td>
+            <td align="left">Construcción del Dashboard ejecutivo, formularios adaptativos y vistas dinámicas basadas en el diseño aprobado.</td>
+            <td align="right">$35,000.00</td>
+        </tr>
+        <tr style="background-color: #f2f4f8;">
+            <td align="left"><strong>Módulo de Notificaciones e Integraciones</strong></td>
+            <td align="left">Configuración de cronjobs de alertas e integración de APIs de mensajería (WhatsApp / SMTP de Correo).</td>
+            <td align="right">$20,000.00</td>
+        </tr>
+        <tr>
+            <td align="left"><strong>Seguridad, Auditoría y Despliegue</strong></td>
+            <td align="left">Implementación de bitácora de auditoría, control de accesos por roles (RBAC) y puesta en producción mediante contenedores Docker.</td>
+            <td align="right">$15,000.00</td>
+        </tr>
+        <tr style="background-color: #e6ebf4; font-weight: bold;">
+            <td align="left" colspan="2">INVERSIÓN TOTAL DEL DESARROLLO DEL MVP</td>
+            <td align="right">$140,000.00</td>
+        </tr>
+    </tbody>
+</table>
+
+<p><em>Nota sobre Costos de Infraestructura Recurrentes: Los costos mensuales derivados del uso de servidores en la nube, almacenamiento S3 y el consumo de APIs para envíos de WhatsApp no están incluidos en el costo de desarrollo y se facturarán directamente al cliente en función de su volumen real de contribuyentes (estimado inicial de $1,200.00 a $2,500.00 MXN mensuales).</em></p>
