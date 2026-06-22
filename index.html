@@ -4,16 +4,19 @@
      gráficos dinámicos SVG, gestión interactiva de usuarios y logs de auditoría en tiempo real. Optimizado para GitHub Pages. -->
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SAT Control Manager - Sistema centralizado para el monitoreo y gestión de vigencias de firmas electrónicas avanzadas (FIEL) para despachos contables y corporativos.">
+    <meta name="description"
+        content="SAT Control Manager - Sistema centralizado para el monitoreo y gestión de vigencias de firmas electrónicas avanzadas (FIEL) para despachos contables y corporativos.">
     <title>SAT Control Manager - Monitoreo Centralizado de e.firmas</title>
-    
+
     <!-- Tipografía Inter de Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <style>
         /* --- DISEÑO DEL SISTEMA Y VARIABLES --- */
@@ -23,15 +26,15 @@
             --bg-sidebar: #0f1322;
             --bg-active: #1e293b;
             --border-color: #1e294b;
-            
+
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --text-on-accent: #ffffff;
-            
+
             --accent: #3b82f6;
             --accent-glow: rgba(59, 130, 246, 0.15);
             --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
-            
+
             --success: #10b981;
             --success-bg: rgba(16, 185, 129, 0.1);
             --warning: #f59e0b;
@@ -39,7 +42,7 @@
             --danger: #ef4444;
             --danger-bg: rgba(239, 68, 68, 0.1);
             --info: #06b6d4;
-            
+
             --font-family: 'Inter', sans-serif;
             --radius-lg: 12px;
             --radius-md: 8px;
@@ -65,7 +68,10 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        button, input, select, textarea {
+        button,
+        input,
+        select,
+        textarea {
             background: none;
             border: none;
             color: inherit;
@@ -255,8 +261,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .page-header {
@@ -312,10 +325,21 @@
             height: 100%;
         }
 
-        .kpi-card.kpi-total::before { background-color: var(--accent); }
-        .kpi-card.kpi-vigente::before { background-color: var(--success); }
-        .kpi-card.kpi-vencer::before { background-color: var(--warning); }
-        .kpi-card.kpi-vencido::before { background-color: var(--danger); }
+        .kpi-card.kpi-total::before {
+            background-color: var(--accent);
+        }
+
+        .kpi-card.kpi-vigente::before {
+            background-color: var(--success);
+        }
+
+        .kpi-card.kpi-vencer::before {
+            background-color: var(--warning);
+        }
+
+        .kpi-card.kpi-vencido::before {
+            background-color: var(--danger);
+        }
 
         .kpi-header {
             display: flex;
@@ -341,10 +365,25 @@
             justify-content: center;
         }
 
-        .kpi-total .kpi-icon { background: rgba(59, 130, 246, 0.1); color: var(--accent); }
-        .kpi-vigente .kpi-icon { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .kpi-vencer .kpi-icon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .kpi-vencido .kpi-icon { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .kpi-total .kpi-icon {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent);
+        }
+
+        .kpi-vigente .kpi-icon {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .kpi-vencer .kpi-icon {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .kpi-vencido .kpi-icon {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
 
         .kpi-icon svg {
             width: 16px;
@@ -417,7 +456,8 @@
             font-size: 9.5pt;
         }
 
-        th, td {
+        th,
+        td {
             padding: 14px 16px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
@@ -453,9 +493,20 @@
             letter-spacing: 0.5px;
         }
 
-        .badge-success { background-color: var(--success-bg); color: var(--success); }
-        .badge-warning { background-color: var(--warning-bg); color: var(--warning); }
-        .badge-danger { background-color: var(--danger-bg); color: var(--danger); }
+        .badge-success {
+            background-color: var(--success-bg);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: var(--warning-bg);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background-color: var(--danger-bg);
+            color: var(--danger);
+        }
 
         .badge-dot {
             width: 6px;
@@ -566,7 +617,8 @@
             margin-bottom: 20px;
         }
 
-        .dropzone-container:hover, .dropzone-container.dragover {
+        .dropzone-container:hover,
+        .dropzone-container.dragover {
             border-color: var(--accent);
             background-color: rgba(59, 130, 246, 0.03);
         }
@@ -662,8 +714,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .extracted-preview {
@@ -788,12 +845,12 @@
             border-radius: 50%;
         }
 
-        input:checked + .slider-switch {
+        input:checked+.slider-switch {
             background-color: var(--accent);
             border-color: var(--accent);
         }
 
-        input:checked + .slider-switch:before {
+        input:checked+.slider-switch:before {
             transform: translateX(20px);
             background-color: white;
         }
@@ -907,7 +964,7 @@
             display: flex;
             gap: 12px;
             justify-content: flex-end;
-            background-color: rgba(0,0,0,0.1);
+            background-color: rgba(0, 0, 0, 0.1);
         }
 
         /* --- MÓDULO 5: HISTORIAL, LÍNEA DE TIEMPO Y BITÁCORA --- */
@@ -961,8 +1018,13 @@
             border: 2px solid var(--bg-card);
         }
 
-        .timeline-item.timeline-success::before { background-color: var(--success); }
-        .timeline-item.timeline-danger::before { background-color: var(--danger); }
+        .timeline-item.timeline-success::before {
+            background-color: var(--success);
+        }
+
+        .timeline-item.timeline-danger::before {
+            background-color: var(--danger);
+        }
 
         .timeline-header {
             display: flex;
@@ -1016,9 +1078,17 @@
             transform: translateX(0);
         }
 
-        .toast-success { border-left-color: var(--success); }
-        .toast-warning { border-left-color: var(--warning); }
-        .toast-danger { border-left-color: var(--danger); }
+        .toast-success {
+            border-left-color: var(--success);
+        }
+
+        .toast-warning {
+            border-left-color: var(--warning);
+        }
+
+        .toast-danger {
+            border-left-color: var(--danger);
+        }
 
         /* --- GRÁFICOS SVG ANIMADOS --- */
         .chart-container {
@@ -1075,6 +1145,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- SIDEBAR LATERAL -->
@@ -1082,38 +1153,53 @@
         <div>
             <div class="sidebar-brand">
                 <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                 </svg>
                 <span>SAT eFirmas</span>
             </div>
             <ul class="sidebar-menu">
                 <li class="sidebar-item active" data-target="dashboard">
                     <a href="#dashboard">
-                        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+                        </svg>
                         Tablero Ejecutivo
                     </a>
                 </li>
                 <li class="sidebar-item" data-target="registro">
                     <a href="#registro">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                        </svg>
                         Registrar e.firma
                     </a>
                 </li>
                 <li class="sidebar-item" data-target="alertas">
                     <a href="#alertas">
-                        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+                        </svg>
                         Configurar Alertas
                     </a>
                 </li>
                 <li class="sidebar-item" data-target="usuarios">
                     <a href="#usuarios">
-                        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                        </svg>
                         Gestión de Usuarios
                     </a>
                 </li>
                 <li class="sidebar-item" data-target="bitacora">
                     <a href="#bitacora">
-                        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.53.85-1.42-3.63-2.16V8h-1.5z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.53.85-1.42-3.63-2.16V8h-1.5z" />
+                        </svg>
                         Auditoría y Bitácora
                     </a>
                 </li>
@@ -1137,7 +1223,10 @@
             </div>
             <div class="user-profile">
                 <div class="notification-bell" id="notificationBtn" aria-label="Notificaciones">
-                    <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+                    </svg>
                     <div class="notification-dot"></div>
                 </div>
                 <span>Marcos Dev</span>
@@ -1148,7 +1237,8 @@
         <section id="dashboard" class="content-section active">
             <div class="page-header">
                 <h1>Monitoreo de e.firmas (FIEL)</h1>
-                <p>Monitoreo automático y clasificación semafórica de la vigencia de firmas electrónicas avanzadas ante el SAT.</p>
+                <p>Monitoreo automático y clasificación semafórica de la vigencia de firmas electrónicas avanzadas ante
+                    el SAT.</p>
             </div>
 
             <!-- KPIs -->
@@ -1157,7 +1247,10 @@
                     <div class="kpi-header">
                         <span class="kpi-title">Total de Firmas</span>
                         <div class="kpi-icon">
-                            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                            </svg>
                         </div>
                     </div>
                     <div class="kpi-value" id="kpiTotal">42</div>
@@ -1166,7 +1259,9 @@
                     <div class="kpi-header">
                         <span class="kpi-title">Firmas Vigentes</span>
                         <div class="kpi-icon">
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                            </svg>
                         </div>
                     </div>
                     <div class="kpi-value" id="kpiVigentes">35</div>
@@ -1175,7 +1270,10 @@
                     <div class="kpi-header">
                         <span class="kpi-title">Próximas a Vencer</span>
                         <div class="kpi-icon">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                            </svg>
                         </div>
                     </div>
                     <div class="kpi-value" id="kpiVencer">5</div>
@@ -1184,7 +1282,10 @@
                     <div class="kpi-header">
                         <span class="kpi-title">Firmas Vencidas</span>
                         <div class="kpi-icon">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" />
+                            </svg>
                         </div>
                     </div>
                     <div class="kpi-value" id="kpiVencidas">2</div>
@@ -1196,23 +1297,34 @@
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">
-                            <svg viewBox="0 0 24 24"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.73-.47 8.5-4.25 8.97-8.99h-8.97z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.73-.47 8.5-4.25 8.97-8.99h-8.97z" />
+                            </svg>
                             Distribución de Estatus
                         </h2>
                     </div>
                     <div style="display: flex; gap: 30px; align-items: center; justify-content: center; height: 100%;">
                         <div class="chart-container">
                             <svg class="donut-chart" width="160" height="160" viewBox="0 0 42 42">
-                                <circle class="donut-hole" cx="21" cy="21" r="15.91549430918954" fill="transparent" role="presentation"></circle>
-                                <circle class="donut-ring" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#1e294b" stroke-width="3.5" role="presentation"></circle>
-                                
+                                <circle class="donut-hole" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                                    role="presentation"></circle>
+                                <circle class="donut-ring" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                                    stroke="#1e294b" stroke-width="3.5" role="presentation"></circle>
+
                                 <!-- Segmento Verde (Vigentes: 35 / 42 = 83.3%) -->
-                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--success)" stroke-width="3.5" stroke-dasharray="83.3 16.7" stroke-dashoffset="0" aria-label="35 Vigentes"></circle>
+                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                                    stroke="var(--success)" stroke-width="3.5" stroke-dasharray="83.3 16.7"
+                                    stroke-dashoffset="0" aria-label="35 Vigentes"></circle>
                                 <!-- Segmento Amarillo (Por vencer: 5 / 42 = 11.9%) -->
-                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--warning)" stroke-width="3.5" stroke-dasharray="11.9 88.1" stroke-dashoffset="-83.3" aria-label="5 Por vencer"></circle>
+                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                                    stroke="var(--warning)" stroke-width="3.5" stroke-dasharray="11.9 88.1"
+                                    stroke-dashoffset="-83.3" aria-label="5 Por vencer"></circle>
                                 <!-- Segmento Rojo (Vencidas: 2 / 42 = 4.8%) -->
-                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--danger)" stroke-width="3.5" stroke-dasharray="4.8 95.2" stroke-dashoffset="-95.2" aria-label="2 Vencidas"></circle>
-                                
+                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                                    stroke="var(--danger)" stroke-width="3.5" stroke-dasharray="4.8 95.2"
+                                    stroke-dashoffset="-95.2" aria-label="2 Vencidas"></circle>
+
                                 <g class="chart-text">
                                     <text x="21" y="22" class="donut-text">42</text>
                                     <text x="21" y="28" class="donut-subtext">Total</text>
@@ -1239,44 +1351,56 @@
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">
-                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                            </svg>
                             Asignación por Responsable
                         </h2>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 15px; justify-content: center; height: 100%;">
+                    <div
+                        style="display: flex; flex-direction: column; gap: 15px; justify-content: center; height: 100%;">
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
                                 <span>Marcos Dev (Analista)</span>
                                 <span>18 / 25 Firmas</span>
                             </div>
-                            <div style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
+                            <div
+                                style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
                                 <div style="width: 72%; height: 100%; background: var(--accent-gradient);"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
-                                <span>Yuli Supervisor (Supervisor)</span>
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
+                                <span>Araceli Supervisor (Supervisor)</span>
                                 <span>12 / 15 Firmas</span>
                             </div>
-                            <div style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
+                            <div
+                                style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
                                 <div style="width: 80%; height: 100%; background: var(--accent-gradient);"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
-                                <span>Marce Operador (Operador)</span>
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
+                                <span>Antonio Operador (Operador)</span>
                                 <span>8 / 10 Firmas</span>
                             </div>
-                            <div style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
+                            <div
+                                style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
                                 <div style="width: 80%; height: 100%; background: var(--accent-gradient);"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
-                                <span>Tadeo Operador (Operador)</span>
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
+                                <span>juan Operador (Operador)</span>
                                 <span>4 / 5 Firmas</span>
                             </div>
-                            <div style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
+                            <div
+                                style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
                                 <div style="width: 80%; height: 100%; background: var(--accent-gradient);"></div>
                             </div>
                         </div>
@@ -1288,15 +1412,22 @@
             <div class="card">
                 <div class="card-header" style="flex-wrap: wrap; gap: 15px;">
                     <h2 class="card-title">
-                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                        </svg>
                         Atención Urgente y Estatus de Clientes
                     </h2>
                     <!-- Filtros rápidos -->
                     <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-secondary filter-btn" data-filter="all" style="padding: 6px 12px; font-size: 8pt; width: auto;">Todos</button>
-                        <button class="btn btn-secondary filter-btn" data-filter="critico" style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(239, 68, 68, 0.4); color: var(--danger);">Críticos</button>
-                        <button class="btn btn-secondary filter-btn" data-filter="preventivo" style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(245, 158, 11, 0.4); color: var(--warning);">Preventivos</button>
-                        <button class="btn btn-secondary filter-btn" data-filter="vigente" style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(16, 185, 129, 0.4); color: var(--success);">Vigentes</button>
+                        <button class="btn btn-secondary filter-btn" data-filter="all"
+                            style="padding: 6px 12px; font-size: 8pt; width: auto;">Todos</button>
+                        <button class="btn btn-secondary filter-btn" data-filter="critico"
+                            style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(239, 68, 68, 0.4); color: var(--danger);">Críticos</button>
+                        <button class="btn btn-secondary filter-btn" data-filter="preventivo"
+                            style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(245, 158, 11, 0.4); color: var(--warning);">Preventivos</button>
+                        <button class="btn btn-secondary filter-btn" data-filter="vigente"
+                            style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(16, 185, 129, 0.4); color: var(--success);">Vigentes</button>
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -1312,35 +1443,41 @@
                         </thead>
                         <tbody>
                             <tr class="client-row" data-status="critico">
-                                <td><strong>ALFA920101XYZ</strong><br><span style="color: var(--text-muted);">Distribuidora Alfa S.A. de C.V.</span></td>
+                                <td><strong>ALFA920101XYZ</strong><br><span
+                                        style="color: var(--text-muted);">Distribuidora Alfa S.A. de C.V.</span></td>
                                 <td>Marcos Dev</td>
                                 <td>28/06/2026</td>
                                 <td style="color: var(--danger); font-weight: 700;">6 días</td>
                                 <td><span class="badge badge-danger"><span class="badge-dot"></span>Crítico</span></td>
                             </tr>
                             <tr class="client-row" data-status="critico">
-                                <td><strong>GOME851112ABC</strong><br><span style="color: var(--text-muted);">Juan Gómez Martínez</span></td>
-                                <td>Marce Operador</td>
+                                <td><strong>GOME851112ABC</strong><br><span style="color: var(--text-muted);">Juan Gómez
+                                        Martínez</span></td>
+                                <td>Antonio Operador</td>
                                 <td>15/07/2026</td>
                                 <td style="color: var(--danger); font-weight: 700;">23 días</td>
                                 <td><span class="badge badge-danger"><span class="badge-dot"></span>Crítico</span></td>
                             </tr>
                             <tr class="client-row" data-status="preventivo">
-                                <td><strong>FER890506MNO</strong><br><span style="color: var(--text-muted);">Constructora Ferroviaria S.A.</span></td>
-                                <td>Yuli Supervisor</td>
+                                <td><strong>FER890506MNO</strong><br><span
+                                        style="color: var(--text-muted);">Constructora Ferroviaria S.A.</span></td>
+                                <td>Araceli Supervisor</td>
                                 <td>22/08/2026</td>
                                 <td style="color: var(--warning); font-weight: 700;">61 días</td>
-                                <td><span class="badge badge-warning"><span class="badge-dot"></span>Preventivo</span></td>
+                                <td><span class="badge badge-warning"><span class="badge-dot"></span>Preventivo</span>
+                                </td>
                             </tr>
                             <tr class="client-row" data-status="vigente">
-                                <td><strong>LOMM940304HJK</strong><br><span style="color: var(--text-muted);">María López Mendoza</span></td>
-                                <td>Tadeo Operador</td>
+                                <td><strong>LOMM940304HJK</strong><br><span style="color: var(--text-muted);">María
+                                        López Mendoza</span></td>
+                                <td>juan Operador</td>
                                 <td>14/11/2029</td>
                                 <td style="color: var(--success);">1,241 días</td>
                                 <td><span class="badge badge-success"><span class="badge-dot"></span>Vigente</span></td>
                             </tr>
                             <tr class="client-row" data-status="vigente">
-                                <td><strong>INM981012KLO</strong><br><span style="color: var(--text-muted);">Inmobiliaria del Norte S.A.</span></td>
+                                <td><strong>INM981012KLO</strong><br><span
+                                        style="color: var(--text-muted);">Inmobiliaria del Norte S.A.</span></td>
                                 <td>Marcos Dev</td>
                                 <td>10/05/2030</td>
                                 <td style="color: var(--success);">1,418 días</td>
@@ -1356,14 +1493,18 @@
         <section id="registro" class="content-section">
             <div class="page-header">
                 <h1>Registrar Nueva e.firma (FIEL)</h1>
-                <p>Carga los archivos gubernamentales del SAT. El sistema extraerá criptográficamente la información del certificado X.509 de manera automática.</p>
+                <p>Carga los archivos gubernamentales del SAT. El sistema extraerá criptográficamente la información del
+                    certificado X.509 de manera automática.</p>
             </div>
 
             <div class="dashboard-layout three-cols">
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">
-                            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                            </svg>
                             Expediente Digital Fiscal
                         </h2>
                     </div>
@@ -1372,14 +1513,17 @@
                         <!-- Loader overlay para simular procesamiento -->
                         <div class="loader-overlay" id="loaderOverlay">
                             <div class="spinner"></div>
-                            <p style="font-weight: 700; font-size: 10pt; margin-bottom: 5px;">Procesando Certificado...</p>
-                            <p style="font-size: 8.5pt; color: var(--text-muted);">Extrayendo RFC y fechas de vigencia mediante OpenSSL</p>
+                            <p style="font-weight: 700; font-size: 10pt; margin-bottom: 5px;">Procesando Certificado...
+                            </p>
+                            <p style="font-size: 8.5pt; color: var(--text-muted);">Extrayendo RFC y fechas de vigencia
+                                mediante OpenSSL</p>
                         </div>
 
                         <form id="uploadForm" onsubmit="return false;">
                             <div class="dropzone-container" id="dropzone">
                                 <svg class="dropzone-icon" viewBox="0 0 24 24">
-                                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                                    <path
+                                        d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
                                 </svg>
                                 <div class="dropzone-text">
                                     <h3>Arrastra tus archivos tributarios aquí</h3>
@@ -1394,16 +1538,17 @@
 
                             <div class="form-group" style="margin-top: 20px;">
                                 <label for="keyPassword">Contraseña de la Clave Privada</label>
-                                <input type="password" id="keyPassword" class="form-control" placeholder="••••••••" required>
+                                <input type="password" id="keyPassword" class="form-control" placeholder="••••••••"
+                                    required>
                             </div>
 
                             <div class="form-group">
                                 <label for="assignedResponsable">Responsable de Monitoreo</label>
                                 <select id="assignedResponsable" class="form-control">
                                     <option value="Marcos Dev">Marcos Dev</option>
-                                    <option value="Yuli Supervisor">Yuli Supervisor</option>
-                                    <option value="Marce Operador">Marce Operador</option>
-                                    <option value="Tadeo Operador">Tadeo Operador</option>
+                                    <option value="Araceli Supervisor">Araceli Supervisor</option>
+                                    <option value="Antonio Operador">Antonio Operador</option>
+                                    <option value="juan Operador">juan Operador</option>
                                 </select>
                             </div>
 
@@ -1414,35 +1559,52 @@
                     <!-- Vista previa de datos extraídos -->
                     <div class="extracted-preview" id="extractedPreview">
                         <h4>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                            </svg>
                             Lectura Criptográfica Exitosa (X.509)
                         </h4>
                         <div class="extracted-grid">
                             <div class="extracted-item">RFC: <strong id="previewRfc">MOGO890101HA2</strong></div>
-                            <div class="extracted-item">Razón Social: <strong id="previewNombre">Marcos Gómez Ocaña</strong></div>
+                            <div class="extracted-item">Razón Social: <strong id="previewNombre">Marcos Gómez
+                                    Ocaña</strong></div>
                             <div class="extracted-item">Emisión: <strong id="previewEmision">22/06/2026</strong></div>
-                            <div class="extracted-item">Vencimiento: <strong id="previewVencimiento">21/06/2030</strong></div>
+                            <div class="extracted-item">Vencimiento: <strong id="previewVencimiento">21/06/2030</strong>
+                            </div>
                         </div>
-                        <button type="button" class="btn" id="btnSaveFirm" style="margin-top: 15px; background: var(--success); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">Guardar Expediente Cifrado</button>
+                        <button type="button" class="btn" id="btnSaveFirm"
+                            style="margin-top: 15px; background: var(--success); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">Guardar
+                            Expediente Cifrado</button>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">
-                            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                            </svg>
                             Esquema de Seguridad Híbrido
                         </h2>
                     </div>
-                    <div style="font-size: 9pt; line-height: 1.6; color: var(--text-muted); display: flex; flex-direction: column; gap: 15px;">
-                        <p>Para resguardar la confidencialidad de las claves y contraseñas del SAT, implementamos un protocolo de seguridad avanzada:</p>
-                        <div style="display: flex; gap: 12px; background-color: rgba(59, 130, 246, 0.05); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <div
+                        style="font-size: 9pt; line-height: 1.6; color: var(--text-muted); display: flex; flex-direction: column; gap: 15px;">
+                        <p>Para resguardar la confidencialidad de las claves y contraseñas del SAT, implementamos un
+                            protocolo de seguridad avanzada:</p>
+                        <div
+                            style="display: flex; gap: 12px; background-color: rgba(59, 130, 246, 0.05); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
                             <span style="font-size: 14pt;">🔑</span>
-                            <p><strong>Cifrado Simétrico Local:</strong> La contraseña nunca se envía en texto plano. Los archivos <code>.key</code> se resguardan de forma segura en contenedores aislados de MinIO/AWS S3 de acceso restringido.</p>
+                            <p><strong>Cifrado Simétrico Local:</strong> La contraseña nunca se envía en texto plano.
+                                Los archivos <code>.key</code> se resguardan de forma segura en contenedores aislados de
+                                MinIO/AWS S3 de acceso restringido.</p>
                         </div>
-                        <div style="display: flex; gap: 12px; background-color: rgba(16, 185, 129, 0.05); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                        <div
+                            style="display: flex; gap: 12px; background-color: rgba(16, 185, 129, 0.05); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
                             <span style="font-size: 14pt;">🛡️</span>
-                            <p><strong>Bitácora Inmutable:</strong> Cualquier acción de consulta, descarga o actualización quedará grabada permanentemente en la bitácora del sistema junto con la IP y firma criptográfica del operador.</p>
+                            <p><strong>Bitácora Inmutable:</strong> Cualquier acción de consulta, descarga o
+                                actualización quedará grabada permanentemente en la bitácora del sistema junto con la IP
+                                y firma criptográfica del operador.</p>
                         </div>
                     </div>
                 </div>
@@ -1453,17 +1615,22 @@
         <section id="alertas" class="content-section">
             <div class="page-header">
                 <h1>Motor de Alertas Semafóricas</h1>
-                <p>Configura las reglas de anticipación para los semáforos de vigencia y los canales de notificación automática.</p>
+                <p>Configura las reglas de anticipación para los semáforos de vigencia y los canales de notificación
+                    automática.</p>
             </div>
 
             <div class="alert-settings-grid">
                 <!-- Alerta Crítica (Rojo) -->
                 <div class="settings-card" style="border-top: 4px solid var(--danger);">
                     <div class="settings-header" style="color: var(--danger);">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                        </svg>
                         Fase Crítica (Rojo)
                     </div>
-                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">Detona alertas de alta frecuencia cuando el vencimiento es inminente.</p>
+                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">Detona alertas de alta
+                        frecuencia cuando el vencimiento es inminente.</p>
                     <div class="days-slider-container">
                         <div class="days-slider-header">
                             <span>Días de anticipación:</span>
@@ -1490,10 +1657,14 @@
                 <!-- Alerta Preventiva (Amarillo) -->
                 <div class="settings-card" style="border-top: 4px solid var(--warning);">
                     <div class="settings-header" style="color: var(--warning);">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                        </svg>
                         Fase Preventiva (Amarillo)
                     </div>
-                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">Envía avisos de cortes quincenales para programar renovaciones.</p>
+                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">Envía avisos de cortes
+                        quincenales para programar renovaciones.</p>
                     <div class="days-slider-container">
                         <div class="days-slider-header">
                             <span>Días de anticipación:</span>
@@ -1520,10 +1691,13 @@
                 <!-- Alerta Normal / Vigente (Verde) -->
                 <div class="settings-card" style="border-top: 4px solid var(--success);">
                     <div class="settings-header" style="color: var(--success);">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                        </svg>
                         Fase Operativa (Verde)
                     </div>
-                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">El expediente digital está vigente y operativo sin requerir atención.</p>
+                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">El expediente digital está
+                        vigente y operativo sin requerir atención.</p>
                     <div style="font-size: 9pt; color: var(--text-muted); padding-top: 15px;">
                         <p>✓ Monitoreo diario activo.</p>
                         <p style="margin-top: 8px;">✓ Acceso completo para trámites en el portal del SAT.</p>
@@ -1534,23 +1708,34 @@
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title">
-                        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm0 4h12v2H6v-2zm0-8h12v2H6V5z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm0 4h12v2H6v-2zm0-8h12v2H6V5z" />
+                        </svg>
                         Plantilla de Alerta (WhatsApp / Correo)
                     </h2>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div style="background-color: #0b141a; border: 1px solid #222d34; border-radius: var(--radius-md); padding: 15px; font-family: monospace; font-size: 8.5pt; color: #e9edef; position: relative;">
-                        <span style="position: absolute; top: 10px; right: 10px; font-size: 7.5pt; background-color: #202c33; padding: 2px 6px; border-radius: 4px; color: #8696a0;">WhatsApp Mockup</span>
+                    <div
+                        style="background-color: #0b141a; border: 1px solid #222d34; border-radius: var(--radius-md); padding: 15px; font-family: monospace; font-size: 8.5pt; color: #e9edef; position: relative;">
+                        <span
+                            style="position: absolute; top: 10px; right: 10px; font-size: 7.5pt; background-color: #202c33; padding: 2px 6px; border-radius: 4px; color: #8696a0;">WhatsApp
+                            Mockup</span>
                         <p style="color: #00a884; font-weight: bold; margin-bottom: 8px;">SAT Control Bot 🛡️</p>
                         <p>Estimado/a *[Responsable]*,</p>
-                        <p style="margin-top: 6px;">Te informamos que la e.firma del contribuyente *[Razón Social]* con RFC *[RFC]* está próxima a vencer.</p>
+                        <p style="margin-top: 6px;">Te informamos que la e.firma del contribuyente *[Razón Social]* con
+                            RFC *[RFC]* está próxima a vencer.</p>
                         <p style="margin-top: 6px;">⏳ *Días restantes:* [Días]</p>
                         <p>*Fecha límite:* [Fecha Vencimiento]</p>
-                        <p style="margin-top: 6px;">Por favor, gestiona la renovación para evitar la suspensión de trámites fiscales.</p>
+                        <p style="margin-top: 6px;">Por favor, gestiona la renovación para evitar la suspensión de
+                            trámites fiscales.</p>
                     </div>
-                    <div style="display: flex; flex-direction: column; justify-content: center; gap: 10px; font-size: 9pt; color: var(--text-muted);">
-                        <p>El sistema reemplazará los campos encerrados entre corchetes <code>[...]</code> de manera automática al lanzar el cronjob diario.</p>
-                        <button type="button" class="btn" id="btnTestAlert" style="width: 200px;">Enviar Alerta de Prueba</button>
+                    <div
+                        style="display: flex; flex-direction: column; justify-content: center; gap: 10px; font-size: 9pt; color: var(--text-muted);">
+                        <p>El sistema reemplazará los campos encerrados entre corchetes <code>[...]</code> de manera
+                            automática al lanzar el cronjob diario.</p>
+                        <button type="button" class="btn" id="btnTestAlert" style="width: 200px;">Enviar Alerta de
+                            Prueba</button>
                     </div>
                 </div>
             </div>
@@ -1563,7 +1748,8 @@
                     <h1>Gestión de Usuarios y Roles</h1>
                     <p>Administra los permisos del personal contable y supervisa la asignación de contribuyentes.</p>
                 </div>
-                <button type="button" class="btn" id="btnOpenAddUser" style="width: auto;">Agregar Nuevo Usuario</button>
+                <button type="button" class="btn" id="btnOpenAddUser" style="width: auto;">Agregar Nuevo
+                    Usuario</button>
             </div>
 
             <div class="card">
@@ -1583,34 +1769,43 @@
                             <tr>
                                 <td><strong>Marcos Dev</strong></td>
                                 <td>marcos.dev@despacho.com</td>
-                                <td><span style="color: var(--accent); font-weight: 600;">Administrador General</span></td>
+                                <td><span style="color: var(--accent); font-weight: 600;">Administrador General</span>
+                                </td>
                                 <td>25 Contribuyentes</td>
                                 <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
-                                <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                                <td><button type="button"
+                                        style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button>
+                                </td>
                             </tr>
                             <tr>
-                                <td><strong>Yuli Supervisor</strong></td>
-                                <td>yuli.super@despacho.com</td>
+                                <td><strong>Araceli Supervisor</strong></td>
+                                <td>Araceli.super@despacho.com</td>
                                 <td><span style="color: var(--info); font-weight: 600;">Supervisor</span></td>
                                 <td>15 Contribuyentes</td>
                                 <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
-                                <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                                <td><button type="button"
+                                        style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button>
+                                </td>
                             </tr>
                             <tr>
-                                <td><strong>Marce Operador</strong></td>
-                                <td>marce.op@despacho.com</td>
+                                <td><strong>Antonio Operador</strong></td>
+                                <td>Antonio.op@despacho.com</td>
                                 <td><span style="color: var(--text-muted); font-weight: 600;">Operador</span></td>
                                 <td>10 Contribuyentes</td>
                                 <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
-                                <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                                <td><button type="button"
+                                        style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button>
+                                </td>
                             </tr>
                             <tr>
-                                <td><strong>Tadeo Operador</strong></td>
-                                <td>tadeo.op@despacho.com</td>
+                                <td><strong>juan Operador</strong></td>
+                                <td>juan.op@despacho.com</td>
                                 <td><span style="color: var(--text-muted); font-weight: 600;">Operador</span></td>
                                 <td>5 Contribuyentes</td>
                                 <td><span class="badge badge-danger"><span class="badge-dot"></span>Inactivo</span></td>
-                                <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                                <td><button type="button"
+                                        style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -1622,7 +1817,8 @@
         <section id="bitacora" class="content-section">
             <div class="page-header">
                 <h1>Bitácora de Auditoría y Logs</h1>
-                <p>Registro histórico inmutable de accesos, consultas de contraseñas y descargas de certificados X.509.</p>
+                <p>Registro histórico inmutable de accesos, consultas de contraseñas y descargas de certificados X.509.
+                </p>
             </div>
 
             <div class="dashboard-layout">
@@ -1630,15 +1826,23 @@
                 <div class="card">
                     <div class="card-header" style="flex-direction: column; align-items: stretch; gap: 15px;">
                         <h2 class="card-title">
-                            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                            </svg>
                             Historial de Eventos
                         </h2>
                         <div class="audit-controls">
                             <div class="search-bar">
-                                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                                <input type="text" id="logSearch" class="form-control" placeholder="Buscar por usuario, IP o acción...">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                                </svg>
+                                <input type="text" id="logSearch" class="form-control"
+                                    placeholder="Buscar por usuario, IP o acción...">
                             </div>
-                            <button type="button" class="btn" id="btnExportLogs" style="width: auto; white-space: nowrap;">Exportar CSV</button>
+                            <button type="button" class="btn" id="btnExportLogs"
+                                style="width: auto; white-space: nowrap;">Exportar CSV</button>
                         </div>
                     </div>
 
@@ -1661,13 +1865,13 @@
                                 </tr>
                                 <tr class="log-row">
                                     <td style="white-space: nowrap;">22/06/2026 09:15:30</td>
-                                    <td>Marce Operador</td>
+                                    <td>Antonio Operador</td>
                                     <td>Descarga de Certificado (FER890506MNO)</td>
                                     <td>192.168.1.82</td>
                                 </tr>
                                 <tr class="log-row">
                                     <td style="white-space: nowrap;">22/06/2026 08:30:11</td>
-                                    <td>Yuli Supervisor</td>
+                                    <td>Araceli Supervisor</td>
                                     <td>Inicio de Sesión Exitoso</td>
                                     <td>189.215.12.102</td>
                                 </tr>
@@ -1686,7 +1890,10 @@
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">
-                            <svg viewBox="0 0 24 24"><path d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1-2.73 2.71-2.73 7.08 0 9.79s7.15 2.71 9.88 0C18.3 15.62 19 13.97 19 12h2c0 2.4-1 4.7-2.9 6.6-3.9 3.9-10.2 3.9-14.1 0-3.9-3.9-3.9-10.2 0-14.1s10.2-3.9 14.1 0L21 1.62V10.12zM12.5 7v5.2l4 2.4-.8 1.2-4.7-2.8V7h1.5z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1-2.73 2.71-2.73 7.08 0 9.79s7.15 2.71 9.88 0C18.3 15.62 19 13.97 19 12h2c0 2.4-1 4.7-2.9 6.6-3.9 3.9-10.2 3.9-14.1 0-3.9-3.9-3.9-10.2 0-14.1s10.2-3.9 14.1 0L21 1.62V10.12zM12.5 7v5.2l4 2.4-.8 1.2-4.7-2.8V7h1.5z" />
+                            </svg>
                             Línea de Tiempo de Renovaciones
                         </h2>
                     </div>
@@ -1744,7 +1951,8 @@
                     </div>
                     <div class="form-group">
                         <label for="newUserEmail">Correo Electrónico</label>
-                        <input type="email" id="newUserEmail" class="form-control" placeholder="juan.perez@despacho.com" required>
+                        <input type="email" id="newUserEmail" class="form-control" placeholder="juan.perez@despacho.com"
+                            required>
                     </div>
                     <div class="form-group">
                         <label for="newUserRole">Rol asignado</label>
@@ -1756,7 +1964,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="btnCancelUser" style="width: auto;">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelUser"
+                        style="width: auto;">Cancelar</button>
                     <button type="submit" class="btn" id="btnSaveUser" style="width: auto;">Guardar Usuario</button>
                 </div>
             </form>
@@ -1769,7 +1978,7 @@
     <!-- --- LÓGICA JAVASCRIPT --- -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            
+
             // --- NAVEGACIÓN SPA ---
             const sidebarItems = document.querySelectorAll('.sidebar-item');
             const sections = document.querySelectorAll('.content-section');
@@ -1777,7 +1986,7 @@
             sidebarItems.forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
-                    
+
                     // Remover activo de todos
                     sidebarItems.forEach(si => si.classList.remove('active'));
                     sections.forEach(sec => sec.classList.remove('active'));
@@ -1791,25 +2000,25 @@
 
             // --- SISTEMA DE TOASTS ---
             const toastContainer = document.getElementById('toastContainer');
-            
+
             function showToast(message, type = 'success') {
                 const toast = document.createElement('div');
                 toast.className = `toast toast-${type}`;
-                
+
                 let icon = '✓';
-                if(type === 'warning') icon = '⚠';
-                if(type === 'danger') icon = '✗';
-                
+                if (type === 'warning') icon = '⚠';
+                if (type === 'danger') icon = '✗';
+
                 toast.innerHTML = `
                     <span style="font-weight: bold; font-size: 11pt;">${icon}</span>
                     <div>${message}</div>
                 `;
-                
+
                 toastContainer.appendChild(toast);
-                
+
                 // Forzar reflow para animación
                 setTimeout(() => toast.classList.add('show'), 50);
-                
+
                 // Eliminar después de 4 segundos
                 setTimeout(() => {
                     toast.classList.remove('show');
@@ -1824,9 +2033,9 @@
             filterButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const filter = btn.getAttribute('data-filter');
-                    
+
                     filterButtons.forEach(b => b.classList.remove('btn-primary')); // reset
-                    
+
                     clientRows.forEach(row => {
                         if (filter === 'all' || row.getAttribute('data-status') === filter) {
                             row.style.display = '';
@@ -1834,7 +2043,7 @@
                             row.style.display = 'none';
                         }
                     });
-                    
+
                     showToast(`Filtrando contribuyentes por: ${filter.toUpperCase()}`, 'info');
                 });
             });
@@ -1847,7 +2056,7 @@
             const loaderOverlay = document.getElementById('loaderOverlay');
             const extractedPreview = document.getElementById('extractedPreview');
             const uploadForm = document.getElementById('uploadForm');
-            
+
             let loadedFiles = [];
 
             // Eventos de Drag & Drop
@@ -1929,15 +2138,15 @@
                 setTimeout(() => {
                     loaderOverlay.style.display = 'none';
                     extractedPreview.style.display = 'block';
-                    
+
                     // Extraer nombres simulados basados en archivos
                     const cerFile = loadedFiles.find(f => f.name.endsWith('.cer'));
                     let rfc = "MOGO890101HA2";
                     let nombre = "Marcos Gómez Ocaña";
-                    
-                    if(cerFile) {
+
+                    if (cerFile) {
                         const baseName = cerFile.name.toUpperCase().replace('.CER', '');
-                        if(baseName.length >= 12) {
+                        if (baseName.length >= 12) {
                             rfc = baseName.substring(0, 13);
                             nombre = `Corporativo ${baseName.substring(0, 5)} S.A. de C.V.`;
                         }
@@ -1945,7 +2154,7 @@
 
                     document.getElementById('previewRfc').textContent = rfc;
                     document.getElementById('previewNombre').textContent = nombre;
-                    
+
                     showToast('Certificado X.509 decodificado exitosamente.', 'success');
                 }, 2000);
             });
@@ -1989,13 +2198,13 @@
                 kpiVigentes.textContent = parseInt(kpiVigentes.textContent) + 1;
 
                 showToast(`e.firma de ${rfc} guardada con éxito en el expediente digital.`, 'success');
-                
+
                 // Resetear Formulario
                 uploadForm.reset();
                 loadedFiles = [];
                 renderFiles();
                 extractedPreview.style.display = 'none';
-                
+
                 // Redirigir a Dashboard
                 setTimeout(() => {
                     document.querySelector('[data-target="dashboard"]').click();
@@ -2088,7 +2297,7 @@
                 const query = e.target.value.toLowerCase();
                 logRows.forEach(row => {
                     const text = row.textContent.toLowerCase();
-                    if(text.includes(query)) {
+                    if (text.includes(query)) {
                         row.style.display = '';
                     } else {
                         row.style.display = 'none';
@@ -2107,7 +2316,7 @@
 
             timelineClient.addEventListener('change', (e) => {
                 const client = e.target.value;
-                if(client === 'ferro') {
+                if (client === 'ferro') {
                     timelineContainer.innerHTML = `
                         <div class="timeline-item timeline-success">
                             <div class="timeline-header">
@@ -2126,7 +2335,7 @@
                             </div>
                             <div class="timeline-content">
                                 <h4>Notificación Preventiva</h4>
-                                <p>Alerta de expiración enviada a Yuli Supervisor por Correo.</p>
+                                <p>Alerta de expiración enviada a Araceli Supervisor por Correo.</p>
                             </div>
                         </div>
                     `;
@@ -2159,4 +2368,5 @@
         });
     </script>
 </body>
+
 </html>
