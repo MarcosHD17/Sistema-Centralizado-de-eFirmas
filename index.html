@@ -1,0 +1,2162 @@
+<!-- Versión: v2.0.0
+     Descripción: Creación de la interfaz interactiva integral SPA (Single Page Application) del SAT Control Manager. 
+     Diseño responsivo premium con modo oscuro, transiciones fluidas, simulación de carga criptográfica de certificados, 
+     gráficos dinámicos SVG, gestión interactiva de usuarios y logs de auditoría en tiempo real. Optimizado para GitHub Pages. -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SAT Control Manager - Sistema centralizado para el monitoreo y gestión de vigencias de firmas electrónicas avanzadas (FIEL) para despachos contables y corporativos.">
+    <title>SAT Control Manager - Monitoreo Centralizado de e.firmas</title>
+    
+    <!-- Tipografía Inter de Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- DISEÑO DEL SISTEMA Y VARIABLES --- */
+        :root {
+            --bg-page: #0b0f19;
+            --bg-card: #151b2c;
+            --bg-sidebar: #0f1322;
+            --bg-active: #1e293b;
+            --border-color: #1e294b;
+            
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-on-accent: #ffffff;
+            
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.1);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --info: #06b6d4;
+            
+            --font-family: 'Inter', sans-serif;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --radius-sm: 4px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* --- ESTILOS GENERALES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button, input, select, textarea {
+            background: none;
+            border: none;
+            color: inherit;
+        }
+
+        /* --- SIDEBAR LATERAL PREMIUM --- */
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .sidebar-brand {
+            padding: 24px;
+            font-size: 13pt;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.2) 0%, rgba(0, 0, 0, 0) 100%);
+        }
+
+        .sidebar-brand svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--accent);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 12px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            overflow-y: auto;
+        }
+
+        .sidebar-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 9.5pt;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+
+        .sidebar-item a svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .sidebar-item a:hover {
+            color: var(--text-main);
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .sidebar-item.active a {
+            color: var(--text-main);
+            background-color: var(--bg-active);
+            box-shadow: inset 4px 0 0 var(--accent);
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            background-color: rgba(0, 0, 0, 0.1);
+            font-size: 8.5pt;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 10pt;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .top-navbar {
+            height: 70px;
+            background-color: rgba(21, 27, 44, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 5;
+        }
+
+        .navbar-title {
+            font-size: 11pt;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-title span {
+            background-color: var(--bg-active);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 8pt;
+            color: var(--accent);
+            border: 1px solid var(--border-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 9.5pt;
+            font-weight: 500;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .notification-bell:hover {
+            background-color: var(--bg-active);
+        }
+
+        .notification-bell svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-muted);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            border: 2px solid var(--bg-card);
+        }
+
+        /* --- SECCIONES DE CONTENIDO (SPA) --- */
+        .content-section {
+            display: none;
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 40px;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 22pt;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+            background: linear-gradient(120deg, #fff 40%, var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-header p {
+            font-size: 10pt;
+            color: var(--text-muted);
+        }
+
+        /* --- KPIS Y CUADRICULA DEL TABLERO --- */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .kpi-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .kpi-card.kpi-total::before { background-color: var(--accent); }
+        .kpi-card.kpi-vigente::before { background-color: var(--success); }
+        .kpi-card.kpi-vencer::before { background-color: var(--warning); }
+        .kpi-card.kpi-vencido::before { background-color: var(--danger); }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .kpi-title {
+            font-size: 8.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.75px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .kpi-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .kpi-total .kpi-icon { background: rgba(59, 130, 246, 0.1); color: var(--accent); }
+        .kpi-vigente .kpi-icon { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .kpi-vencer .kpi-icon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .kpi-vencido .kpi-icon { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        .kpi-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .kpi-value {
+            font-size: 24pt;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+        }
+
+        /* --- DASHBOARD LAYOUT & GRÁFICOS --- */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-layout.three-cols {
+            grid-template-columns: 1.2fr 0.8fr;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 11pt;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--accent);
+        }
+
+        /* --- TABLAS --- */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9.5pt;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 8.5pt;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.01);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* --- BADGES (ETIQUETAS) --- */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 7.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-success { background-color: var(--success-bg); color: var(--success); }
+        .badge-warning { background-color: var(--warning-bg); color: var(--warning); }
+        .badge-danger { background-color: var(--danger-bg); color: var(--danger); }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: currentColor;
+        }
+
+        /* --- FORMULARIOS --- */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 9pt;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 9.5pt;
+            background-color: rgba(0, 0, 0, 0.2);
+            color: #fff;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* --- BOTONES --- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--accent-gradient);
+            color: var(--text-on-accent);
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 9.5pt;
+            font-weight: 600;
+            transition: var(--transition);
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--bg-active);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-muted);
+            box-shadow: none;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        /* --- MÓDULO 2: CARGA DE ARCHIVOS --- */
+        .dropzone-container {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .dropzone-container:hover, .dropzone-container.dragover {
+            border-color: var(--accent);
+            background-color: rgba(59, 130, 246, 0.03);
+        }
+
+        .dropzone-icon {
+            width: 48px;
+            height: 48px;
+            fill: var(--text-muted);
+            margin: 0 auto 15px;
+            transition: var(--transition);
+        }
+
+        .dropzone-container:hover .dropzone-icon {
+            fill: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .dropzone-text h3 {
+            font-size: 10pt;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .dropzone-text p {
+            font-size: 8.5pt;
+            color: var(--text-muted);
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-list {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-item {
+            background-color: var(--bg-active);
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 9pt;
+        }
+
+        .file-item-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-item-info svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--accent);
+        }
+
+        .loader-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(21, 27, 44, 0.95);
+            border-radius: var(--radius-lg);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.05);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .extracted-preview {
+            background-color: rgba(16, 185, 129, 0.02);
+            border: 1px dashed var(--success);
+            padding: 15px;
+            border-radius: var(--radius-md);
+            margin-top: 15px;
+            display: none;
+        }
+
+        .extracted-preview h4 {
+            font-size: 9.5pt;
+            color: var(--success);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .extracted-preview h4 svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .extracted-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 8.5pt;
+        }
+
+        .extracted-item {
+            color: var(--text-muted);
+        }
+
+        .extracted-item strong {
+            color: var(--text-main);
+        }
+
+        /* --- MÓDULO 3: CONFIGURACIÓN DE ALERTAS --- */
+        .alert-settings-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .settings-card {
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-card);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 11pt;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .settings-header svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+
+        .toggle-label {
+            font-size: 9pt;
+            font-weight: 600;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider-switch {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-active);
+            transition: .3s;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .slider-switch:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-muted);
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider-switch {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        input:checked + .slider-switch:before {
+            transform: translateX(20px);
+            background-color: white;
+        }
+
+        .days-slider-container {
+            margin-top: 10px;
+        }
+
+        .days-slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 8.5pt;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .range-slider {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-active);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .range-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* --- MÓDULO 4: USUARIOS Y MODALES --- */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(9, 13, 22, 0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 500px;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+            overflow: hidden;
+        }
+
+        .modal.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 12pt;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .close-modal {
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: #fff;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            background-color: rgba(0,0,0,0.1);
+        }
+
+        /* --- MÓDULO 5: HISTORIAL, LÍNEA DE TIEMPO Y BITÁCORA --- */
+        .audit-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            position: relative;
+            flex-grow: 1;
+        }
+
+        .search-bar input {
+            padding-left: 40px;
+        }
+
+        .search-bar svg {
+            position: absolute;
+            left: 14px;
+            top: 14px;
+            width: 16px;
+            height: 16px;
+            fill: var(--text-muted);
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+            border-left: 2px solid var(--border-color);
+            margin-left: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .timeline-item {
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -27px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            border: 2px solid var(--bg-card);
+        }
+
+        .timeline-item.timeline-success::before { background-color: var(--success); }
+        .timeline-item.timeline-danger::before { background-color: var(--danger); }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 8.5pt;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .timeline-content h4 {
+            font-size: 9.5pt;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 2px;
+        }
+
+        .timeline-content p {
+            font-size: 8.5pt;
+            color: var(--text-muted);
+        }
+
+        /* --- NOTIFICACIONES TOAST FLOTANTES --- */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent);
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-size: 9pt;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-success { border-left-color: var(--success); }
+        .toast-warning { border-left-color: var(--warning); }
+        .toast-danger { border-left-color: var(--danger); }
+
+        /* --- GRÁFICOS SVG ANIMADOS --- */
+        .chart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            position: relative;
+        }
+
+        .donut-chart {
+            transform: rotate(-90deg);
+        }
+
+        .donut-segment {
+            fill: none;
+            stroke-width: 3.5;
+            transition: var(--transition);
+        }
+
+        .donut-text {
+            fill: #fff;
+            font-family: var(--font-family);
+            font-size: 16px;
+            font-weight: 800;
+            text-anchor: middle;
+        }
+
+        .donut-subtext {
+            fill: var(--text-muted);
+            font-family: var(--font-family);
+            font-size: 5px;
+            text-anchor: middle;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+            font-size: 8.5pt;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR LATERAL -->
+    <nav class="sidebar" aria-label="Menú de Navegación Lateral">
+        <div>
+            <div class="sidebar-brand">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                <span>SAT eFirmas</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="sidebar-item active" data-target="dashboard">
+                    <a href="#dashboard">
+                        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                        Tablero Ejecutivo
+                    </a>
+                </li>
+                <li class="sidebar-item" data-target="registro">
+                    <a href="#registro">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        Registrar e.firma
+                    </a>
+                </li>
+                <li class="sidebar-item" data-target="alertas">
+                    <a href="#alertas">
+                        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        Configurar Alertas
+                    </a>
+                </li>
+                <li class="sidebar-item" data-target="usuarios">
+                    <a href="#usuarios">
+                        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                        Gestión de Usuarios
+                    </a>
+                </li>
+                <li class="sidebar-item" data-target="bitacora">
+                    <a href="#bitacora">
+                        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.53.85-1.42-3.63-2.16V8h-1.5z"/></svg>
+                        Auditoría y Bitácora
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-avatar">MA</div>
+            <div>
+                <p style="font-weight: 700; color: #fff;">Marcos Analista</p>
+                <p>Administrador General</p>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="main-content">
+        <!-- TOP NAVBAR -->
+        <header class="top-navbar">
+            <div class="navbar-title">
+                🏢 Despacho Contable SaaS <span>Vigencia Activa</span>
+            </div>
+            <div class="user-profile">
+                <div class="notification-bell" id="notificationBtn" aria-label="Notificaciones">
+                    <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                    <div class="notification-dot"></div>
+                </div>
+                <span>Marcos Dev</span>
+            </div>
+        </header>
+
+        <!-- MÓDULO 1: TABLERO EJECUTIVO -->
+        <section id="dashboard" class="content-section active">
+            <div class="page-header">
+                <h1>Monitoreo de e.firmas (FIEL)</h1>
+                <p>Monitoreo automático y clasificación semafórica de la vigencia de firmas electrónicas avanzadas ante el SAT.</p>
+            </div>
+
+            <!-- KPIs -->
+            <div class="kpi-grid">
+                <div class="kpi-card kpi-total">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Total de Firmas</span>
+                        <div class="kpi-icon">
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        </div>
+                    </div>
+                    <div class="kpi-value" id="kpiTotal">42</div>
+                </div>
+                <div class="kpi-card kpi-vigente">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Firmas Vigentes</span>
+                        <div class="kpi-icon">
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        </div>
+                    </div>
+                    <div class="kpi-value" id="kpiVigentes">35</div>
+                </div>
+                <div class="kpi-card kpi-vencer">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Próximas a Vencer</span>
+                        <div class="kpi-icon">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        </div>
+                    </div>
+                    <div class="kpi-value" id="kpiVencer">5</div>
+                </div>
+                <div class="kpi-card kpi-vencido">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Firmas Vencidas</span>
+                        <div class="kpi-icon">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+                        </div>
+                    </div>
+                    <div class="kpi-value" id="kpiVencidas">2</div>
+                </div>
+            </div>
+
+            <!-- Gráficos y Panel Corto -->
+            <div class="dashboard-layout">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.73-.47 8.5-4.25 8.97-8.99h-8.97z"/></svg>
+                            Distribución de Estatus
+                        </h2>
+                    </div>
+                    <div style="display: flex; gap: 30px; align-items: center; justify-content: center; height: 100%;">
+                        <div class="chart-container">
+                            <svg class="donut-chart" width="160" height="160" viewBox="0 0 42 42">
+                                <circle class="donut-hole" cx="21" cy="21" r="15.91549430918954" fill="transparent" role="presentation"></circle>
+                                <circle class="donut-ring" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#1e294b" stroke-width="3.5" role="presentation"></circle>
+                                
+                                <!-- Segmento Verde (Vigentes: 35 / 42 = 83.3%) -->
+                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--success)" stroke-width="3.5" stroke-dasharray="83.3 16.7" stroke-dashoffset="0" aria-label="35 Vigentes"></circle>
+                                <!-- Segmento Amarillo (Por vencer: 5 / 42 = 11.9%) -->
+                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--warning)" stroke-width="3.5" stroke-dasharray="11.9 88.1" stroke-dashoffset="-83.3" aria-label="5 Por vencer"></circle>
+                                <!-- Segmento Rojo (Vencidas: 2 / 42 = 4.8%) -->
+                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--danger)" stroke-width="3.5" stroke-dasharray="4.8 95.2" stroke-dashoffset="-95.2" aria-label="2 Vencidas"></circle>
+                                
+                                <g class="chart-text">
+                                    <text x="21" y="22" class="donut-text">42</text>
+                                    <text x="21" y="28" class="donut-subtext">Total</text>
+                                </g>
+                            </svg>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--success);"></div>
+                                <span>Vigentes (35)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--warning);"></div>
+                                <span>Por Vencer (5)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: var(--danger);"></div>
+                                <span>Vencidas (2)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            Asignación por Responsable
+                        </h2>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 15px; justify-content: center; height: 100%;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
+                                <span>Marcos Dev (Analista)</span>
+                                <span>18 / 25 Firmas</span>
+                            </div>
+                            <div style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
+                                <div style="width: 72%; height: 100%; background: var(--accent-gradient);"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
+                                <span>Yuli Supervisor (Supervisor)</span>
+                                <span>12 / 15 Firmas</span>
+                            </div>
+                            <div style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
+                                <div style="width: 80%; height: 100%; background: var(--accent-gradient);"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
+                                <span>Marce Operador (Operador)</span>
+                                <span>8 / 10 Firmas</span>
+                            </div>
+                            <div style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
+                                <div style="width: 80%; height: 100%; background: var(--accent-gradient);"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
+                                <span>Tadeo Operador (Operador)</span>
+                                <span>4 / 5 Firmas</span>
+                            </div>
+                            <div style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
+                                <div style="width: 80%; height: 100%; background: var(--accent-gradient);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listado y Atención Urgente -->
+            <div class="card">
+                <div class="card-header" style="flex-wrap: wrap; gap: 15px;">
+                    <h2 class="card-title">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        Atención Urgente y Estatus de Clientes
+                    </h2>
+                    <!-- Filtros rápidos -->
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary filter-btn" data-filter="all" style="padding: 6px 12px; font-size: 8pt; width: auto;">Todos</button>
+                        <button class="btn btn-secondary filter-btn" data-filter="critico" style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(239, 68, 68, 0.4); color: var(--danger);">Críticos</button>
+                        <button class="btn btn-secondary filter-btn" data-filter="preventivo" style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(245, 158, 11, 0.4); color: var(--warning);">Preventivos</button>
+                        <button class="btn btn-secondary filter-btn" data-filter="vigente" style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(16, 185, 129, 0.4); color: var(--success);">Vigentes</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="clientTable">
+                        <thead>
+                            <tr>
+                                <th>RFC / Razón Social</th>
+                                <th>Responsable</th>
+                                <th>Vencimiento</th>
+                                <th>Días Restantes</th>
+                                <th>Estatus</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="client-row" data-status="critico">
+                                <td><strong>ALFA920101XYZ</strong><br><span style="color: var(--text-muted);">Distribuidora Alfa S.A. de C.V.</span></td>
+                                <td>Marcos Dev</td>
+                                <td>28/06/2026</td>
+                                <td style="color: var(--danger); font-weight: 700;">6 días</td>
+                                <td><span class="badge badge-danger"><span class="badge-dot"></span>Crítico</span></td>
+                            </tr>
+                            <tr class="client-row" data-status="critico">
+                                <td><strong>GOME851112ABC</strong><br><span style="color: var(--text-muted);">Juan Gómez Martínez</span></td>
+                                <td>Marce Operador</td>
+                                <td>15/07/2026</td>
+                                <td style="color: var(--danger); font-weight: 700;">23 días</td>
+                                <td><span class="badge badge-danger"><span class="badge-dot"></span>Crítico</span></td>
+                            </tr>
+                            <tr class="client-row" data-status="preventivo">
+                                <td><strong>FER890506MNO</strong><br><span style="color: var(--text-muted);">Constructora Ferroviaria S.A.</span></td>
+                                <td>Yuli Supervisor</td>
+                                <td>22/08/2026</td>
+                                <td style="color: var(--warning); font-weight: 700;">61 días</td>
+                                <td><span class="badge badge-warning"><span class="badge-dot"></span>Preventivo</span></td>
+                            </tr>
+                            <tr class="client-row" data-status="vigente">
+                                <td><strong>LOMM940304HJK</strong><br><span style="color: var(--text-muted);">María López Mendoza</span></td>
+                                <td>Tadeo Operador</td>
+                                <td>14/11/2029</td>
+                                <td style="color: var(--success);">1,241 días</td>
+                                <td><span class="badge badge-success"><span class="badge-dot"></span>Vigente</span></td>
+                            </tr>
+                            <tr class="client-row" data-status="vigente">
+                                <td><strong>INM981012KLO</strong><br><span style="color: var(--text-muted);">Inmobiliaria del Norte S.A.</span></td>
+                                <td>Marcos Dev</td>
+                                <td>10/05/2030</td>
+                                <td style="color: var(--success);">1,418 días</td>
+                                <td><span class="badge badge-success"><span class="badge-dot"></span>Vigente</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 2: REGISTRO / CARGA DE ARCHIVOS -->
+        <section id="registro" class="content-section">
+            <div class="page-header">
+                <h1>Registrar Nueva e.firma (FIEL)</h1>
+                <p>Carga los archivos gubernamentales del SAT. El sistema extraerá criptográficamente la información del certificado X.509 de manera automática.</p>
+            </div>
+
+            <div class="dashboard-layout three-cols">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                            Expediente Digital Fiscal
+                        </h2>
+                    </div>
+
+                    <div style="position: relative;">
+                        <!-- Loader overlay para simular procesamiento -->
+                        <div class="loader-overlay" id="loaderOverlay">
+                            <div class="spinner"></div>
+                            <p style="font-weight: 700; font-size: 10pt; margin-bottom: 5px;">Procesando Certificado...</p>
+                            <p style="font-size: 8.5pt; color: var(--text-muted);">Extrayendo RFC y fechas de vigencia mediante OpenSSL</p>
+                        </div>
+
+                        <form id="uploadForm" onsubmit="return false;">
+                            <div class="dropzone-container" id="dropzone">
+                                <svg class="dropzone-icon" viewBox="0 0 24 24">
+                                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                                </svg>
+                                <div class="dropzone-text">
+                                    <h3>Arrastra tus archivos tributarios aquí</h3>
+                                    <p>Soporta archivos <strong>.cer</strong> y <strong>.key</strong> (Máx. 2MB)</p>
+                                </div>
+                                <input type="file" class="file-input" id="fileInput" multiple accept=".cer,.key">
+                            </div>
+
+                            <div class="file-list" id="fileList">
+                                <!-- Lista de archivos cargados se renderiza aquí -->
+                            </div>
+
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label for="keyPassword">Contraseña de la Clave Privada</label>
+                                <input type="password" id="keyPassword" class="form-control" placeholder="••••••••" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="assignedResponsable">Responsable de Monitoreo</label>
+                                <select id="assignedResponsable" class="form-control">
+                                    <option value="Marcos Dev">Marcos Dev</option>
+                                    <option value="Yuli Supervisor">Yuli Supervisor</option>
+                                    <option value="Marce Operador">Marce Operador</option>
+                                    <option value="Tadeo Operador">Tadeo Operador</option>
+                                </select>
+                            </div>
+
+                            <button type="button" class="btn" id="btnExtract">Procesar y Extraer Datos</button>
+                        </form>
+                    </div>
+
+                    <!-- Vista previa de datos extraídos -->
+                    <div class="extracted-preview" id="extractedPreview">
+                        <h4>
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            Lectura Criptográfica Exitosa (X.509)
+                        </h4>
+                        <div class="extracted-grid">
+                            <div class="extracted-item">RFC: <strong id="previewRfc">MOGO890101HA2</strong></div>
+                            <div class="extracted-item">Razón Social: <strong id="previewNombre">Marcos Gómez Ocaña</strong></div>
+                            <div class="extracted-item">Emisión: <strong id="previewEmision">22/06/2026</strong></div>
+                            <div class="extracted-item">Vencimiento: <strong id="previewVencimiento">21/06/2030</strong></div>
+                        </div>
+                        <button type="button" class="btn" id="btnSaveFirm" style="margin-top: 15px; background: var(--success); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">Guardar Expediente Cifrado</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                            Esquema de Seguridad Híbrido
+                        </h2>
+                    </div>
+                    <div style="font-size: 9pt; line-height: 1.6; color: var(--text-muted); display: flex; flex-direction: column; gap: 15px;">
+                        <p>Para resguardar la confidencialidad de las claves y contraseñas del SAT, implementamos un protocolo de seguridad avanzada:</p>
+                        <div style="display: flex; gap: 12px; background-color: rgba(59, 130, 246, 0.05); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                            <span style="font-size: 14pt;">🔑</span>
+                            <p><strong>Cifrado Simétrico Local:</strong> La contraseña nunca se envía en texto plano. Los archivos <code>.key</code> se resguardan de forma segura en contenedores aislados de MinIO/AWS S3 de acceso restringido.</p>
+                        </div>
+                        <div style="display: flex; gap: 12px; background-color: rgba(16, 185, 129, 0.05); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                            <span style="font-size: 14pt;">🛡️</span>
+                            <p><strong>Bitácora Inmutable:</strong> Cualquier acción de consulta, descarga o actualización quedará grabada permanentemente en la bitácora del sistema junto con la IP y firma criptográfica del operador.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 3: CONFIGURACIÓN DE ALERTAS -->
+        <section id="alertas" class="content-section">
+            <div class="page-header">
+                <h1>Motor de Alertas Semafóricas</h1>
+                <p>Configura las reglas de anticipación para los semáforos de vigencia y los canales de notificación automática.</p>
+            </div>
+
+            <div class="alert-settings-grid">
+                <!-- Alerta Crítica (Rojo) -->
+                <div class="settings-card" style="border-top: 4px solid var(--danger);">
+                    <div class="settings-header" style="color: var(--danger);">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        Fase Crítica (Rojo)
+                    </div>
+                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">Detona alertas de alta frecuencia cuando el vencimiento es inminente.</p>
+                    <div class="days-slider-container">
+                        <div class="days-slider-header">
+                            <span>Días de anticipación:</span>
+                            <span style="font-weight: 700; color: #fff;" id="labelCritico">30 días</span>
+                        </div>
+                        <input type="range" min="5" max="45" value="30" class="range-slider" id="sliderCritico">
+                    </div>
+                    <div class="toggle-container">
+                        <span class="toggle-label">Alertas por Correo (Semanal)</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked class="alert-toggle" data-channel="Correo Crítico">
+                            <span class="slider-switch"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-container">
+                        <span class="toggle-label">Mensajes WhatsApp (Urgente)</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked class="alert-toggle" data-channel="WhatsApp Crítico">
+                            <span class="slider-switch"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Alerta Preventiva (Amarillo) -->
+                <div class="settings-card" style="border-top: 4px solid var(--warning);">
+                    <div class="settings-header" style="color: var(--warning);">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        Fase Preventiva (Amarillo)
+                    </div>
+                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">Envía avisos de cortes quincenales para programar renovaciones.</p>
+                    <div class="days-slider-container">
+                        <div class="days-slider-header">
+                            <span>Días de anticipación:</span>
+                            <span style="font-weight: 700; color: #fff;" id="labelPreventivo">90 días</span>
+                        </div>
+                        <input type="range" min="46" max="120" value="90" class="range-slider" id="sliderPreventivo">
+                    </div>
+                    <div class="toggle-container">
+                        <span class="toggle-label">Alertas por Correo (Quincenal)</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked class="alert-toggle" data-channel="Correo Preventivo">
+                            <span class="slider-switch"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-container">
+                        <span class="toggle-label">Mensajes WhatsApp (Quincenal)</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="alert-toggle" data-channel="WhatsApp Preventivo">
+                            <span class="slider-switch"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Alerta Normal / Vigente (Verde) -->
+                <div class="settings-card" style="border-top: 4px solid var(--success);">
+                    <div class="settings-header" style="color: var(--success);">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        Fase Operativa (Verde)
+                    </div>
+                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">El expediente digital está vigente y operativo sin requerir atención.</p>
+                    <div style="font-size: 9pt; color: var(--text-muted); padding-top: 15px;">
+                        <p>✓ Monitoreo diario activo.</p>
+                        <p style="margin-top: 8px;">✓ Acceso completo para trámites en el portal del SAT.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm0 4h12v2H6v-2zm0-8h12v2H6V5z"/></svg>
+                        Plantilla de Alerta (WhatsApp / Correo)
+                    </h2>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="background-color: #0b141a; border: 1px solid #222d34; border-radius: var(--radius-md); padding: 15px; font-family: monospace; font-size: 8.5pt; color: #e9edef; position: relative;">
+                        <span style="position: absolute; top: 10px; right: 10px; font-size: 7.5pt; background-color: #202c33; padding: 2px 6px; border-radius: 4px; color: #8696a0;">WhatsApp Mockup</span>
+                        <p style="color: #00a884; font-weight: bold; margin-bottom: 8px;">SAT Control Bot 🛡️</p>
+                        <p>Estimado/a *[Responsable]*,</p>
+                        <p style="margin-top: 6px;">Te informamos que la e.firma del contribuyente *[Razón Social]* con RFC *[RFC]* está próxima a vencer.</p>
+                        <p style="margin-top: 6px;">⏳ *Días restantes:* [Días]</p>
+                        <p>*Fecha límite:* [Fecha Vencimiento]</p>
+                        <p style="margin-top: 6px;">Por favor, gestiona la renovación para evitar la suspensión de trámites fiscales.</p>
+                    </div>
+                    <div style="display: flex; flex-direction: column; justify-content: center; gap: 10px; font-size: 9pt; color: var(--text-muted);">
+                        <p>El sistema reemplazará los campos encerrados entre corchetes <code>[...]</code> de manera automática al lanzar el cronjob diario.</p>
+                        <button type="button" class="btn" id="btnTestAlert" style="width: 200px;">Enviar Alerta de Prueba</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 4: GESTIÓN DE USUARIOS -->
+        <section id="usuarios" class="content-section">
+            <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1>Gestión de Usuarios y Roles</h1>
+                    <p>Administra los permisos del personal contable y supervisa la asignación de contribuyentes.</p>
+                </div>
+                <button type="button" class="btn" id="btnOpenAddUser" style="width: auto;">Agregar Nuevo Usuario</button>
+            </div>
+
+            <div class="card">
+                <div class="table-responsive">
+                    <table id="userTable">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Correo Electrónico</th>
+                                <th>Rol del Sistema</th>
+                                <th>Clientes Asignados</th>
+                                <th>Estatus</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Marcos Dev</strong></td>
+                                <td>marcos.dev@despacho.com</td>
+                                <td><span style="color: var(--accent); font-weight: 600;">Administrador General</span></td>
+                                <td>25 Contribuyentes</td>
+                                <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
+                                <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Yuli Supervisor</strong></td>
+                                <td>yuli.super@despacho.com</td>
+                                <td><span style="color: var(--info); font-weight: 600;">Supervisor</span></td>
+                                <td>15 Contribuyentes</td>
+                                <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
+                                <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Marce Operador</strong></td>
+                                <td>marce.op@despacho.com</td>
+                                <td><span style="color: var(--text-muted); font-weight: 600;">Operador</span></td>
+                                <td>10 Contribuyentes</td>
+                                <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
+                                <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tadeo Operador</strong></td>
+                                <td>tadeo.op@despacho.com</td>
+                                <td><span style="color: var(--text-muted); font-weight: 600;">Operador</span></td>
+                                <td>5 Contribuyentes</td>
+                                <td><span class="badge badge-danger"><span class="badge-dot"></span>Inactivo</span></td>
+                                <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 5: AUDITORÍA Y BITÁCORA -->
+        <section id="bitacora" class="content-section">
+            <div class="page-header">
+                <h1>Bitácora de Auditoría y Logs</h1>
+                <p>Registro histórico inmutable de accesos, consultas de contraseñas y descargas de certificados X.509.</p>
+            </div>
+
+            <div class="dashboard-layout">
+                <!-- Columna Izquierda: Logs en tiempo real -->
+                <div class="card">
+                    <div class="card-header" style="flex-direction: column; align-items: stretch; gap: 15px;">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                            Historial de Eventos
+                        </h2>
+                        <div class="audit-controls">
+                            <div class="search-bar">
+                                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                                <input type="text" id="logSearch" class="form-control" placeholder="Buscar por usuario, IP o acción...">
+                            </div>
+                            <button type="button" class="btn" id="btnExportLogs" style="width: auto; white-space: nowrap;">Exportar CSV</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="logTable">
+                            <thead>
+                                <tr>
+                                    <th>Fecha / Hora</th>
+                                    <th>Usuario</th>
+                                    <th>Acción Realizada</th>
+                                    <th>Dirección IP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="log-row">
+                                    <td style="white-space: nowrap;">22/06/2026 09:42:15</td>
+                                    <td>Marcos Dev</td>
+                                    <td>Consulta de Contraseña (ALFA920101XYZ)</td>
+                                    <td>192.168.1.45</td>
+                                </tr>
+                                <tr class="log-row">
+                                    <td style="white-space: nowrap;">22/06/2026 09:15:30</td>
+                                    <td>Marce Operador</td>
+                                    <td>Descarga de Certificado (FER890506MNO)</td>
+                                    <td>192.168.1.82</td>
+                                </tr>
+                                <tr class="log-row">
+                                    <td style="white-space: nowrap;">22/06/2026 08:30:11</td>
+                                    <td>Yuli Supervisor</td>
+                                    <td>Inicio de Sesión Exitoso</td>
+                                    <td>189.215.12.102</td>
+                                </tr>
+                                <tr class="log-row">
+                                    <td style="white-space: nowrap;">21/06/2026 18:22:45</td>
+                                    <td>Marcos Dev</td>
+                                    <td>Registro de Nueva e.firma (LOMM940304HJK)</td>
+                                    <td>192.168.1.45</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Línea de tiempo de renovaciones -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24"><path d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1-2.73 2.71-2.73 7.08 0 9.79s7.15 2.71 9.88 0C18.3 15.62 19 13.97 19 12h2c0 2.4-1 4.7-2.9 6.6-3.9 3.9-10.2 3.9-14.1 0-3.9-3.9-3.9-10.2 0-14.1s10.2-3.9 14.1 0L21 1.62V10.12zM12.5 7v5.2l4 2.4-.8 1.2-4.7-2.8V7h1.5z"/></svg>
+                            Línea de Tiempo de Renovaciones
+                        </h2>
+                    </div>
+
+                    <div style="padding: 10px 0;">
+                        <div class="form-group">
+                            <label for="timelineClient">Seleccionar Contribuyente</label>
+                            <select id="timelineClient" class="form-control">
+                                <option value="alfa">Distribuidora Alfa S.A. de C.V.</option>
+                                <option value="ferro">Constructora Ferroviaria S.A.</option>
+                            </select>
+                        </div>
+
+                        <!-- Timeline Contenido -->
+                        <div class="timeline" id="timelineContainer">
+                            <div class="timeline-item timeline-success">
+                                <div class="timeline-header">
+                                    <span>28/06/2022</span>
+                                    <span>Sistema</span>
+                                </div>
+                                <div class="timeline-content">
+                                    <h4>Carga de Firma Inicial</h4>
+                                    <p>Certificado cargado con vencimiento para el 28/06/2026.</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item timeline-danger">
+                                <div class="timeline-header">
+                                    <span>22/06/2026</span>
+                                    <span>Alerta Bot</span>
+                                </div>
+                                <div class="timeline-content">
+                                    <h4>Notificación de Fase Crítica</h4>
+                                    <p>Alerta de expiración enviada a Marcos Dev por WhatsApp.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- VENTANA MODAL: AGREGAR USUARIO -->
+    <div class="modal" id="addUserModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalTitle">Agregar Nuevo Usuario</h3>
+                <span class="close-modal" id="btnCloseModal" aria-label="Cerrar modal">&times;</span>
+            </div>
+            <form id="addUserForm" onsubmit="return false;">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="newUserName">Nombre Completo</label>
+                        <input type="text" id="newUserName" class="form-control" placeholder="Ej. Juan Pérez" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserEmail">Correo Electrónico</label>
+                        <input type="email" id="newUserEmail" class="form-control" placeholder="juan.perez@despacho.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserRole">Rol asignado</label>
+                        <select id="newUserRole" class="form-control">
+                            <option value="Administrador General">Administrador General</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Operador">Operador</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btnCancelUser" style="width: auto;">Cancelar</button>
+                    <button type="submit" class="btn" id="btnSaveUser" style="width: auto;">Guardar Usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR DE TOASTS -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <!-- --- LÓGICA JAVASCRIPT --- -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- NAVEGACIÓN SPA ---
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            const sections = document.querySelectorAll('.content-section');
+
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Remover activo de todos
+                    sidebarItems.forEach(si => si.classList.remove('active'));
+                    sections.forEach(sec => sec.classList.remove('active'));
+
+                    // Agregar activo al seleccionado
+                    item.classList.add('active');
+                    const targetId = item.getAttribute('data-target');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+
+            // --- SISTEMA DE TOASTS ---
+            const toastContainer = document.getElementById('toastContainer');
+            
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                
+                let icon = '✓';
+                if(type === 'warning') icon = '⚠';
+                if(type === 'danger') icon = '✗';
+                
+                toast.innerHTML = `
+                    <span style="font-weight: bold; font-size: 11pt;">${icon}</span>
+                    <div>${message}</div>
+                `;
+                
+                toastContainer.appendChild(toast);
+                
+                // Forzar reflow para animación
+                setTimeout(() => toast.classList.add('show'), 50);
+                
+                // Eliminar después de 4 segundos
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 4000);
+            }
+
+            // --- FILTRO DE TABLA CLIENTES ---
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const clientRows = document.querySelectorAll('.client-row');
+
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const filter = btn.getAttribute('data-filter');
+                    
+                    filterButtons.forEach(b => b.classList.remove('btn-primary')); // reset
+                    
+                    clientRows.forEach(row => {
+                        if (filter === 'all' || row.getAttribute('data-status') === filter) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                    
+                    showToast(`Filtrando contribuyentes por: ${filter.toUpperCase()}`, 'info');
+                });
+            });
+
+            // --- SIMULADOR DE LECTURA DE CERTIFICADO (MÓDULO 2) ---
+            const dropzone = document.getElementById('dropzone');
+            const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
+            const btnExtract = document.getElementById('btnExtract');
+            const loaderOverlay = document.getElementById('loaderOverlay');
+            const extractedPreview = document.getElementById('extractedPreview');
+            const uploadForm = document.getElementById('uploadForm');
+            
+            let loadedFiles = [];
+
+            // Eventos de Drag & Drop
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropzone.classList.add('dragover');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropzone.classList.remove('dragover');
+                }, false);
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+
+            function handleFiles(files) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (file.name.endsWith('.cer') || file.name.endsWith('.key')) {
+                        loadedFiles.push(file);
+                        renderFiles();
+                    } else {
+                        showToast(`El archivo ${file.name} no es un certificado (.cer) o clave privada (.key) válido.`, 'danger');
+                    }
+                }
+            }
+
+            function renderFiles() {
+                fileList.innerHTML = '';
+                loadedFiles.forEach((file, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'file-item';
+                    item.innerHTML = `
+                        <div class="file-item-info">
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                            <span>${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
+                        </div>
+                        <span style="color: var(--danger); cursor: pointer; font-weight: bold;" data-index="${index}" class="remove-file">&times;</span>
+                    `;
+                    fileList.appendChild(item);
+                });
+
+                // Registrar eventos para eliminar
+                document.querySelectorAll('.remove-file').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        const index = parseInt(e.target.getAttribute('data-index'));
+                        loadedFiles.splice(index, 1);
+                        renderFiles();
+                    });
+                });
+            }
+
+            // Simulación de Extracción
+            btnExtract.addEventListener('click', () => {
+                if (loadedFiles.length < 2) {
+                    showToast('Se requiere cargar tanto el archivo .cer como el archivo .key para continuar.', 'warning');
+                    return;
+                }
+                const password = document.getElementById('keyPassword').value;
+                if (!password) {
+                    showToast('Por favor introduce la contraseña de la clave privada.', 'warning');
+                    return;
+                }
+
+                loaderOverlay.style.display = 'flex';
+
+                setTimeout(() => {
+                    loaderOverlay.style.display = 'none';
+                    extractedPreview.style.display = 'block';
+                    
+                    // Extraer nombres simulados basados en archivos
+                    const cerFile = loadedFiles.find(f => f.name.endsWith('.cer'));
+                    let rfc = "MOGO890101HA2";
+                    let nombre = "Marcos Gómez Ocaña";
+                    
+                    if(cerFile) {
+                        const baseName = cerFile.name.toUpperCase().replace('.CER', '');
+                        if(baseName.length >= 12) {
+                            rfc = baseName.substring(0, 13);
+                            nombre = `Corporativo ${baseName.substring(0, 5)} S.A. de C.V.`;
+                        }
+                    }
+
+                    document.getElementById('previewRfc').textContent = rfc;
+                    document.getElementById('previewNombre').textContent = nombre;
+                    
+                    showToast('Certificado X.509 decodificado exitosamente.', 'success');
+                }, 2000);
+            });
+
+            // Guardar firma procesada
+            const btnSaveFirm = document.getElementById('btnSaveFirm');
+            btnSaveFirm.addEventListener('click', () => {
+                const rfc = document.getElementById('previewRfc').textContent;
+                const nombre = document.getElementById('previewNombre').textContent;
+                const responsable = document.getElementById('assignedResponsable').value;
+
+                // Agregar dinámicamente a la tabla
+                const tableBody = document.querySelector('#clientTable tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'client-row';
+                newRow.setAttribute('data-status', 'vigente');
+                newRow.innerHTML = `
+                    <td><strong>${rfc}</strong><br><span style="color: var(--text-muted);">${nombre}</span></td>
+                    <td>${responsable}</td>
+                    <td>21/06/2030</td>
+                    <td style="color: var(--success);">1,459 días</td>
+                    <td><span class="badge badge-success"><span class="badge-dot"></span>Vigente</span></td>
+                `;
+                tableBody.insertBefore(newRow, tableBody.firstChild);
+
+                // Registrar log
+                const logBody = document.querySelector('#logTable tbody');
+                const newLog = document.createElement('tr');
+                newLog.innerHTML = `
+                    <td style="white-space: nowrap;">${new Date().toLocaleString()}</td>
+                    <td>Marcos Dev</td>
+                    <td>Registro de Nueva e.firma (${rfc})</td>
+                    <td>192.168.1.45</td>
+                `;
+                logBody.insertBefore(newLog, logBody.firstChild);
+
+                // Incrementar KPIs
+                const kpiTotal = document.getElementById('kpiTotal');
+                const kpiVigentes = document.getElementById('kpiVigentes');
+                kpiTotal.textContent = parseInt(kpiTotal.textContent) + 1;
+                kpiVigentes.textContent = parseInt(kpiVigentes.textContent) + 1;
+
+                showToast(`e.firma de ${rfc} guardada con éxito en el expediente digital.`, 'success');
+                
+                // Resetear Formulario
+                uploadForm.reset();
+                loadedFiles = [];
+                renderFiles();
+                extractedPreview.style.display = 'none';
+                
+                // Redirigir a Dashboard
+                setTimeout(() => {
+                    document.querySelector('[data-target="dashboard"]').click();
+                }, 1000);
+            });
+
+            // --- CONFIGURACIÓN DE ALERTAS (MÓDULO 3) ---
+            const sliderCritico = document.getElementById('sliderCritico');
+            const labelCritico = document.getElementById('labelCritico');
+            const sliderPreventivo = document.getElementById('sliderPreventivo');
+            const labelPreventivo = document.getElementById('labelPreventivo');
+
+            sliderCritico.addEventListener('input', (e) => {
+                labelCritico.textContent = `${e.target.value} días`;
+            });
+            sliderCritico.addEventListener('change', (e) => {
+                showToast(`Límite crítico modificado a: ${e.target.value} días`, 'info');
+            });
+
+            sliderPreventivo.addEventListener('input', (e) => {
+                labelPreventivo.textContent = `${e.target.value} días`;
+            });
+            sliderPreventivo.addEventListener('change', (e) => {
+                showToast(`Límite preventivo modificado a: ${e.target.value} días`, 'info');
+            });
+
+            // Toggles de Alertas
+            const alertToggles = document.querySelectorAll('.alert-toggle');
+            alertToggles.forEach(toggle => {
+                toggle.addEventListener('change', (e) => {
+                    const channel = e.target.getAttribute('data-channel');
+                    const status = e.target.checked ? 'activado' : 'desactivado';
+                    showToast(`Canal ${channel} ${status}.`, e.target.checked ? 'success' : 'warning');
+                });
+            });
+
+            // Alerta de prueba
+            const btnTestAlert = document.getElementById('btnTestAlert');
+            btnTestAlert.addEventListener('click', () => {
+                showToast('Alerta de prueba enviada exitosamente vía WhatsApp y Correo.', 'success');
+            });
+
+            // --- MODAL USUARIOS (MÓDULO 4) ---
+            const modal = document.getElementById('addUserModal');
+            const btnOpenAddUser = document.getElementById('btnOpenAddUser');
+            const btnCloseModal = document.getElementById('btnCloseModal');
+            const btnCancelUser = document.getElementById('btnCancelUser');
+            const addUserForm = document.getElementById('addUserForm');
+
+            btnOpenAddUser.addEventListener('click', () => {
+                modal.classList.add('active');
+            });
+
+            const hideModal = () => {
+                modal.classList.remove('active');
+                addUserForm.reset();
+            };
+
+            btnCloseModal.addEventListener('click', hideModal);
+            btnCancelUser.addEventListener('click', hideModal);
+
+            addUserForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('newUserName').value;
+                const email = document.getElementById('newUserEmail').value;
+                const role = document.getElementById('newUserRole').value;
+
+                // Agregar a la tabla de usuarios
+                const userTableBody = document.querySelector('#userTable tbody');
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td><strong>${name}</strong></td>
+                    <td>${email}</td>
+                    <td><span style="color: ${role === 'Supervisor' ? 'var(--info)' : 'var(--text-muted)'}; font-weight: 600;">${role}</span></td>
+                    <td>0 Contribuyentes</td>
+                    <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
+                    <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                `;
+                userTableBody.appendChild(newRow);
+
+                hideModal();
+                showToast(`Usuario ${name} registrado con el rol de ${role}.`, 'success');
+            });
+
+            // --- FILTRO Y EXPORTAR LOGS (MÓDULO 5) ---
+            const logSearch = document.getElementById('logSearch');
+            const logRows = document.querySelectorAll('.log-row');
+
+            logSearch.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                logRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if(text.includes(query)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            const btnExportLogs = document.getElementById('btnExportLogs');
+            btnExportLogs.addEventListener('click', () => {
+                showToast('Descarga iniciada: reporte_auditoria_sat.csv', 'success');
+            });
+
+            // Cambiar línea de tiempo de cliente
+            const timelineClient = document.getElementById('timelineClient');
+            const timelineContainer = document.getElementById('timelineContainer');
+
+            timelineClient.addEventListener('change', (e) => {
+                const client = e.target.value;
+                if(client === 'ferro') {
+                    timelineContainer.innerHTML = `
+                        <div class="timeline-item timeline-success">
+                            <div class="timeline-header">
+                                <span>22/08/2022</span>
+                                <span>Sistema</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Carga de Firma Inicial</h4>
+                                <p>Certificado cargado con vencimiento para el 22/08/2026.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item timeline-warning">
+                            <div class="timeline-header">
+                                <span>22/06/2026</span>
+                                <span>Alerta Bot</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Notificación Preventiva</h4>
+                                <p>Alerta de expiración enviada a Yuli Supervisor por Correo.</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    timelineContainer.innerHTML = `
+                        <div class="timeline-item timeline-success">
+                            <div class="timeline-header">
+                                <span>28/06/2022</span>
+                                <span>Sistema</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Carga de Firma Inicial</h4>
+                                <p>Certificado cargado con vencimiento para el 28/06/2026.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item timeline-danger">
+                            <div class="timeline-header">
+                                <span>22/06/2026</span>
+                                <span>Alerta Bot</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Notificación de Fase Crítica</h4>
+                                <p>Alerta de expiración enviada a Marcos Dev por WhatsApp.</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                showToast('Línea de tiempo de renovaciones actualizada.', 'info');
+            });
+        });
+    </script>
+</body>
+</html>
