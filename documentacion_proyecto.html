@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Documentación de Proyecto - SAT Control Manager v2.2.0</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        h1 {
+            color: #0f172a;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 10px;
+            font-size: 24pt;
+        }
+        h2 {
+            color: #1e293b;
+            margin-top: 30px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+            font-size: 18pt;
+        }
+        h3 {
+            color: #334155;
+            font-size: 14pt;
+        }
+        code {
+            background-color: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+            font-size: 9.5pt;
+        }
+        pre {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: Consolas, monospace;
+            font-size: 9pt;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 10px 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 8pt;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge-success { background-color: #dcfce7; color: #15803d; }
+        .badge-warning { background-color: #fef3c7; color: #b45309; }
+        .badge-danger { background-color: #fee2e2; color: #b91c1c; }
+        .info-box {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 0 6px 6px 0;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>SAT Control Manager - Documentación del Proyecto (v2.2.0)</h1>
+    <p><strong>Fecha de Generación:</strong> 29 de junio de 2026</p>
+    <p><strong>Versión del Sistema:</strong> v2.2.0 (Backend API REST + Criptografía Local en Cliente)</p>
+
+    <div class="info-box">
+        <strong>Nota de Seguridad:</strong> Este documento consolida el análisis de los casos de uso v1.1, el plan de implementación de seguridad de datos y el reporte del walkthrough de la versión v2.2.0 instalada y operativa localmente.
+    </div>
+
+    <h2>1. Resumen Ejecutivo del Proyecto</h2>
+    <p>La plataforma SAT Control Manager centraliza y automatiza el monitoreo de vigencias de las firmas electrónicas avanzadas (FIEL/e.firma) para despachos contables y corporativos, eliminando omisiones operativas y multas por vencimientos sorpresa mediante un semáforo interactivo y notificaciones automatizadas.</p>
+
+    <h2>2. Análisis Comparativo de Casos de Uso (v1.0 vs v1.1)</h2>
+    <p>El análisis detallado del documento de casos de uso y comparativas identificó fallos de seguridad críticos en la versión anterior que fueron completamente resueltos en esta versión:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Caso de Uso (CU)</th>
+                <th>Vulnerabilidad v1.0</th>
+                <th>Solución de Seguridad v1.1 / v2.2.0</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>CU-01: Registro de Firma</strong></td>
+                <td>Contraseña de clave privada transmitida en texto plano al servidor.</td>
+                <td><strong>Cifrado Simétrico Local:</strong> La contraseña nunca sale del navegador. Se cifra en cliente mediante AES-GCM-256.</td>
+            </tr>
+            <tr>
+                <td><strong>CU-02: Motor Semafórico</strong></td>
+                <td>Desfase de días por diferencia de husos horarios.</td>
+                <td>Cálculo estricto y normalizado en el servidor a las **00:00 UTC**.</td>
+            </tr>
+            <tr>
+                <td><strong>CU-04: Consulta de Claves</strong></td>
+                <td>Acceso ilimitado a las contraseñas sin rastreo formal ni bitácoras inalterables.</td>
+                <td>Límite estricto de **10 consultas diarias** por operador, validación **2FA TOTP** y logs ledger-chain SHA-256.</td>
+            </tr>
+            <tr>
+                <td><strong>CU-05: Alta de Usuarios</strong></td>
+                <td>Contraseñas iniciales asignadas por el administrador de forma insegura.</td>
+                <td>Generación de token de onboarding de un solo uso para que el operador la definina privadamente.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>3. Arquitectura del Backend e Infraestructura</h2>
+    <p>El sistema se construyó con la siguiente pila tecnológica y de seguridad:</p>
+    <ul>
+        <li><strong>Express Server (Node.js):</strong> API REST modular organizada en controladores, middlewares y utilidades.</li>
+        <li><strong>Base de Datos Relacional:</strong> Implementada en SQLite a través de <code>better-sqlite3</code>, optimizando rendimiento y permitiendo portabilidad absoluta.</li>
+        <li><strong>Inmutabilidad Ledger-Chain:</strong> Cada entrada de bitácora calcula su firma digital usando el hash del bloque anterior. Cualquier borrado o actualización corrompe la cadena y es reportado instantáneamente.</li>
+    </ul>
+
+    <h3>Esquema de Tablas (BD):</h3>
+    <ul>
+        <li><code>usuarios</code>: Roles RBAC (admin, supervisor, operador), secretos de 2FA TOTP y tokens de onboarding.</li>
+        <li><code>contribuyentes</code>: Expedientes con RFC, vigencia y la llave privada cifrada localmente.</li>
+        <li><code>historial_renovaciones</code>: Archivo histórico de certificados de contribuyentes archivados al renovar (CU-01b).</li>
+        <li><code>consultas_contrasena_log</code>: Historial de consultas diarias para hacer valer la cuota límite.</li>
+        <li><code>bitacora_logs</code>: Ledger de auditoría criptográfica.</li>
+    </ul>
+
+    <h2>4. Walkthrough de Cambios y Verificación</h2>
+    <p>Los componentes desarrollados y validados son:</p>
+    <ol>
+        <li><strong>Servidor Backend:</strong> Escuchando en el puerto <code>3001</code>. Conexión a base de datos validada.</li>
+        <li><strong>Rutas API y Permisos:</strong> Validado el correcto funcionamiento del login y generación de JWT mediante scripts de PowerShell.</li>
+        <li><strong>Criptografía Local:</strong> Integración en <code>index.html</code> de la API Web Crypto del navegador para que el cifrado AES-GCM ocurra localmente antes de hacer el POST.</li>
+        <li><strong>Bitácora ledger y Verificación de Cadena:</strong> Endpoint `/api/bitacora/integridad` que audita toda la base de datos y certifica si es inmutable.</li>
+    </ol>
+
+    <h2>5. Instrucciones para la Puesta en Marcha Local</h2>
+    <p>Para levantar y probar el sistema localmente con la base de datos relacional activa:</p>
+    <pre>
+# 1. Instalar dependencias
+npm install
+
+# 2. Inicializar la Base de Datos SQLite y Semillas
+npm run init-db
+
+# 3. Arrancar el Servidor Backend Express
+npm run dev
+    </pre>
+    <p>Una vez arrancado, abre <code>index.html</code> y autentícate con la cuenta semilla:</p>
+    <ul>
+        <li><strong>Correo:</strong> <code>admin@fiel.mx</code></li>
+        <li><strong>Contraseña:</strong> <code>Admin1234.</code></li>
+    </ul>
+
+</body>
+</html>
