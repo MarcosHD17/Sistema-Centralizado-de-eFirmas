@@ -1,0 +1,21 @@
+# Dependencias de Node.js
+node_modules/
+
+# Base de datos SQLite (datos locales de desarrollo)
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Variables de entorno (contiene secretos, NO subir al repo)
+.env
+
+# Texto extraído de DOCX (archivos temporales de análisis)
+comparativa_texto.txt
+
+# Logs del sistema operativo
+*.log
+
+# Archivos del sistema Windows
+Thumbs.db
+desktop.ini

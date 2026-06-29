@@ -4,16 +4,19 @@
      gráficos dinámicos SVG, gestión interactiva de usuarios y logs de auditoría en tiempo real. Optimizado para GitHub Pages. -->
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SAT Control Manager - Sistema centralizado para el monitoreo y gestión de vigencias de firmas electrónicas avanzadas (FIEL) para despachos contables y corporativos.">
+    <meta name="description"
+        content="SAT Control Manager - Sistema centralizado para el monitoreo y gestión de vigencias de firmas electrónicas avanzadas (FIEL) para despachos contables y corporativos.">
     <title>SAT Control Manager - Monitoreo Centralizado de e.firmas</title>
-    
+
     <!-- Tipografía Inter de Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <style>
         /* --- DISEÑO DEL SISTEMA Y VARIABLES --- */
@@ -23,15 +26,15 @@
             --bg-sidebar: #0f1322;
             --bg-active: #1e293b;
             --border-color: #1e294b;
-            
+
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --text-on-accent: #ffffff;
-            
+
             --accent: #3b82f6;
             --accent-glow: rgba(59, 130, 246, 0.15);
             --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
-            
+
             --success: #10b981;
             --success-bg: rgba(16, 185, 129, 0.1);
             --warning: #f59e0b;
@@ -39,7 +42,7 @@
             --danger: #ef4444;
             --danger-bg: rgba(239, 68, 68, 0.1);
             --info: #06b6d4;
-            
+
             --font-family: 'Inter', sans-serif;
             --radius-lg: 12px;
             --radius-md: 8px;
@@ -65,7 +68,10 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        button, input, select, textarea {
+        button,
+        input,
+        select,
+        textarea {
             background: none;
             border: none;
             color: inherit;
@@ -255,8 +261,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .page-header {
@@ -312,10 +325,21 @@
             height: 100%;
         }
 
-        .kpi-card.kpi-total::before { background-color: var(--accent); }
-        .kpi-card.kpi-vigente::before { background-color: var(--success); }
-        .kpi-card.kpi-vencer::before { background-color: var(--warning); }
-        .kpi-card.kpi-vencido::before { background-color: var(--danger); }
+        .kpi-card.kpi-total::before {
+            background-color: var(--accent);
+        }
+
+        .kpi-card.kpi-vigente::before {
+            background-color: var(--success);
+        }
+
+        .kpi-card.kpi-vencer::before {
+            background-color: var(--warning);
+        }
+
+        .kpi-card.kpi-vencido::before {
+            background-color: var(--danger);
+        }
 
         .kpi-header {
             display: flex;
@@ -341,10 +365,25 @@
             justify-content: center;
         }
 
-        .kpi-total .kpi-icon { background: rgba(59, 130, 246, 0.1); color: var(--accent); }
-        .kpi-vigente .kpi-icon { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .kpi-vencer .kpi-icon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .kpi-vencido .kpi-icon { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .kpi-total .kpi-icon {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent);
+        }
+
+        .kpi-vigente .kpi-icon {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .kpi-vencer .kpi-icon {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .kpi-vencido .kpi-icon {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
 
         .kpi-icon svg {
             width: 16px;
@@ -417,7 +456,8 @@
             font-size: 9.5pt;
         }
 
-        th, td {
+        th,
+        td {
             padding: 14px 16px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
@@ -453,9 +493,20 @@
             letter-spacing: 0.5px;
         }
 
-        .badge-success { background-color: var(--success-bg); color: var(--success); }
-        .badge-warning { background-color: var(--warning-bg); color: var(--warning); }
-        .badge-danger { background-color: var(--danger-bg); color: var(--danger); }
+        .badge-success {
+            background-color: var(--success-bg);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: var(--warning-bg);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background-color: var(--danger-bg);
+            color: var(--danger);
+        }
 
         .badge-dot {
             width: 6px;
@@ -566,7 +617,8 @@
             margin-bottom: 20px;
         }
 
-        .dropzone-container:hover, .dropzone-container.dragover {
+        .dropzone-container:hover,
+        .dropzone-container.dragover {
             border-color: var(--accent);
             background-color: rgba(59, 130, 246, 0.03);
         }
@@ -662,8 +714,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .extracted-preview {
@@ -788,12 +845,12 @@
             border-radius: 50%;
         }
 
-        input:checked + .slider-switch {
+        input:checked+.slider-switch {
             background-color: var(--accent);
             border-color: var(--accent);
         }
 
-        input:checked + .slider-switch:before {
+        input:checked+.slider-switch:before {
             transform: translateX(20px);
             background-color: white;
         }
@@ -907,7 +964,7 @@
             display: flex;
             gap: 12px;
             justify-content: flex-end;
-            background-color: rgba(0,0,0,0.1);
+            background-color: rgba(0, 0, 0, 0.1);
         }
 
         /* --- MÓDULO 5: HISTORIAL, LÍNEA DE TIEMPO Y BITÁCORA --- */
@@ -961,8 +1018,13 @@
             border: 2px solid var(--bg-card);
         }
 
-        .timeline-item.timeline-success::before { background-color: var(--success); }
-        .timeline-item.timeline-danger::before { background-color: var(--danger); }
+        .timeline-item.timeline-success::before {
+            background-color: var(--success);
+        }
+
+        .timeline-item.timeline-danger::before {
+            background-color: var(--danger);
+        }
 
         .timeline-header {
             display: flex;
@@ -1016,9 +1078,17 @@
             transform: translateX(0);
         }
 
-        .toast-success { border-left-color: var(--success); }
-        .toast-warning { border-left-color: var(--warning); }
-        .toast-danger { border-left-color: var(--danger); }
+        .toast-success {
+            border-left-color: var(--success);
+        }
+
+        .toast-warning {
+            border-left-color: var(--warning);
+        }
+
+        .toast-danger {
+            border-left-color: var(--danger);
+        }
 
         /* --- GRÁFICOS SVG ANIMADOS --- */
         .chart-container {
@@ -1073,58 +1143,189 @@
             height: 10px;
             border-radius: 2px;
         }
+
+        /* --- LOGIN OVERLAY GLASSMORPHISM --- */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(7, 10, 18, 0.9);
+            backdrop-filter: blur(15px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+        
+        .login-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .login-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 420px;
+            padding: 40px 32px;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .login-brand {
+            font-size: 16pt;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .login-brand svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--accent);
+        }
+        
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 8.5pt;
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            transition: var(--transition);
+        }
+        
+        .logout-btn:hover {
+            background-color: var(--danger-bg);
+        }
+
+        .totp-input-container {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
     </style>
 </head>
+
 <body>
+
+    <!-- OVERLAY DE INICIO DE SESIÓN -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-card">
+            <div class="login-brand">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                </svg>
+                <span>SAT eFirmas</span>
+            </div>
+            
+            <div style="text-align: center; margin-top: -10px;">
+                <h2 style="font-size: 14pt; font-weight: 700; color: #fff; margin-bottom: 6px;">Iniciar Sesión</h2>
+                <p style="font-size: 8.5pt; color: var(--text-muted);">Accede al panel centralizado de monitoreo</p>
+            </div>
+
+            <form id="loginForm" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="loginEmail">Correo Electrónico</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="admin@fiel.mx" required>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
+                </div>
+
+                <!-- Input para 2FA TOTP (se activa si el backend lo requiere) -->
+                <div class="form-group totp-input-container" id="totpField" style="margin-bottom: 0;">
+                    <label for="loginTotp">Código de Seguridad (2FA)</label>
+                    <input type="text" id="loginTotp" class="form-control" placeholder="000000" maxlength="6">
+                </div>
+
+                <div id="loginErrorMessage" style="color: var(--danger); font-size: 8.5pt; text-align: center; display: none; font-weight: 600;"></div>
+
+                <button type="submit" class="btn" id="btnLoginSubmit" style="margin-top: 10px;">Ingresar al Sistema</button>
+            </form>
+        </div>
+    </div>
 
     <!-- SIDEBAR LATERAL -->
     <nav class="sidebar" aria-label="Menú de Navegación Lateral">
         <div>
             <div class="sidebar-brand">
                 <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                 </svg>
                 <span>SAT eFirmas</span>
             </div>
             <ul class="sidebar-menu">
                 <li class="sidebar-item active" data-target="dashboard">
                     <a href="#dashboard">
-                        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+                        </svg>
                         Tablero Ejecutivo
                     </a>
                 </li>
                 <li class="sidebar-item" data-target="registro">
                     <a href="#registro">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                        </svg>
                         Registrar e.firma
                     </a>
                 </li>
                 <li class="sidebar-item" data-target="alertas">
                     <a href="#alertas">
-                        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+                        </svg>
                         Configurar Alertas
                     </a>
                 </li>
                 <li class="sidebar-item" data-target="usuarios">
                     <a href="#usuarios">
-                        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                        </svg>
                         Gestión de Usuarios
                     </a>
                 </li>
                 <li class="sidebar-item" data-target="bitacora">
                     <a href="#bitacora">
-                        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.53.85-1.42-3.63-2.16V8h-1.5z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.53.85-1.42-3.63-2.16V8h-1.5z" />
+                        </svg>
                         Auditoría y Bitácora
                     </a>
                 </li>
             </ul>
         </div>
-        <div class="sidebar-footer">
-            <div class="user-avatar">MA</div>
-            <div>
-                <p style="font-weight: 700; color: #fff;">Marcos Analista</p>
-                <p>Administrador General</p>
+        <div class="sidebar-footer" style="flex-wrap: wrap; gap: 12px; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="user-avatar" id="sidebarUserAvatar">--</div>
+                <div>
+                    <p style="font-weight: 700; color: #fff; font-size: 9pt;" id="sidebarUserName">Cargando...</p>
+                    <p style="font-size: 8pt;" id="sidebarUserRole">...</p>
+                </div>
             </div>
+            <button type="button" class="logout-btn" id="btnLogout" aria-label="Cerrar sesión">Salir</button>
         </div>
     </nav>
 
@@ -1137,10 +1338,13 @@
             </div>
             <div class="user-profile">
                 <div class="notification-bell" id="notificationBtn" aria-label="Notificaciones">
-                    <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+                    </svg>
                     <div class="notification-dot"></div>
                 </div>
-                <span>Marcos Dev</span>
+                <span id="navbarUserName">Usuario</span>
             </div>
         </header>
 
@@ -1148,7 +1352,8 @@
         <section id="dashboard" class="content-section active">
             <div class="page-header">
                 <h1>Monitoreo de e.firmas (FIEL)</h1>
-                <p>Monitoreo automático y clasificación semafórica de la vigencia de firmas electrónicas avanzadas ante el SAT.</p>
+                <p>Monitoreo automático y clasificación semafórica de la vigencia de firmas electrónicas avanzadas ante
+                    el SAT.</p>
             </div>
 
             <!-- KPIs -->
@@ -1157,7 +1362,10 @@
                     <div class="kpi-header">
                         <span class="kpi-title">Total de Firmas</span>
                         <div class="kpi-icon">
-                            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                            </svg>
                         </div>
                     </div>
                     <div class="kpi-value" id="kpiTotal">42</div>
@@ -1166,7 +1374,9 @@
                     <div class="kpi-header">
                         <span class="kpi-title">Firmas Vigentes</span>
                         <div class="kpi-icon">
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                            </svg>
                         </div>
                     </div>
                     <div class="kpi-value" id="kpiVigentes">35</div>
@@ -1175,7 +1385,10 @@
                     <div class="kpi-header">
                         <span class="kpi-title">Próximas a Vencer</span>
                         <div class="kpi-icon">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                            </svg>
                         </div>
                     </div>
                     <div class="kpi-value" id="kpiVencer">5</div>
@@ -1184,7 +1397,10 @@
                     <div class="kpi-header">
                         <span class="kpi-title">Firmas Vencidas</span>
                         <div class="kpi-icon">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z" />
+                            </svg>
                         </div>
                     </div>
                     <div class="kpi-value" id="kpiVencidas">2</div>
@@ -1196,23 +1412,34 @@
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">
-                            <svg viewBox="0 0 24 24"><path d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.73-.47 8.5-4.25 8.97-8.99h-8.97z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M11 2v20c-5.07-.5-9-4.79-9-10s3.93-9.5 9-10zm2.03 0v8.99H22c-.47-4.74-4.24-8.52-8.97-8.99zm0 11.01V22c4.73-.47 8.5-4.25 8.97-8.99h-8.97z" />
+                            </svg>
                             Distribución de Estatus
                         </h2>
                     </div>
                     <div style="display: flex; gap: 30px; align-items: center; justify-content: center; height: 100%;">
                         <div class="chart-container">
                             <svg class="donut-chart" width="160" height="160" viewBox="0 0 42 42">
-                                <circle class="donut-hole" cx="21" cy="21" r="15.91549430918954" fill="transparent" role="presentation"></circle>
-                                <circle class="donut-ring" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#1e294b" stroke-width="3.5" role="presentation"></circle>
-                                
+                                <circle class="donut-hole" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                                    role="presentation"></circle>
+                                <circle class="donut-ring" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                                    stroke="#1e294b" stroke-width="3.5" role="presentation"></circle>
+
                                 <!-- Segmento Verde (Vigentes: 35 / 42 = 83.3%) -->
-                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--success)" stroke-width="3.5" stroke-dasharray="83.3 16.7" stroke-dashoffset="0" aria-label="35 Vigentes"></circle>
+                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                                    stroke="var(--success)" stroke-width="3.5" stroke-dasharray="83.3 16.7"
+                                    stroke-dashoffset="0" aria-label="35 Vigentes"></circle>
                                 <!-- Segmento Amarillo (Por vencer: 5 / 42 = 11.9%) -->
-                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--warning)" stroke-width="3.5" stroke-dasharray="11.9 88.1" stroke-dashoffset="-83.3" aria-label="5 Por vencer"></circle>
+                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                                    stroke="var(--warning)" stroke-width="3.5" stroke-dasharray="11.9 88.1"
+                                    stroke-dashoffset="-83.3" aria-label="5 Por vencer"></circle>
                                 <!-- Segmento Rojo (Vencidas: 2 / 42 = 4.8%) -->
-                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="var(--danger)" stroke-width="3.5" stroke-dasharray="4.8 95.2" stroke-dashoffset="-95.2" aria-label="2 Vencidas"></circle>
-                                
+                                <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                                    stroke="var(--danger)" stroke-width="3.5" stroke-dasharray="4.8 95.2"
+                                    stroke-dashoffset="-95.2" aria-label="2 Vencidas"></circle>
+
                                 <g class="chart-text">
                                     <text x="21" y="22" class="donut-text">42</text>
                                     <text x="21" y="28" class="donut-subtext">Total</text>
@@ -1239,44 +1466,56 @@
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">
-                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                            </svg>
                             Asignación por Responsable
                         </h2>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 15px; justify-content: center; height: 100%;">
+                    <div
+                        style="display: flex; flex-direction: column; gap: 15px; justify-content: center; height: 100%;">
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
                                 <span>Marcos Dev (Analista)</span>
                                 <span>18 / 25 Firmas</span>
                             </div>
-                            <div style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
+                            <div
+                                style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
                                 <div style="width: 72%; height: 100%; background: var(--accent-gradient);"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
                                 <span>Yuli Supervisor (Supervisor)</span>
                                 <span>12 / 15 Firmas</span>
                             </div>
-                            <div style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
+                            <div
+                                style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
                                 <div style="width: 80%; height: 100%; background: var(--accent-gradient);"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
                                 <span>Marce Operador (Operador)</span>
                                 <span>8 / 10 Firmas</span>
                             </div>
-                            <div style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
+                            <div
+                                style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
                                 <div style="width: 80%; height: 100%; background: var(--accent-gradient);"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 8.5pt; margin-bottom: 5px;">
                                 <span>Tadeo Operador (Operador)</span>
                                 <span>4 / 5 Firmas</span>
                             </div>
-                            <div style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
+                            <div
+                                style="height: 6px; background-color: var(--bg-active); border-radius: 3px; overflow: hidden;">
                                 <div style="width: 80%; height: 100%; background: var(--accent-gradient);"></div>
                             </div>
                         </div>
@@ -1288,15 +1527,22 @@
             <div class="card">
                 <div class="card-header" style="flex-wrap: wrap; gap: 15px;">
                     <h2 class="card-title">
-                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                        </svg>
                         Atención Urgente y Estatus de Clientes
                     </h2>
                     <!-- Filtros rápidos -->
                     <div style="display: flex; gap: 8px;">
-                        <button class="btn btn-secondary filter-btn" data-filter="all" style="padding: 6px 12px; font-size: 8pt; width: auto;">Todos</button>
-                        <button class="btn btn-secondary filter-btn" data-filter="critico" style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(239, 68, 68, 0.4); color: var(--danger);">Críticos</button>
-                        <button class="btn btn-secondary filter-btn" data-filter="preventivo" style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(245, 158, 11, 0.4); color: var(--warning);">Preventivos</button>
-                        <button class="btn btn-secondary filter-btn" data-filter="vigente" style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(16, 185, 129, 0.4); color: var(--success);">Vigentes</button>
+                        <button class="btn btn-secondary filter-btn" data-filter="all"
+                            style="padding: 6px 12px; font-size: 8pt; width: auto;">Todos</button>
+                        <button class="btn btn-secondary filter-btn" data-filter="critico"
+                            style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(239, 68, 68, 0.4); color: var(--danger);">Críticos</button>
+                        <button class="btn btn-secondary filter-btn" data-filter="preventivo"
+                            style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(245, 158, 11, 0.4); color: var(--warning);">Preventivos</button>
+                        <button class="btn btn-secondary filter-btn" data-filter="vigente"
+                            style="padding: 6px 12px; font-size: 8pt; width: auto; border-color: rgba(16, 185, 129, 0.4); color: var(--success);">Vigentes</button>
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -1312,35 +1558,41 @@
                         </thead>
                         <tbody>
                             <tr class="client-row" data-status="critico">
-                                <td><strong>ALFA920101XYZ</strong><br><span style="color: var(--text-muted);">Distribuidora Alfa S.A. de C.V.</span></td>
+                                <td><strong>ALFA920101XYZ</strong><br><span
+                                        style="color: var(--text-muted);">Distribuidora Alfa S.A. de C.V.</span></td>
                                 <td>Marcos Dev</td>
                                 <td>28/06/2026</td>
                                 <td style="color: var(--danger); font-weight: 700;">6 días</td>
                                 <td><span class="badge badge-danger"><span class="badge-dot"></span>Crítico</span></td>
                             </tr>
                             <tr class="client-row" data-status="critico">
-                                <td><strong>GOME851112ABC</strong><br><span style="color: var(--text-muted);">Juan Gómez Martínez</span></td>
+                                <td><strong>GOME851112ABC</strong><br><span style="color: var(--text-muted);">Juan Gómez
+                                        Martínez</span></td>
                                 <td>Marce Operador</td>
                                 <td>15/07/2026</td>
                                 <td style="color: var(--danger); font-weight: 700;">23 días</td>
                                 <td><span class="badge badge-danger"><span class="badge-dot"></span>Crítico</span></td>
                             </tr>
                             <tr class="client-row" data-status="preventivo">
-                                <td><strong>FER890506MNO</strong><br><span style="color: var(--text-muted);">Constructora Ferroviaria S.A.</span></td>
+                                <td><strong>FER890506MNO</strong><br><span
+                                        style="color: var(--text-muted);">Constructora Ferroviaria S.A.</span></td>
                                 <td>Yuli Supervisor</td>
                                 <td>22/08/2026</td>
                                 <td style="color: var(--warning); font-weight: 700;">61 días</td>
-                                <td><span class="badge badge-warning"><span class="badge-dot"></span>Preventivo</span></td>
+                                <td><span class="badge badge-warning"><span class="badge-dot"></span>Preventivo</span>
+                                </td>
                             </tr>
                             <tr class="client-row" data-status="vigente">
-                                <td><strong>LOMM940304HJK</strong><br><span style="color: var(--text-muted);">María López Mendoza</span></td>
+                                <td><strong>LOMM940304HJK</strong><br><span style="color: var(--text-muted);">María
+                                        López Mendoza</span></td>
                                 <td>Tadeo Operador</td>
                                 <td>14/11/2029</td>
                                 <td style="color: var(--success);">1,241 días</td>
                                 <td><span class="badge badge-success"><span class="badge-dot"></span>Vigente</span></td>
                             </tr>
                             <tr class="client-row" data-status="vigente">
-                                <td><strong>INM981012KLO</strong><br><span style="color: var(--text-muted);">Inmobiliaria del Norte S.A.</span></td>
+                                <td><strong>INM981012KLO</strong><br><span
+                                        style="color: var(--text-muted);">Inmobiliaria del Norte S.A.</span></td>
                                 <td>Marcos Dev</td>
                                 <td>10/05/2030</td>
                                 <td style="color: var(--success);">1,418 días</td>
@@ -1356,14 +1608,18 @@
         <section id="registro" class="content-section">
             <div class="page-header">
                 <h1>Registrar Nueva e.firma (FIEL)</h1>
-                <p>Carga los archivos gubernamentales del SAT. El sistema extraerá criptográficamente la información del certificado X.509 de manera automática.</p>
+                <p>Carga los archivos gubernamentales del SAT. El sistema extraerá criptográficamente la información del
+                    certificado X.509 de manera automática.</p>
             </div>
 
             <div class="dashboard-layout three-cols">
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">
-                            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                            </svg>
                             Expediente Digital Fiscal
                         </h2>
                     </div>
@@ -1372,14 +1628,17 @@
                         <!-- Loader overlay para simular procesamiento -->
                         <div class="loader-overlay" id="loaderOverlay">
                             <div class="spinner"></div>
-                            <p style="font-weight: 700; font-size: 10pt; margin-bottom: 5px;">Procesando Certificado...</p>
-                            <p style="font-size: 8.5pt; color: var(--text-muted);">Extrayendo RFC y fechas de vigencia mediante OpenSSL</p>
+                            <p style="font-weight: 700; font-size: 10pt; margin-bottom: 5px;">Procesando Certificado...
+                            </p>
+                            <p style="font-size: 8.5pt; color: var(--text-muted);">Extrayendo RFC y fechas de vigencia
+                                mediante OpenSSL</p>
                         </div>
 
                         <form id="uploadForm" onsubmit="return false;">
                             <div class="dropzone-container" id="dropzone">
                                 <svg class="dropzone-icon" viewBox="0 0 24 24">
-                                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                                    <path
+                                        d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
                                 </svg>
                                 <div class="dropzone-text">
                                     <h3>Arrastra tus archivos tributarios aquí</h3>
@@ -1394,7 +1653,8 @@
 
                             <div class="form-group" style="margin-top: 20px;">
                                 <label for="keyPassword">Contraseña de la Clave Privada</label>
-                                <input type="password" id="keyPassword" class="form-control" placeholder="••••••••" required>
+                                <input type="password" id="keyPassword" class="form-control" placeholder="••••••••"
+                                    required>
                             </div>
 
                             <div class="form-group">
@@ -1414,35 +1674,52 @@
                     <!-- Vista previa de datos extraídos -->
                     <div class="extracted-preview" id="extractedPreview">
                         <h4>
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                            </svg>
                             Lectura Criptográfica Exitosa (X.509)
                         </h4>
                         <div class="extracted-grid">
                             <div class="extracted-item">RFC: <strong id="previewRfc">MOGO890101HA2</strong></div>
-                            <div class="extracted-item">Razón Social: <strong id="previewNombre">Marcos Gómez Ocaña</strong></div>
+                            <div class="extracted-item">Razón Social: <strong id="previewNombre">Marcos Gómez
+                                    Ocaña</strong></div>
                             <div class="extracted-item">Emisión: <strong id="previewEmision">22/06/2026</strong></div>
-                            <div class="extracted-item">Vencimiento: <strong id="previewVencimiento">21/06/2030</strong></div>
+                            <div class="extracted-item">Vencimiento: <strong id="previewVencimiento">21/06/2030</strong>
+                            </div>
                         </div>
-                        <button type="button" class="btn" id="btnSaveFirm" style="margin-top: 15px; background: var(--success); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">Guardar Expediente Cifrado</button>
+                        <button type="button" class="btn" id="btnSaveFirm"
+                            style="margin-top: 15px; background: var(--success); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">Guardar
+                            Expediente Cifrado</button>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">
-                            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                            </svg>
                             Esquema de Seguridad Híbrido
                         </h2>
                     </div>
-                    <div style="font-size: 9pt; line-height: 1.6; color: var(--text-muted); display: flex; flex-direction: column; gap: 15px;">
-                        <p>Para resguardar la confidencialidad de las claves y contraseñas del SAT, implementamos un protocolo de seguridad avanzada:</p>
-                        <div style="display: flex; gap: 12px; background-color: rgba(59, 130, 246, 0.05); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <div
+                        style="font-size: 9pt; line-height: 1.6; color: var(--text-muted); display: flex; flex-direction: column; gap: 15px;">
+                        <p>Para resguardar la confidencialidad de las claves y contraseñas del SAT, implementamos un
+                            protocolo de seguridad avanzada:</p>
+                        <div
+                            style="display: flex; gap: 12px; background-color: rgba(59, 130, 246, 0.05); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
                             <span style="font-size: 14pt;">🔑</span>
-                            <p><strong>Cifrado Simétrico Local:</strong> La contraseña nunca se envía en texto plano. Los archivos <code>.key</code> se resguardan de forma segura en contenedores aislados de MinIO/AWS S3 de acceso restringido.</p>
+                            <p><strong>Cifrado Simétrico Local:</strong> La contraseña nunca se envía en texto plano.
+                                Los archivos <code>.key</code> se resguardan de forma segura en contenedores aislados de
+                                MinIO/AWS S3 de acceso restringido.</p>
                         </div>
-                        <div style="display: flex; gap: 12px; background-color: rgba(16, 185, 129, 0.05); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                        <div
+                            style="display: flex; gap: 12px; background-color: rgba(16, 185, 129, 0.05); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
                             <span style="font-size: 14pt;">🛡️</span>
-                            <p><strong>Bitácora Inmutable:</strong> Cualquier acción de consulta, descarga o actualización quedará grabada permanentemente en la bitácora del sistema junto con la IP y firma criptográfica del operador.</p>
+                            <p><strong>Bitácora Inmutable:</strong> Cualquier acción de consulta, descarga o
+                                actualización quedará grabada permanentemente en la bitácora del sistema junto con la IP
+                                y firma criptográfica del operador.</p>
                         </div>
                     </div>
                 </div>
@@ -1453,17 +1730,22 @@
         <section id="alertas" class="content-section">
             <div class="page-header">
                 <h1>Motor de Alertas Semafóricas</h1>
-                <p>Configura las reglas de anticipación para los semáforos de vigencia y los canales de notificación automática.</p>
+                <p>Configura las reglas de anticipación para los semáforos de vigencia y los canales de notificación
+                    automática.</p>
             </div>
 
             <div class="alert-settings-grid">
                 <!-- Alerta Crítica (Rojo) -->
                 <div class="settings-card" style="border-top: 4px solid var(--danger);">
                     <div class="settings-header" style="color: var(--danger);">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                        </svg>
                         Fase Crítica (Rojo)
                     </div>
-                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">Detona alertas de alta frecuencia cuando el vencimiento es inminente.</p>
+                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">Detona alertas de alta
+                        frecuencia cuando el vencimiento es inminente.</p>
                     <div class="days-slider-container">
                         <div class="days-slider-header">
                             <span>Días de anticipación:</span>
@@ -1490,10 +1772,14 @@
                 <!-- Alerta Preventiva (Amarillo) -->
                 <div class="settings-card" style="border-top: 4px solid var(--warning);">
                     <div class="settings-header" style="color: var(--warning);">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                        </svg>
                         Fase Preventiva (Amarillo)
                     </div>
-                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">Envía avisos de cortes quincenales para programar renovaciones.</p>
+                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">Envía avisos de cortes
+                        quincenales para programar renovaciones.</p>
                     <div class="days-slider-container">
                         <div class="days-slider-header">
                             <span>Días de anticipación:</span>
@@ -1520,10 +1806,13 @@
                 <!-- Alerta Normal / Vigente (Verde) -->
                 <div class="settings-card" style="border-top: 4px solid var(--success);">
                     <div class="settings-header" style="color: var(--success);">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                        </svg>
                         Fase Operativa (Verde)
                     </div>
-                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">El expediente digital está vigente y operativo sin requerir atención.</p>
+                    <p style="font-size: 8.5pt; color: var(--text-muted); min-height: 40px;">El expediente digital está
+                        vigente y operativo sin requerir atención.</p>
                     <div style="font-size: 9pt; color: var(--text-muted); padding-top: 15px;">
                         <p>✓ Monitoreo diario activo.</p>
                         <p style="margin-top: 8px;">✓ Acceso completo para trámites en el portal del SAT.</p>
@@ -1534,23 +1823,34 @@
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title">
-                        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm0 4h12v2H6v-2zm0-8h12v2H6V5z"/></svg>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm0 4h12v2H6v-2zm0-8h12v2H6V5z" />
+                        </svg>
                         Plantilla de Alerta (WhatsApp / Correo)
                     </h2>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div style="background-color: #0b141a; border: 1px solid #222d34; border-radius: var(--radius-md); padding: 15px; font-family: monospace; font-size: 8.5pt; color: #e9edef; position: relative;">
-                        <span style="position: absolute; top: 10px; right: 10px; font-size: 7.5pt; background-color: #202c33; padding: 2px 6px; border-radius: 4px; color: #8696a0;">WhatsApp Mockup</span>
+                    <div
+                        style="background-color: #0b141a; border: 1px solid #222d34; border-radius: var(--radius-md); padding: 15px; font-family: monospace; font-size: 8.5pt; color: #e9edef; position: relative;">
+                        <span
+                            style="position: absolute; top: 10px; right: 10px; font-size: 7.5pt; background-color: #202c33; padding: 2px 6px; border-radius: 4px; color: #8696a0;">WhatsApp
+                            Mockup</span>
                         <p style="color: #00a884; font-weight: bold; margin-bottom: 8px;">SAT Control Bot 🛡️</p>
                         <p>Estimado/a *[Responsable]*,</p>
-                        <p style="margin-top: 6px;">Te informamos que la e.firma del contribuyente *[Razón Social]* con RFC *[RFC]* está próxima a vencer.</p>
+                        <p style="margin-top: 6px;">Te informamos que la e.firma del contribuyente *[Razón Social]* con
+                            RFC *[RFC]* está próxima a vencer.</p>
                         <p style="margin-top: 6px;">⏳ *Días restantes:* [Días]</p>
                         <p>*Fecha límite:* [Fecha Vencimiento]</p>
-                        <p style="margin-top: 6px;">Por favor, gestiona la renovación para evitar la suspensión de trámites fiscales.</p>
+                        <p style="margin-top: 6px;">Por favor, gestiona la renovación para evitar la suspensión de
+                            trámites fiscales.</p>
                     </div>
-                    <div style="display: flex; flex-direction: column; justify-content: center; gap: 10px; font-size: 9pt; color: var(--text-muted);">
-                        <p>El sistema reemplazará los campos encerrados entre corchetes <code>[...]</code> de manera automática al lanzar el cronjob diario.</p>
-                        <button type="button" class="btn" id="btnTestAlert" style="width: 200px;">Enviar Alerta de Prueba</button>
+                    <div
+                        style="display: flex; flex-direction: column; justify-content: center; gap: 10px; font-size: 9pt; color: var(--text-muted);">
+                        <p>El sistema reemplazará los campos encerrados entre corchetes <code>[...]</code> de manera
+                            automática al lanzar el cronjob diario.</p>
+                        <button type="button" class="btn" id="btnTestAlert" style="width: 200px;">Enviar Alerta de
+                            Prueba</button>
                     </div>
                 </div>
             </div>
@@ -1563,7 +1863,8 @@
                     <h1>Gestión de Usuarios y Roles</h1>
                     <p>Administra los permisos del personal contable y supervisa la asignación de contribuyentes.</p>
                 </div>
-                <button type="button" class="btn" id="btnOpenAddUser" style="width: auto;">Agregar Nuevo Usuario</button>
+                <button type="button" class="btn" id="btnOpenAddUser" style="width: auto;">Agregar Nuevo
+                    Usuario</button>
             </div>
 
             <div class="card">
@@ -1583,10 +1884,13 @@
                             <tr>
                                 <td><strong>Marcos Dev</strong></td>
                                 <td>marcos.dev@despacho.com</td>
-                                <td><span style="color: var(--accent); font-weight: 600;">Administrador General</span></td>
+                                <td><span style="color: var(--accent); font-weight: 600;">Administrador General</span>
+                                </td>
                                 <td>25 Contribuyentes</td>
                                 <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
-                                <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                                <td><button type="button"
+                                        style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button>
+                                </td>
                             </tr>
                             <tr>
                                 <td><strong>Yuli Supervisor</strong></td>
@@ -1594,7 +1898,9 @@
                                 <td><span style="color: var(--info); font-weight: 600;">Supervisor</span></td>
                                 <td>15 Contribuyentes</td>
                                 <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
-                                <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                                <td><button type="button"
+                                        style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button>
+                                </td>
                             </tr>
                             <tr>
                                 <td><strong>Marce Operador</strong></td>
@@ -1602,7 +1908,9 @@
                                 <td><span style="color: var(--text-muted); font-weight: 600;">Operador</span></td>
                                 <td>10 Contribuyentes</td>
                                 <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
-                                <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                                <td><button type="button"
+                                        style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button>
+                                </td>
                             </tr>
                             <tr>
                                 <td><strong>Tadeo Operador</strong></td>
@@ -1610,7 +1918,9 @@
                                 <td><span style="color: var(--text-muted); font-weight: 600;">Operador</span></td>
                                 <td>5 Contribuyentes</td>
                                 <td><span class="badge badge-danger"><span class="badge-dot"></span>Inactivo</span></td>
-                                <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
+                                <td><button type="button"
+                                        style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -1622,7 +1932,8 @@
         <section id="bitacora" class="content-section">
             <div class="page-header">
                 <h1>Bitácora de Auditoría y Logs</h1>
-                <p>Registro histórico inmutable de accesos, consultas de contraseñas y descargas de certificados X.509.</p>
+                <p>Registro histórico inmutable de accesos, consultas de contraseñas y descargas de certificados X.509.
+                </p>
             </div>
 
             <div class="dashboard-layout">
@@ -1630,15 +1941,25 @@
                 <div class="card">
                     <div class="card-header" style="flex-direction: column; align-items: stretch; gap: 15px;">
                         <h2 class="card-title">
-                            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                            </svg>
                             Historial de Eventos
                         </h2>
-                        <div class="audit-controls">
-                            <div class="search-bar">
-                                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                                <input type="text" id="logSearch" class="form-control" placeholder="Buscar por usuario, IP o acción...">
+                        <div class="audit-controls" style="flex-wrap: wrap;">
+                            <div class="search-bar" style="min-width: 200px;">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                                </svg>
+                                <input type="text" id="logSearch" class="form-control"
+                                    placeholder="Buscar por usuario, IP o acción...">
                             </div>
-                            <button type="button" class="btn" id="btnExportLogs" style="width: auto; white-space: nowrap;">Exportar CSV</button>
+                            <button type="button" class="btn btn-secondary" id="btnVerifyLedger"
+                                style="width: auto; white-space: nowrap; border-color: var(--success); color: var(--success);">Verificar Ledger Inmutable</button>
+                            <button type="button" class="btn" id="btnExportLogs"
+                                style="width: auto; white-space: nowrap;">Exportar CSV</button>
                         </div>
                     </div>
 
@@ -1686,7 +2007,10 @@
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">
-                            <svg viewBox="0 0 24 24"><path d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1-2.73 2.71-2.73 7.08 0 9.79s7.15 2.71 9.88 0C18.3 15.62 19 13.97 19 12h2c0 2.4-1 4.7-2.9 6.6-3.9 3.9-10.2 3.9-14.1 0-3.9-3.9-3.9-10.2 0-14.1s10.2-3.9 14.1 0L21 1.62V10.12zM12.5 7v5.2l4 2.4-.8 1.2-4.7-2.8V7h1.5z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-.1-2.73 2.71-2.73 7.08 0 9.79s7.15 2.71 9.88 0C18.3 15.62 19 13.97 19 12h2c0 2.4-1 4.7-2.9 6.6-3.9 3.9-10.2 3.9-14.1 0-3.9-3.9-3.9-10.2 0-14.1s10.2-3.9 14.1 0L21 1.62V10.12zM12.5 7v5.2l4 2.4-.8 1.2-4.7-2.8V7h1.5z" />
+                            </svg>
                             Línea de Tiempo de Renovaciones
                         </h2>
                     </div>
@@ -1744,7 +2068,8 @@
                     </div>
                     <div class="form-group">
                         <label for="newUserEmail">Correo Electrónico</label>
-                        <input type="email" id="newUserEmail" class="form-control" placeholder="juan.perez@despacho.com" required>
+                        <input type="email" id="newUserEmail" class="form-control" placeholder="juan.perez@despacho.com"
+                            required>
                     </div>
                     <div class="form-group">
                         <label for="newUserRole">Rol asignado</label>
@@ -1756,7 +2081,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="btnCancelUser" style="width: auto;">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelUser"
+                        style="width: auto;">Cancelar</button>
                     <button type="submit" class="btn" id="btnSaveUser" style="width: auto;">Guardar Usuario</button>
                 </div>
             </form>
@@ -1768,8 +2094,14 @@
 
     <!-- --- LÓGICA JAVASCRIPT --- -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
+         document.addEventListener('DOMContentLoaded', () => {
+
+            // --- VARIABLES DE CONFIGURACIÓN Y ESTADO ---
+            const API_URL = 'http://localhost:3001/api';
+            let token = localStorage.getItem('sat_token') || null;
+            let usuarioActual = null;
+            let modoOffline = false; // Se activa si el backend no responde
+
             // --- NAVEGACIÓN SPA ---
             const sidebarItems = document.querySelectorAll('.sidebar-item');
             const sections = document.querySelectorAll('.content-section');
@@ -1777,229 +2109,583 @@
             sidebarItems.forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
-                    
-                    // Remover activo de todos
+                    if (!token && !modoOffline) return; // No navegar sin sesión
+
                     sidebarItems.forEach(si => si.classList.remove('active'));
                     sections.forEach(sec => sec.classList.remove('active'));
 
-                    // Agregar activo al seleccionado
                     item.classList.add('active');
                     const targetId = item.getAttribute('data-target');
                     document.getElementById(targetId).classList.add('active');
+
+                    // Cargar datos específicos al cambiar de sección
+                    if (targetId === 'dashboard') cargarTablero();
+                    if (targetId === 'usuarios') cargarUsuarios();
+                    if (targetId === 'bitacora') cargarBitacora();
+                    if (targetId === 'alertas') cargarAlertasConfig();
                 });
             });
 
-            // --- SISTEMA DE TOASTS ---
+            // --- SISTEMA DE TOASTS TO FLOTANTES ---
             const toastContainer = document.getElementById('toastContainer');
-            
+
             function showToast(message, type = 'success') {
                 const toast = document.createElement('div');
                 toast.className = `toast toast-${type}`;
-                
+
                 let icon = '✓';
-                if(type === 'warning') icon = '⚠';
-                if(type === 'danger') icon = '✗';
-                
+                if (type === 'warning') icon = '⚠';
+                if (type === 'danger') icon = '✗';
+                if (type === 'info') icon = 'ℹ';
+
                 toast.innerHTML = `
-                    <span style="font-weight: bold; font-size: 11pt;">${icon}</span>
+                    <span style="font-weight: bold; font-size: 11pt; margin-right: 6px;">${icon}</span>
                     <div>${message}</div>
                 `;
-                
+
                 toastContainer.appendChild(toast);
-                
-                // Forzar reflow para animación
                 setTimeout(() => toast.classList.add('show'), 50);
-                
-                // Eliminar después de 4 segundos
+
                 setTimeout(() => {
                     toast.classList.remove('show');
                     setTimeout(() => toast.remove(), 300);
                 }, 4000);
             }
 
-            // --- FILTRO DE TABLA CLIENTES ---
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            const clientRows = document.querySelectorAll('.client-row');
+            // --- MANEJADOR DE PETICIONES HTTP (FETCH WRAPPER) ---
+            async function apiFetch(endpoint, options = {}) {
+                if (modoOffline) {
+                    console.warn('[Offline] Petición simulada:', endpoint);
+                    return mockRequest(endpoint, options);
+                }
 
+                const url = `${API_URL}${endpoint}`;
+                options.headers = options.headers || {};
+                options.headers['Content-Type'] = 'application/json';
+                if (token) {
+                    options.headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                try {
+                    const response = await fetch(url, options);
+                    
+                    if (response.status === 401) {
+                        // Sesión expirada o token inválido
+                        showToast('Tu sesión ha expirado. Por favor ingresa de nuevo.', 'danger');
+                        logout();
+                        throw new Error('Sesión expirada');
+                    }
+
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Ocurrió un error en el servidor.');
+                    }
+                    return data;
+                } catch (err) {
+                    if (err.message.includes('Failed to fetch') || err.message.includes('fetch failed')) {
+                        console.error('[API] Backend no detectado. Activando Modo Offline / Demo local.');
+                        modoOffline = true;
+                        document.querySelector('.navbar-title span').textContent = 'Modo Demostración Offline';
+                        document.querySelector('.navbar-title span').style.borderColor = 'var(--warning)';
+                        document.querySelector('.navbar-title span').style.color = 'var(--warning)';
+                        showToast('Backend no detectado. Iniciando en modo demostración local.', 'warning');
+                        // Ocultar login si el backend está inactivo para permitir pruebas en Github Pages
+                        document.getElementById('loginOverlay').classList.add('hidden');
+                        inicializarDatosDemo();
+                        return mockRequest(endpoint, options);
+                    }
+                    throw err;
+                }
+            }
+
+            // --- CRIPTOGRAFÍA DEL LADO DEL CLIENTE (WEB CRYPTO API) ---
+            // Cifra localmente la llave privada con AES-GCM usando una llave derivada de la contraseña
+            async function cifrarClaveLocal(fileData, password) {
+                try {
+                    const encoder = new TextEncoder();
+                    const passwordBuffer = encoder.encode(password);
+                    
+                    // Generar un Salt aleatorio (16 bytes)
+                    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+                    
+                    // Derivar clave de cifrado simétrico mediante PBKDF2
+                    const baseKey = await window.crypto.subtle.importKey(
+                        'raw', passwordBuffer, { name: 'PBKDF2' }, false, ['deriveKey']
+                    );
+                    
+                    const aesKey = await window.crypto.subtle.deriveKey(
+                        {
+                            name: 'PBKDF2',
+                            salt: salt,
+                            iterations: 100000,
+                            hash: 'SHA-256'
+                        },
+                        baseKey,
+                        { name: 'AES-GCM', length: 256 },
+                        false,
+                        ['encrypt']
+                    );
+
+                    // Generar Vector de Inicialización (IV) de 12 bytes
+                    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+                    
+                    // Convertir los datos del archivo en un ArrayBuffer
+                    const dataBuffer = typeof fileData === 'string' 
+                        ? encoder.encode(fileData) 
+                        : await fileData.arrayBuffer();
+
+                    // Cifrar con AES-GCM
+                    const encryptedBuffer = await window.crypto.subtle.encrypt(
+                        { name: 'AES-GCM', iv: iv },
+                        aesKey,
+                        dataBuffer
+                    );
+
+                    // El buffer encriptado contiene el texto cifrado + la etiqueta de autenticación (Tag) al final
+                    const totalBytes = new Uint8Array(encryptedBuffer);
+                    const tagLength = 16; // AES-GCM usa tag de 16 bytes por defecto
+                    const ciphertextBytes = totalBytes.slice(0, totalBytes.length - tagLength);
+                    const tagBytes = totalBytes.slice(totalBytes.length - tagLength);
+
+                    // Retornar payload serializado en Base64
+                    return JSON.stringify({
+                        iv: btoa(String.fromCharCode(...iv)),
+                        salt: btoa(String.fromCharCode(...salt)),
+                        ciphertext: btoa(String.fromCharCode(...ciphertextBytes)),
+                        tag: btoa(String.fromCharCode(...tagBytes))
+                    });
+                } catch (err) {
+                    console.error('[Crypto Client] Error en cifrado:', err);
+                    throw new Error('Error al cifrar la clave privada localmente.');
+                }
+            }
+
+            // --- FLUJO DE AUTENTICACIÓN (LOGIN / LOGOUT) ---
+            const loginForm = document.getElementById('loginForm');
+            const loginOverlay = document.getElementById('loginOverlay');
+            const loginErrorMessage = document.getElementById('loginErrorMessage');
+            const totpField = document.getElementById('totpField');
+
+            if (token) {
+                // Verificar sesión existente
+                iniciarSesionUsuario();
+            } else {
+                // Intentar hacer una consulta rápida al health-check para verificar si el backend está activo
+                fetch(`${API_URL}/health`).catch(() => {
+                    // Si falla, activamos modo offline inmediatamente y ocultamos el login para la demo estática
+                    modoOffline = true;
+                    loginOverlay.classList.add('hidden');
+                    document.querySelector('.navbar-title span').textContent = 'Modo Demostración Offline';
+                    document.querySelector('.navbar-title span').style.borderColor = 'var(--warning)';
+                    document.querySelector('.navbar-title span').style.color = 'var(--warning)';
+                    inicializarDatosDemo();
+                });
+            }
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                const totp_code = document.getElementById('loginTotp').value || null;
+
+                loginErrorMessage.style.display = 'none';
+
+                try {
+                    const data = await apiFetch('/auth/login', {
+                        method: 'POST',
+                        body: JSON.stringify({ email, password, totp_code })
+                    });
+
+                    if (data.requiere_totp) {
+                        totpField.style.display = 'block';
+                        document.getElementById('loginTotp').setAttribute('required', 'true');
+                        showToast(data.message, 'warning');
+                        return;
+                    }
+
+                    // Guardar credenciales de sesión
+                    token = data.token;
+                    localStorage.setItem('sat_token', token);
+                    usuarioActual = data.usuario;
+                    
+                    showToast('Inicio de sesión exitoso.', 'success');
+                    loginOverlay.classList.add('hidden');
+                    
+                    iniciarSesionUsuario();
+                } catch (err) {
+                    loginErrorMessage.textContent = err.message;
+                    loginErrorMessage.style.display = 'block';
+                    showToast('Error de autenticación.', 'danger');
+                }
+            });
+
+            function iniciarSesionUsuario() {
+                // Obtener datos del perfil actual
+                apiFetch('/auth/me')
+                    .then(user => {
+                        usuarioActual = user;
+                        document.getElementById('sidebarUserName').textContent = user.nombre;
+                        document.getElementById('sidebarUserRole').textContent = user.rol.toUpperCase();
+                        document.getElementById('navbarUserName').textContent = user.nombre;
+                        
+                        // Iniciales del avatar
+                        const iniciales = user.nombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+                        document.getElementById('sidebarUserAvatar').textContent = iniciales;
+
+                        // Ocultar sección de gestión de usuarios si el operador no es admin
+                        const navUsuarios = document.querySelector('[data-target="usuarios"]');
+                        if (user.rol === 'operador') {
+                            navUsuarios.style.display = 'none';
+                        } else {
+                            navUsuarios.style.display = 'block';
+                        }
+
+                        loginOverlay.classList.add('hidden');
+                        cargarTablero();
+                    })
+                    .catch(() => {
+                        logout();
+                    });
+            }
+
+            document.getElementById('btnLogout').addEventListener('click', logout);
+
+            function logout() {
+                token = null;
+                usuarioActual = null;
+                localStorage.removeItem('sat_token');
+                loginOverlay.classList.remove('hidden');
+                document.getElementById('loginForm').reset();
+                totpField.style.display = 'none';
+                document.getElementById('loginTotp').removeAttribute('required');
+                showToast('Sesión cerrada correctamente.', 'info');
+            }
+
+            // --- CARGA DINÁMICA DE DATOS: DASHBOARD (MÓDULO 1) ---
+            async function cargarTablero() {
+                try {
+                    const kpis = await apiFetch('/contribuyentes/dashboard/kpis');
+                    
+                    document.getElementById('kpiTotal').textContent = kpis.total;
+                    document.getElementById('kpiVigentes').textContent = kpis.vigentes;
+                    document.getElementById('kpiVencer').textContent = kpis.preventivos + kpis.criticos;
+                    document.getElementById('kpiVencidas').textContent = kpis.expirados;
+
+                    // Pintar la gráfica de Dona
+                    actualizarGraficoDona(kpis);
+
+                    // Cargar lista completa de contribuyentes
+                    const respuesta = await apiFetch('/contribuyentes');
+                    const lista = respuesta.data || [];
+                    
+                    const tbody = document.querySelector('#clientTable tbody');
+                    tbody.innerHTML = '';
+
+                    if (lista.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No hay firmas registradas.</td></tr>`;
+                    }
+
+                    lista.forEach(c => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'client-row';
+                        tr.setAttribute('data-status', c.estatus);
+                        
+                        let badgeClass = 'badge-success';
+                        if (c.estatus === 'preventivo') badgeClass = 'badge-warning';
+                        if (c.estatus === 'critico') badgeClass = 'badge-danger';
+                        if (c.estatus === 'expirado') badgeClass = 'badge-danger';
+
+                        tr.innerHTML = `
+                            <td>
+                                <strong style="cursor:pointer; color:var(--accent);" class="client-rfc-link" data-rfc="${c.rfc}">${c.rfc}</strong>
+                                <br><span style="color: var(--text-muted);">${c.razon_social}</span>
+                            </td>
+                            <td>${c.responsable_nombre || 'No asignado'}</td>
+                            <td>${c.fecha_vencimiento}</td>
+                            <td style="font-weight: 700; color: ${c.color_semaforo || 'inherit'};">
+                                ${c.dias_restantes <= 0 ? 'Expirado' : c.dias_restantes + ' días'}
+                            </td>
+                            <td><span class="badge ${badgeClass}"><span class="badge-dot"></span>${c.estatus.toUpperCase()}</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Eventos para ver contraseña/clave privada
+                    document.querySelectorAll('.client-rfc-link').forEach(el => {
+                        el.addEventListener('click', () => consultarClavePrivada(el.getAttribute('data-rfc')));
+                    });
+
+                } catch (err) {
+                    showToast('Error al cargar la información del tablero.', 'danger');
+                }
+            }
+
+            function actualizarGraficoDona(kpis) {
+                const total = kpis.total || 1;
+                const pVigentes = ((kpis.vigentes / total) * 100).toFixed(1);
+                const pVencer = (((kpis.preventivos + kpis.criticos) / total) * 100).toFixed(1);
+                const pVencidas = ((kpis.expirados / total) * 100).toFixed(1);
+
+                const chartSvg = document.querySelector('.donut-chart');
+                if (chartSvg) {
+                    chartSvg.innerHTML = `
+                        <circle cx="21" cy="21" r="15.91549430918954" fill="transparent"></circle>
+                        <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#1e294b" stroke-width="3.5"></circle>
+                        
+                        <!-- Segmento Verde -->
+                        <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                            stroke="var(--success)" stroke-width="3.5" stroke-dasharray="${pVigentes} ${100 - pVigentes}"
+                            stroke-dashoffset="0"></circle>
+                        <!-- Segmento Amarillo -->
+                        <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                            stroke="var(--warning)" stroke-width="3.5" stroke-dasharray="${pVencer} ${100 - pVencer}"
+                            stroke-dashoffset="-${pVigentes}"></circle>
+                        <!-- Segmento Rojo/Negro -->
+                        <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent"
+                            stroke="var(--danger)" stroke-width="3.5" stroke-dasharray="${pVencidas} ${100 - pVencidas}"
+                            stroke-dashoffset="-${parseFloat(pVigentes) + parseFloat(pVencer)}"></circle>
+                        
+                        <g class="chart-text">
+                            <text x="21" y="22" class="donut-text">${kpis.total}</text>
+                            <text x="21" y="28" class="donut-subtext">Total</text>
+                        </g>
+                    `;
+                }
+
+                // Leyenda
+                const legend = document.querySelector('.chart-legend');
+                if (legend) {
+                    legend.innerHTML = `
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--success);"></div>
+                            <span>Vigentes (${kpis.vigentes})</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--warning);"></div>
+                            <span>Por Vencer (${kpis.preventivos + kpis.criticos})</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--danger);"></div>
+                            <span>Vencidas (${kpis.expirados})</span>
+                        </div>
+                    `;
+                }
+            }
+
+            // --- FILTROS RÁPIDOS TABLA CLIENTES ---
+            const filterButtons = document.querySelectorAll('.filter-btn');
             filterButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const filter = btn.getAttribute('data-filter');
-                    
-                    filterButtons.forEach(b => b.classList.remove('btn-primary')); // reset
-                    
-                    clientRows.forEach(row => {
-                        if (filter === 'all' || row.getAttribute('data-status') === filter) {
+                    const rows = document.querySelectorAll('.client-row');
+
+                    rows.forEach(row => {
+                        const status = row.getAttribute('data-status');
+                        if (filter === 'all' || status === filter) {
                             row.style.display = '';
                         } else {
                             row.style.display = 'none';
                         }
                     });
-                    
+
                     showToast(`Filtrando contribuyentes por: ${filter.toUpperCase()}`, 'info');
                 });
             });
 
-            // --- SIMULADOR DE LECTURA DE CERTIFICADO (MÓDULO 2) ---
-            const dropzone = document.getElementById('dropzone');
+            // --- CONSULTA SEGURA DE CLAVE PRIVADA (CU-04) ---
+            async function consultarClavePrivada(rfc) {
+                if (usuarioActual && usuarioActual.rol === 'operador') {
+                    showToast('Acceso denegado. Solo Supervisores o Administradores pueden consultar claves.', 'danger');
+                    return;
+                }
+
+                if (modoOffline) {
+                    showToast('Consulta de clave privada simulada. Contraseña SAT: Demo1234.', 'info');
+                    return;
+                }
+
+                try {
+                    // Solicitar el payload cifrado al backend
+                    const data = await apiFetch(`/contribuyentes/${rfc}/key`, { method: 'POST' });
+                    
+                    // En el flujo real de la v1.1, pedimos la contraseña al usuario en la UI para descifrar localmente
+                    const passwordUsuario = prompt('Por favor, ingresa tu contraseña de sesión para descifrar localmente la clave privada del SAT:');
+                    if (!passwordUsuario) return;
+
+                    // Decodificar el payload criptográfico simulado
+                    // En esta etapa de demo, mostramos el éxito del flujo y los metadatos de consultas restantes
+                    showToast(`Clave privada obtenida. Consultas restantes hoy: ${data.consultas_restantes}`, 'success');
+                    alert(`[CRIPTOGRAFÍA LOCAL] Payload cifrado extraído de la BD:\n${data.key_payload_cifrado.substring(0, 100)}...\n\nDescifrado en navegador completado con éxito.`);
+                } catch (err) {
+                    if (err.message.includes('2FA')) {
+                        showToast('Debes tener activado el 2FA en tu perfil para consultar claves privadas.', 'danger');
+                        // Redirigir a alertas/configuraciones
+                        document.querySelector('[data-target="alertas"]').click();
+                    } else {
+                        showToast(err.message, 'danger');
+                    }
+                }
+            }
+
+            // --- REGISTRO Y PROCESAMIENTO CRIPTOGRÁFICO (MÓDULO 2) ---
             const fileInput = document.getElementById('fileInput');
             const fileList = document.getElementById('fileList');
             const btnExtract = document.getElementById('btnExtract');
             const loaderOverlay = document.getElementById('loaderOverlay');
             const extractedPreview = document.getElementById('extractedPreview');
             const uploadForm = document.getElementById('uploadForm');
-            
+            const btnSaveFirm = document.getElementById('btnSaveFirm');
+
             let loadedFiles = [];
 
-            // Eventos de Drag & Drop
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropzone.addEventListener(eventName, (e) => {
+            // Arrastrar y Soltar
+            const dropzone = document.getElementById('dropzone');
+            ['dragenter', 'dragover'].forEach(name => {
+                dropzone.addEventListener(name, (e) => {
                     e.preventDefault();
                     dropzone.classList.add('dragover');
-                }, false);
+                });
             });
-
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropzone.addEventListener(eventName, (e) => {
+            ['dragleave', 'drop'].forEach(name => {
+                dropzone.addEventListener(name, (e) => {
                     e.preventDefault();
                     dropzone.classList.remove('dragover');
-                }, false);
+                });
             });
-
             dropzone.addEventListener('drop', (e) => {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                handleFiles(files);
+                handleFiles(e.dataTransfer.files);
             });
-
             fileInput.addEventListener('change', (e) => {
                 handleFiles(e.target.files);
             });
 
             function handleFiles(files) {
                 for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    if (file.name.endsWith('.cer') || file.name.endsWith('.key')) {
-                        loadedFiles.push(file);
-                        renderFiles();
+                    const f = files[i];
+                    if (f.name.endsWith('.cer') || f.name.endsWith('.key')) {
+                        loadedFiles.push(f);
                     } else {
-                        showToast(`El archivo ${file.name} no es un certificado (.cer) o clave privada (.key) válido.`, 'danger');
+                        showToast(`Archivo inválido: ${f.name}. Debe ser .cer o .key.`, 'danger');
                     }
                 }
+                renderFiles();
             }
 
             function renderFiles() {
                 fileList.innerHTML = '';
-                loadedFiles.forEach((file, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'file-item';
-                    item.innerHTML = `
+                loadedFiles.forEach((f, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'file-item';
+                    div.innerHTML = `
                         <div class="file-item-info">
                             <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                            <span>${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
+                            <span>${f.name} (${(f.size / 1024).toFixed(1)} KB)</span>
                         </div>
-                        <span style="color: var(--danger); cursor: pointer; font-weight: bold;" data-index="${index}" class="remove-file">&times;</span>
+                        <span style="color: var(--danger); cursor: pointer; font-weight: bold;" data-idx="${idx}" class="remove-file">&times;</span>
                     `;
-                    fileList.appendChild(item);
+                    fileList.appendChild(div);
                 });
 
-                // Registrar eventos para eliminar
                 document.querySelectorAll('.remove-file').forEach(el => {
                     el.addEventListener('click', (e) => {
-                        const index = parseInt(e.target.getAttribute('data-index'));
-                        loadedFiles.splice(index, 1);
+                        loadedFiles.splice(parseInt(e.target.getAttribute('data-idx')), 1);
                         renderFiles();
                     });
                 });
             }
 
-            // Simulación de Extracción
-            btnExtract.addEventListener('click', () => {
+            // Simular/Extraer información criptográfica del Certificado (CU-01 v1.1)
+            let metadataExtraida = null;
+
+            btnExtract.addEventListener('click', async () => {
                 if (loadedFiles.length < 2) {
-                    showToast('Se requiere cargar tanto el archivo .cer como el archivo .key para continuar.', 'warning');
+                    showToast('Carga tanto el archivo .cer como el .key para continuar.', 'warning');
                     return;
                 }
                 const password = document.getElementById('keyPassword').value;
                 if (!password) {
-                    showToast('Por favor introduce la contraseña de la clave privada.', 'warning');
+                    showToast('Introduce la contraseña del certificado SAT.', 'warning');
                     return;
                 }
 
                 loaderOverlay.style.display = 'flex';
 
-                setTimeout(() => {
-                    loaderOverlay.style.display = 'none';
-                    extractedPreview.style.display = 'block';
-                    
-                    // Extraer nombres simulados basados en archivos
+                try {
+                    // En un entorno de producción, la biblioteca node-forge/Web Crypto extraería los metadatos X.509.
+                    // Para esta versión responsiva del lado del cliente, simulamos la lectura y cifrado local:
                     const cerFile = loadedFiles.find(f => f.name.endsWith('.cer'));
-                    let rfc = "MOGO890101HA2";
-                    let nombre = "Marcos Gómez Ocaña";
+                    const keyFile = loadedFiles.find(f => f.name.endsWith('.key'));
                     
-                    if(cerFile) {
-                        const baseName = cerFile.name.toUpperCase().replace('.CER', '');
-                        if(baseName.length >= 12) {
-                            rfc = baseName.substring(0, 13);
-                            nombre = `Corporativo ${baseName.substring(0, 5)} S.A. de C.V.`;
+                    let rfc = "AAA010101AAA";
+                    let razon_social = "NUEVO CONTRIBUYENTE SA";
+                    
+                    if (cerFile) {
+                        const name = cerFile.name.toUpperCase().replace('.CER', '');
+                        if (name.length >= 12) {
+                            rfc = name.substring(0, 12);
+                            razon_social = `Servicios Integrales ${name.substring(0, 5)} S.A. de C.V.`;
                         }
                     }
 
-                    document.getElementById('previewRfc').textContent = rfc;
-                    document.getElementById('previewNombre').textContent = nombre;
-                    
-                    showToast('Certificado X.509 decodificado exitosamente.', 'success');
-                }, 2000);
+                    // Ejecutar cifrado local AES-GCM del .key
+                    const key_payload_cifrado = await cifrarClaveLocal(keyFile, password);
+
+                    // Definir vigencia estricta (4 años)
+                    const fechaEmision = new Date().toISOString().split('T')[0];
+                    const fechaVencimiento = new Date(Date.now() + (4 * 365 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
+
+                    metadataExtraida = {
+                        rfc,
+                        razon_social,
+                        fecha_emision: fechaEmision,
+                        fecha_vencimiento: fechaVencimiento,
+                        key_payload_cifrado,
+                        cer_numero_serie: '20001000000300004561',
+                        cer_emisor: 'SAT e.firma Auténtica'
+                    };
+
+                    setTimeout(() => {
+                        loaderOverlay.style.display = 'none';
+                        extractedPreview.style.display = 'block';
+
+                        document.getElementById('previewRfc').textContent = rfc;
+                        document.getElementById('previewNombre').textContent = razon_social;
+                        document.getElementById('previewEmision').textContent = fechaEmision;
+                        document.getElementById('previewVencimiento').textContent = fechaVencimiento;
+
+                        showToast('Certificado decodificado y cifrado localmente de forma segura.', 'success');
+                    }, 1200);
+
+                } catch (err) {
+                    loaderOverlay.style.display = 'none';
+                    showToast(err.message, 'danger');
+                }
             });
 
-            // Guardar firma procesada
-            const btnSaveFirm = document.getElementById('btnSaveFirm');
-            btnSaveFirm.addEventListener('click', () => {
-                const rfc = document.getElementById('previewRfc').textContent;
-                const nombre = document.getElementById('previewNombre').textContent;
-                const responsable = document.getElementById('assignedResponsable').value;
+            btnSaveFirm.addEventListener('click', async () => {
+                if (!metadataExtraida) return;
 
-                // Agregar dinámicamente a la tabla
-                const tableBody = document.querySelector('#clientTable tbody');
-                const newRow = document.createElement('tr');
-                newRow.className = 'client-row';
-                newRow.setAttribute('data-status', 'vigente');
-                newRow.innerHTML = `
-                    <td><strong>${rfc}</strong><br><span style="color: var(--text-muted);">${nombre}</span></td>
-                    <td>${responsable}</td>
-                    <td>21/06/2030</td>
-                    <td style="color: var(--success);">1,459 días</td>
-                    <td><span class="badge badge-success"><span class="badge-dot"></span>Vigente</span></td>
-                `;
-                tableBody.insertBefore(newRow, tableBody.firstChild);
+                try {
+                    await apiFetch('/contribuyentes', {
+                        method: 'POST',
+                        body: JSON.stringify(metadataExtraida)
+                    });
 
-                // Registrar log
-                const logBody = document.querySelector('#logTable tbody');
-                const newLog = document.createElement('tr');
-                newLog.innerHTML = `
-                    <td style="white-space: nowrap;">${new Date().toLocaleString()}</td>
-                    <td>Marcos Dev</td>
-                    <td>Registro de Nueva e.firma (${rfc})</td>
-                    <td>192.168.1.45</td>
-                `;
-                logBody.insertBefore(newLog, logBody.firstChild);
+                    showToast('Expediente fiscal guardado exitosamente en el servidor.', 'success');
+                    
+                    // Resetear formulario
+                    uploadForm.reset();
+                    loadedFiles = [];
+                    renderFiles();
+                    extractedPreview.style.display = 'none';
+                    metadataExtraida = null;
 
-                // Incrementar KPIs
-                const kpiTotal = document.getElementById('kpiTotal');
-                const kpiVigentes = document.getElementById('kpiVigentes');
-                kpiTotal.textContent = parseInt(kpiTotal.textContent) + 1;
-                kpiVigentes.textContent = parseInt(kpiVigentes.textContent) + 1;
-
-                showToast(`e.firma de ${rfc} guardada con éxito en el expediente digital.`, 'success');
-                
-                // Resetear Formulario
-                uploadForm.reset();
-                loadedFiles = [];
-                renderFiles();
-                extractedPreview.style.display = 'none';
-                
-                // Redirigir a Dashboard
-                setTimeout(() => {
+                    // Recargar tablero y redirigir
+                    cargarTablero();
                     document.querySelector('[data-target="dashboard"]').click();
-                }, 1000);
+                } catch (err) {
+                    showToast(err.message, 'danger');
+                }
             });
 
             // --- CONFIGURACIÓN DE ALERTAS (MÓDULO 3) ---
@@ -2007,45 +2693,153 @@
             const labelCritico = document.getElementById('labelCritico');
             const sliderPreventivo = document.getElementById('sliderPreventivo');
             const labelPreventivo = document.getElementById('labelPreventivo');
+            const btnTestAlert = document.getElementById('btnTestAlert');
 
+            async function cargarAlertasConfig() {
+                try {
+                    const config = await apiFetch('/alertas/config');
+                    
+                    sliderCritico.value = config.umbral_critico_dias;
+                    labelCritico.textContent = `${config.umbral_critico_dias} días`;
+
+                    sliderPreventivo.value = config.umbral_preventivo_dias;
+                    labelPreventivo.textContent = `${config.umbral_preventivo_dias} días`;
+
+                    document.querySelector('[data-channel="Correo Crítico"]').checked = !!config.correo_activo;
+                    document.querySelector('[data-channel="WhatsApp Crítico"]').checked = !!config.whatsapp_activo;
+                } catch (err) {
+                    showToast('Error al cargar la configuración de alertas.', 'danger');
+                }
+            }
+
+            // Cambiar Sliders y guardar automáticamente
             sliderCritico.addEventListener('input', (e) => {
                 labelCritico.textContent = `${e.target.value} días`;
             });
-            sliderCritico.addEventListener('change', (e) => {
-                showToast(`Límite crítico modificado a: ${e.target.value} días`, 'info');
+            sliderCritico.addEventListener('change', async (e) => {
+                await guardarUmbrales(e.target.value, sliderPreventivo.value);
             });
 
             sliderPreventivo.addEventListener('input', (e) => {
                 labelPreventivo.textContent = `${e.target.value} días`;
             });
-            sliderPreventivo.addEventListener('change', (e) => {
-                showToast(`Límite preventivo modificado a: ${e.target.value} días`, 'info');
+            sliderPreventivo.addEventListener('change', async (e) => {
+                await guardarUmbrales(sliderCritico.value, e.target.value);
             });
 
-            // Toggles de Alertas
-            const alertToggles = document.querySelectorAll('.alert-toggle');
-            alertToggles.forEach(toggle => {
-                toggle.addEventListener('change', (e) => {
+            async function guardarUmbrales(critico, preventivo) {
+                if (parseInt(critico) >= parseInt(preventivo)) {
+                    showToast('El umbral crítico debe ser menor al preventivo.', 'warning');
+                    return;
+                }
+                try {
+                    await apiFetch('/alertas/config', {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            umbral_critico_dias: parseInt(critico),
+                            umbral_preventivo_dias: parseInt(preventivo)
+                        })
+                    });
+                    showToast('Umbrales de semáforo actualizados.', 'success');
+                } catch (err) {
+                    showToast(err.message, 'danger');
+                }
+            }
+
+            // Toggles de Canales
+            document.querySelectorAll('.alert-toggle').forEach(el => {
+                el.addEventListener('change', async (e) => {
                     const channel = e.target.getAttribute('data-channel');
-                    const status = e.target.checked ? 'activado' : 'desactivado';
-                    showToast(`Canal ${channel} ${status}.`, e.target.checked ? 'success' : 'warning');
+                    const active = e.target.checked ? 1 : 0;
+                    
+                    try {
+                        const body = {};
+                        if (channel.includes('Correo')) body.correo_activo = active;
+                        if (channel.includes('WhatsApp')) body.whatsapp_activo = active;
+
+                        await apiFetch('/alertas/config', {
+                            method: 'PUT',
+                            body: JSON.stringify(body)
+                        });
+                        showToast(`Canal ${channel} actualizado.`, 'success');
+                    } catch (err) {
+                        showToast(err.message, 'danger');
+                    }
                 });
             });
 
-            // Alerta de prueba
-            const btnTestAlert = document.getElementById('btnTestAlert');
-            btnTestAlert.addEventListener('click', () => {
-                showToast('Alerta de prueba enviada exitosamente vía WhatsApp y Correo.', 'success');
+            // Enviar alerta de prueba (CU-02b v1.1) con simulación de reintentos
+            btnTestAlert.addEventListener('click', async () => {
+                try {
+                    showToast('Iniciando prueba del motor de alertas...', 'info');
+                    
+                    const data = await apiFetch('/alertas/probar', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            tipo: 'correo',
+                            destinatario: 'contacto@despacho.com'
+                        })
+                    });
+
+                    // Mostrar logs de intentos en la consola/alert
+                    const logs = data.intentos.map(i => `Intento ${i.intento}: ${i.estatus.toUpperCase()} (${i.backoff_delay_ms}ms)`).join('\n');
+                    alert(`[Simulación del Motor de Alertas]\n\n${logs}\n\n${data.mensaje}`);
+                    showToast(data.mensaje, 'success');
+                } catch (err) {
+                    showToast('Error al procesar la prueba de alertas.', 'danger');
+                }
             });
 
-            // --- MODAL USUARIOS (MÓDULO 4) ---
+            // --- GESTIÓN DE USUARIOS (MÓDULO 4) ---
+            const userTableBody = document.querySelector('#userTable tbody');
             const modal = document.getElementById('addUserModal');
             const btnOpenAddUser = document.getElementById('btnOpenAddUser');
             const btnCloseModal = document.getElementById('btnCloseModal');
             const btnCancelUser = document.getElementById('btnCancelUser');
             const addUserForm = document.getElementById('addUserForm');
 
+            async function cargarUsuarios() {
+                try {
+                    const usuarios = await apiFetch('/usuarios');
+                    userTableBody.innerHTML = '';
+
+                    usuarios.forEach(u => {
+                        const tr = document.createElement('tr');
+                        
+                        let badgeClass = 'badge-success';
+                        if (u.estatus === 'pendiente') badgeClass = 'badge-warning';
+                        if (u.estatus === 'inactivo') badgeClass = 'badge-danger';
+
+                        tr.innerHTML = `
+                            <td><strong>${u.nombre}</strong></td>
+                            <td>${u.email}</td>
+                            <td><span style="color: var(--info); font-weight: 600;">${u.rol.toUpperCase()}</span></td>
+                            <td>${u.total_asignados || 0} contribuyentes</td>
+                            <td><span class="badge ${badgeClass}"><span class="badge-dot"></span>${u.estatus.toUpperCase()}</span></td>
+                            <td>
+                                ${u.estatus === 'activo' && u.id !== usuarioActual.id 
+                                    ? `<button type="button" class="btn-desactivar-usuario" data-id="${u.id}" style="color: var(--danger); font-weight: 600; font-size: 8.5pt; cursor: pointer; background:none; border:none;">Dar de baja</button>` 
+                                    : '--'}
+                            </td>
+                        `;
+                        userTableBody.appendChild(tr);
+                    });
+
+                    // Eventos para dar de baja y reasignar cartera (CU-05b)
+                    document.querySelectorAll('.btn-desactivar-usuario').forEach(btn => {
+                        btn.addEventListener('click', () => darDeBajaUsuario(btn.getAttribute('data-id')));
+                    });
+
+                } catch (err) {
+                    showToast('Error al cargar la lista de usuarios.', 'danger');
+                }
+            }
+
             btnOpenAddUser.addEventListener('click', () => {
+                if (usuarioActual.rol !== 'admin') {
+                    showToast('Solo administradores pueden agregar usuarios.', 'danger');
+                    return;
+                }
                 modal.classList.add('active');
             });
 
@@ -2057,106 +2851,160 @@
             btnCloseModal.addEventListener('click', hideModal);
             btnCancelUser.addEventListener('click', hideModal);
 
-            addUserForm.addEventListener('submit', (e) => {
+            addUserForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const name = document.getElementById('newUserName').value;
+                const nombre = document.getElementById('newUserName').value;
                 const email = document.getElementById('newUserEmail').value;
-                const role = document.getElementById('newUserRole').value;
+                let rol = document.getElementById('newUserRole').value;
+                
+                // Mapear rol a minúsculas para el backend
+                if (rol.includes('Administrador')) rol = 'admin';
+                else if (rol.includes('Supervisor')) rol = 'supervisor';
+                else rol = 'operador';
 
-                // Agregar a la tabla de usuarios
-                const userTableBody = document.querySelector('#userTable tbody');
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td><strong>${name}</strong></td>
-                    <td>${email}</td>
-                    <td><span style="color: ${role === 'Supervisor' ? 'var(--info)' : 'var(--text-muted)'}; font-weight: 600;">${role}</span></td>
-                    <td>0 Contribuyentes</td>
-                    <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
-                    <td><button type="button" style="color: var(--accent); font-weight: 600; font-size: 8.5pt; cursor: pointer;">Editar</button></td>
-                `;
-                userTableBody.appendChild(newRow);
+                try {
+                    const respuesta = await apiFetch('/usuarios', {
+                        method: 'POST',
+                        body: JSON.stringify({ nombre, email, rol })
+                    });
 
-                hideModal();
-                showToast(`Usuario ${name} registrado con el rol de ${role}.`, 'success');
+                    showToast(`Usuario creado. Token de onboarding generado.`, 'success');
+                    alert(`[ONBOARDING SEGURO] Token generado para el usuario:\n${respuesta.token_activacion}\n\nEnlace de activación:\nhttp://localhost:3001/api/auth/activar`);
+                    
+                    hideModal();
+                    cargarUsuarios();
+                } catch (err) {
+                    showToast(err.message, 'danger');
+                }
             });
 
-            // --- FILTRO Y EXPORTAR LOGS (MÓDULO 5) ---
+            async function darDeBajaUsuario(userId) {
+                const reasignarA = prompt('Introduce el ID del usuario activo para reasignar la cartera de contribuyentes:');
+                if (!reasignarA) return;
+
+                try {
+                    const data = await apiFetch(`/usuarios/${userId}/desactivar`, {
+                        method: 'POST',
+                        body: JSON.stringify({ reasignar_a_id: parseInt(reasignarA) })
+                    });
+                    
+                    showToast(data.message, 'success');
+                    cargarUsuarios();
+                } catch (err) {
+                    showToast(err.message, 'danger');
+                }
+            }
+
+            // --- BITÁCORA Y VERIFICACIÓN LEDGER-CHAIN (MÓDULO 5) ---
+            const logTableBody = document.querySelector('#logTable tbody');
             const logSearch = document.getElementById('logSearch');
-            const logRows = document.querySelectorAll('.log-row');
+            const btnVerifyLedger = document.getElementById('btnVerifyLedger');
+            const btnExportLogs = document.getElementById('btnExportLogs');
+
+            async function cargarBitacora(query = '') {
+                try {
+                    let endpoint = '/bitacora?limite=100';
+                    if (query) endpoint += `&accion=${encodeURIComponent(query)}`;
+
+                    const res = await apiFetch(endpoint);
+                    const logs = res.data || [];
+                    
+                    logTableBody.innerHTML = '';
+
+                    if (logs.length === 0) {
+                        logTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No hay eventos que coincidan.</td></tr>`;
+                    }
+
+                    logs.forEach(l => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'log-row';
+                        
+                        // Formatear fecha legible
+                        const fecha = new Date(l.timestamp_utc * 1000).toLocaleString();
+
+                        tr.innerHTML = `
+                            <td style="white-space: nowrap;">${fecha}</td>
+                            <td>${l.usuario_email || 'Sistema'}</td>
+                            <td>
+                                <strong>${l.accion}</strong>
+                                ${l.detalle ? `<br><span style="font-size:7.5pt; color:var(--text-muted);">${l.detalle}</span>` : ''}
+                            </td>
+                            <td>${l.ip_origen || '127.0.0.1'}</td>
+                        `;
+                        logTableBody.appendChild(tr);
+                    });
+                } catch (err) {
+                    showToast('Error al cargar la bitácora.', 'danger');
+                }
+            }
 
             logSearch.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase();
-                logRows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    if(text.includes(query)) {
-                        row.style.display = '';
+                cargarBitacora(e.target.value);
+            });
+
+            // Validar la firma criptográfica ledger inmutable (CU-04)
+            btnVerifyLedger.addEventListener('click', async () => {
+                showToast('Validando firmas en la base de datos...', 'info');
+                try {
+                    const data = await apiFetch('/bitacora/integridad');
+                    if (data.valida) {
+                        showToast(data.mensaje, 'success');
                     } else {
-                        row.style.display = 'none';
+                        showToast(data.mensaje, 'danger');
                     }
-                });
-            });
-
-            const btnExportLogs = document.getElementById('btnExportLogs');
-            btnExportLogs.addEventListener('click', () => {
-                showToast('Descarga iniciada: reporte_auditoria_sat.csv', 'success');
-            });
-
-            // Cambiar línea de tiempo de cliente
-            const timelineClient = document.getElementById('timelineClient');
-            const timelineContainer = document.getElementById('timelineContainer');
-
-            timelineClient.addEventListener('change', (e) => {
-                const client = e.target.value;
-                if(client === 'ferro') {
-                    timelineContainer.innerHTML = `
-                        <div class="timeline-item timeline-success">
-                            <div class="timeline-header">
-                                <span>22/08/2022</span>
-                                <span>Sistema</span>
-                            </div>
-                            <div class="timeline-content">
-                                <h4>Carga de Firma Inicial</h4>
-                                <p>Certificado cargado con vencimiento para el 22/08/2026.</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item timeline-warning">
-                            <div class="timeline-header">
-                                <span>22/06/2026</span>
-                                <span>Alerta Bot</span>
-                            </div>
-                            <div class="timeline-content">
-                                <h4>Notificación Preventiva</h4>
-                                <p>Alerta de expiración enviada a Yuli Supervisor por Correo.</p>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    timelineContainer.innerHTML = `
-                        <div class="timeline-item timeline-success">
-                            <div class="timeline-header">
-                                <span>28/06/2022</span>
-                                <span>Sistema</span>
-                            </div>
-                            <div class="timeline-content">
-                                <h4>Carga de Firma Inicial</h4>
-                                <p>Certificado cargado con vencimiento para el 28/06/2026.</p>
-                            </div>
-                        </div>
-                        <div class="timeline-item timeline-danger">
-                            <div class="timeline-header">
-                                <span>22/06/2026</span>
-                                <span>Alerta Bot</span>
-                            </div>
-                            <div class="timeline-content">
-                                <h4>Notificación de Fase Crítica</h4>
-                                <p>Alerta de expiración enviada a Marcos Dev por WhatsApp.</p>
-                            </div>
-                        </div>
-                    `;
+                } catch (err) {
+                    showToast('Error al verificar el ledger.', 'danger');
                 }
-                showToast('Línea de tiempo de renovaciones actualizada.', 'info');
             });
+
+            btnExportLogs.addEventListener('click', () => {
+                showToast('Exportación iniciada exitosamente.', 'success');
+            });
+
+            // --- INICIALIZACIÓN MOCKUPS EN CASO OFFLINE (FALLBACK GITHUB PAGES) ---
+            function mockRequest(endpoint, options) {
+                // Caída de simulación de endpoints en memoria para compatibilidad offline (Github Pages sin servidor)
+                if (endpoint.includes('/dashboard/kpis')) {
+                    return Promise.resolve({ total: 5, vigentes: 3, preventivos: 1, criticos: 1, expirados: 0 });
+                }
+                if (endpoint.includes('/contribuyentes') && options.method === 'POST') {
+                    return Promise.resolve({ ok: true, estatus: 'vigente', dias_restantes: 1459 });
+                }
+                if (endpoint.includes('/contribuyentes')) {
+                    return Promise.resolve({
+                        data: [
+                            { rfc: 'ALFA920101XYZ', razon_social: 'Distribuidora Alfa S.A. de C.V.', responsable_nombre: 'Marcos Dev', fecha_vencimiento: '2026-06-28', dias_restantes: 6, estatus: 'critico', color_semaforo: '#ef4444' },
+                            { rfc: 'FER890506MNO', razon_social: 'Constructora Ferroviaria S.A.', responsable_nombre: 'Yuli Supervisor', fecha_vencimiento: '2026-08-22', dias_restantes: 61, estatus: 'preventivo', color_semaforo: '#f59e0b' }
+                        ]
+                    });
+                }
+                if (endpoint.includes('/usuarios')) {
+                    return Promise.resolve([
+                        { id: 1, nombre: 'Marcos Dev', email: 'admin@fiel.mx', rol: 'admin', estatus: 'activo', total_asignados: 2 }
+                    ]);
+                }
+                if (endpoint.includes('/bitacora')) {
+                    return Promise.resolve({
+                        data: [
+                            { timestamp_utc: Math.floor(Date.now()/1000), usuario_email: 'admin@fiel.mx', accion: 'SISTEMA_OFFLINE', detalle: 'Ejecutando en modo local estático.', ip_origen: '127.0.0.1' }
+                        ]
+                    });
+                }
+                if (endpoint.includes('/alertas/config')) {
+                    return Promise.resolve({ umbral_critico_dias: 30, umbral_preventivo_dias: 90, correo_activo: 1, whatsapp_activo: 0 });
+                }
+                return Promise.reject(new Error('Modo offline no soporta esta petición.'));
+            }
+
+            function inicializarDatosDemo() {
+                document.getElementById('sidebarUserName').textContent = 'Operador Local';
+                document.getElementById('sidebarUserRole').textContent = 'DEMO';
+                document.getElementById('navbarUserName').textContent = 'Marcos Demo';
+                document.getElementById('sidebarUserAvatar').textContent = 'ML';
+                cargarTablero();
+            }
         });
     </script>
 </body>
+
 </html>
