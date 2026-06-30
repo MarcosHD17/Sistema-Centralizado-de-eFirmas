@@ -1160,7 +1160,7 @@
             opacity: 1;
             transition: opacity 0.4s ease;
         }
-        
+
         .login-overlay.hidden {
             opacity: 0;
             pointer-events: none;
@@ -1194,7 +1194,7 @@
             height: 32px;
             fill: var(--accent);
         }
-        
+
         .logout-btn {
             background: none;
             border: none;
@@ -1207,7 +1207,7 @@
             border: 1px solid rgba(239, 68, 68, 0.2);
             transition: var(--transition);
         }
-        
+
         .logout-btn:hover {
             background-color: var(--danger-bg);
         }
@@ -1226,11 +1226,12 @@
         <div class="login-card">
             <div class="login-brand">
                 <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                 </svg>
                 <span>SAT eFirmas</span>
             </div>
-            
+
             <div style="text-align: center; margin-top: -10px;">
                 <h2 style="font-size: 14pt; font-weight: 700; color: #fff; margin-bottom: 6px;">Iniciar Sesión</h2>
                 <p style="font-size: 8.5pt; color: var(--text-muted);">Accede al panel centralizado de monitoreo</p>
@@ -1241,7 +1242,7 @@
                     <label for="loginEmail">Correo Electrónico</label>
                     <input type="email" id="loginEmail" class="form-control" placeholder="admin@fiel.mx" required>
                 </div>
-                
+
                 <div class="form-group" style="margin-bottom: 0;">
                     <label for="loginPassword">Contraseña</label>
                     <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
@@ -1253,9 +1254,12 @@
                     <input type="text" id="loginTotp" class="form-control" placeholder="000000" maxlength="6">
                 </div>
 
-                <div id="loginErrorMessage" style="color: var(--danger); font-size: 8.5pt; text-align: center; display: none; font-weight: 600;"></div>
+                <div id="loginErrorMessage"
+                    style="color: var(--danger); font-size: 8.5pt; text-align: center; display: none; font-weight: 600;">
+                </div>
 
-                <button type="submit" class="btn" id="btnLoginSubmit" style="margin-top: 10px;">Ingresar al Sistema</button>
+                <button type="submit" class="btn" id="btnLoginSubmit" style="margin-top: 10px;">Ingresar al
+                    Sistema</button>
             </form>
         </div>
     </div>
@@ -1661,9 +1665,9 @@
                                 <label for="assignedResponsable">Responsable de Monitoreo</label>
                                 <select id="assignedResponsable" class="form-control">
                                     <option value="Marcos Dev">Marcos Dev</option>
-                                    <option value="Yuli Supervisor">Yuli Supervisor</option>
-                                    <option value="Marce Operador">Marce Operador</option>
-                                    <option value="Tadeo Operador">Tadeo Operador</option>
+                                    <option value="Araceli Supervisor">Araceli Supervisor</option>
+                                    <option value="Antonio Operador">Antonio Operador</option>
+                                    <option value="juan Operador">juan Operador</option>
                                 </select>
                             </div>
 
@@ -1893,8 +1897,8 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><strong>Yuli Supervisor</strong></td>
-                                <td>yuli.super@despacho.com</td>
+                                <td><strong>Araceli Supervisor</strong></td>
+                                <td>Araceli.super@despacho.com</td>
                                 <td><span style="color: var(--info); font-weight: 600;">Supervisor</span></td>
                                 <td>15 Contribuyentes</td>
                                 <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
@@ -1903,8 +1907,8 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><strong>Marce Operador</strong></td>
-                                <td>marce.op@despacho.com</td>
+                                <td><strong>Antonio Operador</strong></td>
+                                <td>Antonio.op@despacho.com</td>
                                 <td><span style="color: var(--text-muted); font-weight: 600;">Operador</span></td>
                                 <td>10 Contribuyentes</td>
                                 <td><span class="badge badge-success"><span class="badge-dot"></span>Activo</span></td>
@@ -1913,8 +1917,8 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><strong>Tadeo Operador</strong></td>
-                                <td>tadeo.op@despacho.com</td>
+                                <td><strong>juan Operador</strong></td>
+                                <td>juan.op@despacho.com</td>
                                 <td><span style="color: var(--text-muted); font-weight: 600;">Operador</span></td>
                                 <td>5 Contribuyentes</td>
                                 <td><span class="badge badge-danger"><span class="badge-dot"></span>Inactivo</span></td>
@@ -1947,8 +1951,8 @@
                             </svg>
                             Historial de Eventos
                         </h2>
-                        <div class="audit-controls" style="flex-wrap: wrap;">
-                            <div class="search-bar" style="min-width: 200px;">
+                        <div class="audit-controls">
+                            <div class="search-bar">
                                 <svg viewBox="0 0 24 24">
                                     <path
                                         d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
@@ -1956,8 +1960,6 @@
                                 <input type="text" id="logSearch" class="form-control"
                                     placeholder="Buscar por usuario, IP o acción...">
                             </div>
-                            <button type="button" class="btn btn-secondary" id="btnVerifyLedger"
-                                style="width: auto; white-space: nowrap; border-color: var(--success); color: var(--success);">Verificar Ledger Inmutable</button>
                             <button type="button" class="btn" id="btnExportLogs"
                                 style="width: auto; white-space: nowrap;">Exportar CSV</button>
                         </div>
@@ -1982,13 +1984,13 @@
                                 </tr>
                                 <tr class="log-row">
                                     <td style="white-space: nowrap;">22/06/2026 09:15:30</td>
-                                    <td>Marce Operador</td>
+                                    <td>Antonio Operador</td>
                                     <td>Descarga de Certificado (FER890506MNO)</td>
                                     <td>192.168.1.82</td>
                                 </tr>
                                 <tr class="log-row">
                                     <td style="white-space: nowrap;">22/06/2026 08:30:11</td>
-                                    <td>Yuli Supervisor</td>
+                                    <td>Araceli Supervisor</td>
                                     <td>Inicio de Sesión Exitoso</td>
                                     <td>189.215.12.102</td>
                                 </tr>
@@ -2094,13 +2096,7 @@
 
     <!-- --- LÓGICA JAVASCRIPT --- -->
     <script>
-         document.addEventListener('DOMContentLoaded', () => {
-
-            // --- VARIABLES DE CONFIGURACIÓN Y ESTADO ---
-            const API_URL = 'http://localhost:3001/api';
-            let token = localStorage.getItem('sat_token') || null;
-            let usuarioActual = null;
-            let modoOffline = false; // Se activa si el backend no responde
+        document.addEventListener('DOMContentLoaded', () => {
 
             // --- NAVEGACIÓN SPA ---
             const sidebarItems = document.querySelectorAll('.sidebar-item');
@@ -2109,8 +2105,8 @@
             sidebarItems.forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
-                    if (!token && !modoOffline) return; // No navegar sin sesión
 
+                    // Remover activo de todos
                     sidebarItems.forEach(si => si.classList.remove('active'));
                     sections.forEach(sec => sec.classList.remove('active'));
 
@@ -2136,7 +2132,6 @@
                 let icon = '✓';
                 if (type === 'warning') icon = '⚠';
                 if (type === 'danger') icon = '✗';
-                if (type === 'info') icon = 'ℹ';
 
                 toast.innerHTML = `
                     <span style="font-weight: bold; font-size: 11pt; margin-right: 6px;">${icon}</span>
@@ -2144,8 +2139,11 @@
                 `;
 
                 toastContainer.appendChild(toast);
+
+                // Forzar reflow para animación
                 setTimeout(() => toast.classList.add('show'), 50);
 
+                // Eliminar después de 4 segundos
                 setTimeout(() => {
                     toast.classList.remove('show');
                     setTimeout(() => toast.remove(), 300);
@@ -2168,7 +2166,7 @@
 
                 try {
                     const response = await fetch(url, options);
-                    
+
                     if (response.status === 401) {
                         // Sesión expirada o token inválido
                         showToast('Tu sesión ha expirado. Por favor ingresa de nuevo.', 'danger');
@@ -2204,15 +2202,15 @@
                 try {
                     const encoder = new TextEncoder();
                     const passwordBuffer = encoder.encode(password);
-                    
+
                     // Generar un Salt aleatorio (16 bytes)
                     const salt = window.crypto.getRandomValues(new Uint8Array(16));
-                    
+
                     // Derivar clave de cifrado simétrico mediante PBKDF2
                     const baseKey = await window.crypto.subtle.importKey(
                         'raw', passwordBuffer, { name: 'PBKDF2' }, false, ['deriveKey']
                     );
-                    
+
                     const aesKey = await window.crypto.subtle.deriveKey(
                         {
                             name: 'PBKDF2',
@@ -2228,10 +2226,10 @@
 
                     // Generar Vector de Inicialización (IV) de 12 bytes
                     const iv = window.crypto.getRandomValues(new Uint8Array(12));
-                    
+
                     // Convertir los datos del archivo en un ArrayBuffer
-                    const dataBuffer = typeof fileData === 'string' 
-                        ? encoder.encode(fileData) 
+                    const dataBuffer = typeof fileData === 'string'
+                        ? encoder.encode(fileData)
                         : await fileData.arrayBuffer();
 
                     // Cifrar con AES-GCM
@@ -2307,10 +2305,10 @@
                     token = data.token;
                     localStorage.setItem('sat_token', token);
                     usuarioActual = data.usuario;
-                    
+
                     showToast('Inicio de sesión exitoso.', 'success');
                     loginOverlay.classList.add('hidden');
-                    
+
                     iniciarSesionUsuario();
                 } catch (err) {
                     loginErrorMessage.textContent = err.message;
@@ -2327,7 +2325,7 @@
                         document.getElementById('sidebarUserName').textContent = user.nombre;
                         document.getElementById('sidebarUserRole').textContent = user.rol.toUpperCase();
                         document.getElementById('navbarUserName').textContent = user.nombre;
-                        
+
                         // Iniciales del avatar
                         const iniciales = user.nombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
                         document.getElementById('sidebarUserAvatar').textContent = iniciales;
@@ -2365,7 +2363,7 @@
             async function cargarTablero() {
                 try {
                     const kpis = await apiFetch('/contribuyentes/dashboard/kpis');
-                    
+
                     document.getElementById('kpiTotal').textContent = kpis.total;
                     document.getElementById('kpiVigentes').textContent = kpis.vigentes;
                     document.getElementById('kpiVencer').textContent = kpis.preventivos + kpis.criticos;
@@ -2377,7 +2375,7 @@
                     // Cargar lista completa de contribuyentes
                     const respuesta = await apiFetch('/contribuyentes');
                     const lista = respuesta.data || [];
-                    
+
                     const tbody = document.querySelector('#clientTable tbody');
                     tbody.innerHTML = '';
 
@@ -2389,7 +2387,7 @@
                         const tr = document.createElement('tr');
                         tr.className = 'client-row';
                         tr.setAttribute('data-status', c.estatus);
-                        
+
                         let badgeClass = 'badge-success';
                         if (c.estatus === 'preventivo') badgeClass = 'badge-warning';
                         if (c.estatus === 'critico') badgeClass = 'badge-danger';
@@ -2477,11 +2475,11 @@
             filterButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const filter = btn.getAttribute('data-filter');
-                    const rows = document.querySelectorAll('.client-row');
 
-                    rows.forEach(row => {
-                        const status = row.getAttribute('data-status');
-                        if (filter === 'all' || status === filter) {
+                    filterButtons.forEach(b => b.classList.remove('btn-primary')); // reset
+
+                    clientRows.forEach(row => {
+                        if (filter === 'all' || row.getAttribute('data-status') === filter) {
                             row.style.display = '';
                         } else {
                             row.style.display = 'none';
@@ -2507,7 +2505,7 @@
                 try {
                     // Solicitar el payload cifrado al backend
                     const data = await apiFetch(`/contribuyentes/${rfc}/key`, { method: 'POST' });
-                    
+
                     // En el flujo real de la v1.1, pedimos la contraseña al usuario en la UI para descifrar localmente
                     const passwordUsuario = prompt('Por favor, ingresa tu contraseña de sesión para descifrar localmente la clave privada del SAT:');
                     if (!passwordUsuario) return;
@@ -2534,7 +2532,6 @@
             const loaderOverlay = document.getElementById('loaderOverlay');
             const extractedPreview = document.getElementById('extractedPreview');
             const uploadForm = document.getElementById('uploadForm');
-            const btnSaveFirm = document.getElementById('btnSaveFirm');
 
             let loadedFiles = [];
 
@@ -2610,78 +2607,78 @@
 
                 loaderOverlay.style.display = 'flex';
 
-                try {
-                    // En un entorno de producción, la biblioteca node-forge/Web Crypto extraería los metadatos X.509.
-                    // Para esta versión responsiva del lado del cliente, simulamos la lectura y cifrado local:
+                setTimeout(() => {
+                    loaderOverlay.style.display = 'none';
+                    extractedPreview.style.display = 'block';
+
+                    // Extraer nombres simulados basados en archivos
                     const cerFile = loadedFiles.find(f => f.name.endsWith('.cer'));
-                    const keyFile = loadedFiles.find(f => f.name.endsWith('.key'));
-                    
-                    let rfc = "AAA010101AAA";
-                    let razon_social = "NUEVO CONTRIBUYENTE SA";
-                    
+                    let rfc = "MOGO890101HA2";
+                    let nombre = "Marcos Gómez Ocaña";
+
                     if (cerFile) {
-                        const name = cerFile.name.toUpperCase().replace('.CER', '');
-                        if (name.length >= 12) {
-                            rfc = name.substring(0, 12);
-                            razon_social = `Servicios Integrales ${name.substring(0, 5)} S.A. de C.V.`;
+                        const baseName = cerFile.name.toUpperCase().replace('.CER', '');
+                        if (baseName.length >= 12) {
+                            rfc = baseName.substring(0, 13);
+                            nombre = `Corporativo ${baseName.substring(0, 5)} S.A. de C.V.`;
                         }
                     }
 
-                    // Ejecutar cifrado local AES-GCM del .key
-                    const key_payload_cifrado = await cifrarClaveLocal(keyFile, password);
+                    document.getElementById('previewRfc').textContent = rfc;
+                    document.getElementById('previewNombre').textContent = nombre;
 
-                    // Definir vigencia estricta (4 años)
-                    const fechaEmision = new Date().toISOString().split('T')[0];
-                    const fechaVencimiento = new Date(Date.now() + (4 * 365 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
-
-                    metadataExtraida = {
-                        rfc,
-                        razon_social,
-                        fecha_emision: fechaEmision,
-                        fecha_vencimiento: fechaVencimiento,
-                        key_payload_cifrado,
-                        cer_numero_serie: '20001000000300004561',
-                        cer_emisor: 'SAT e.firma Auténtica'
-                    };
-
-                    setTimeout(() => {
-                        loaderOverlay.style.display = 'none';
-                        extractedPreview.style.display = 'block';
-
-                        document.getElementById('previewRfc').textContent = rfc;
-                        document.getElementById('previewNombre').textContent = razon_social;
-                        document.getElementById('previewEmision').textContent = fechaEmision;
-                        document.getElementById('previewVencimiento').textContent = fechaVencimiento;
-
-                        showToast('Certificado decodificado y cifrado localmente de forma segura.', 'success');
-                    }, 1200);
-
-                } catch (err) {
-                    loaderOverlay.style.display = 'none';
-                    showToast(err.message, 'danger');
-                }
+                    showToast('Certificado X.509 decodificado exitosamente.', 'success');
+                }, 2000);
             });
 
-            btnSaveFirm.addEventListener('click', async () => {
-                if (!metadataExtraida) return;
+            // Guardar firma procesada
+            const btnSaveFirm = document.getElementById('btnSaveFirm');
+            btnSaveFirm.addEventListener('click', () => {
+                const rfc = document.getElementById('previewRfc').textContent;
+                const nombre = document.getElementById('previewNombre').textContent;
+                const responsable = document.getElementById('assignedResponsable').value;
 
-                try {
-                    await apiFetch('/contribuyentes', {
-                        method: 'POST',
-                        body: JSON.stringify(metadataExtraida)
-                    });
+                // Agregar dinámicamente a la tabla
+                const tableBody = document.querySelector('#clientTable tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'client-row';
+                newRow.setAttribute('data-status', 'vigente');
+                newRow.innerHTML = `
+                    <td><strong>${rfc}</strong><br><span style="color: var(--text-muted);">${nombre}</span></td>
+                    <td>${responsable}</td>
+                    <td>21/06/2030</td>
+                    <td style="color: var(--success);">1,459 días</td>
+                    <td><span class="badge badge-success"><span class="badge-dot"></span>Vigente</span></td>
+                `;
+                tableBody.insertBefore(newRow, tableBody.firstChild);
 
-                    showToast('Expediente fiscal guardado exitosamente en el servidor.', 'success');
-                    
-                    // Resetear formulario
-                    uploadForm.reset();
-                    loadedFiles = [];
-                    renderFiles();
-                    extractedPreview.style.display = 'none';
-                    metadataExtraida = null;
+                // Registrar log
+                const logBody = document.querySelector('#logTable tbody');
+                const newLog = document.createElement('tr');
+                newLog.innerHTML = `
+                    <td style="white-space: nowrap;">${new Date().toLocaleString()}</td>
+                    <td>Marcos Dev</td>
+                    <td>Registro de Nueva e.firma (${rfc})</td>
+                    <td>192.168.1.45</td>
+                `;
+                logBody.insertBefore(newLog, logBody.firstChild);
 
-                    // Recargar tablero y redirigir
-                    cargarTablero();
+                // Incrementar KPIs
+                const kpiTotal = document.getElementById('kpiTotal');
+                const kpiVigentes = document.getElementById('kpiVigentes');
+                kpiTotal.textContent = parseInt(kpiTotal.textContent) + 1;
+                kpiVigentes.textContent = parseInt(kpiVigentes.textContent) + 1;
+
+                showToast(`e.firma de ${rfc} guardada con éxito en el expediente digital.`, 'success');
+
+                // Resetear Formulario
+                uploadForm.reset();
+                loadedFiles = [];
+                renderFiles();
+                extractedPreview.style.display = 'none';
+
+                // Redirigir a Dashboard
+                setTimeout(() => {
                     document.querySelector('[data-target="dashboard"]').click();
                 } catch (err) {
                     showToast(err.message, 'danger');
@@ -2698,7 +2695,7 @@
             async function cargarAlertasConfig() {
                 try {
                     const config = await apiFetch('/alertas/config');
-                    
+
                     sliderCritico.value = config.umbral_critico_dias;
                     labelCritico.textContent = `${config.umbral_critico_dias} días`;
 
@@ -2751,7 +2748,7 @@
                 el.addEventListener('change', async (e) => {
                     const channel = e.target.getAttribute('data-channel');
                     const active = e.target.checked ? 1 : 0;
-                    
+
                     try {
                         const body = {};
                         if (channel.includes('Correo')) body.correo_activo = active;
@@ -2772,7 +2769,7 @@
             btnTestAlert.addEventListener('click', async () => {
                 try {
                     showToast('Iniciando prueba del motor de alertas...', 'info');
-                    
+
                     const data = await apiFetch('/alertas/probar', {
                         method: 'POST',
                         body: JSON.stringify({
@@ -2805,7 +2802,7 @@
 
                     usuarios.forEach(u => {
                         const tr = document.createElement('tr');
-                        
+
                         let badgeClass = 'badge-success';
                         if (u.estatus === 'pendiente') badgeClass = 'badge-warning';
                         if (u.estatus === 'inactivo') badgeClass = 'badge-danger';
@@ -2817,9 +2814,9 @@
                             <td>${u.total_asignados || 0} contribuyentes</td>
                             <td><span class="badge ${badgeClass}"><span class="badge-dot"></span>${u.estatus.toUpperCase()}</span></td>
                             <td>
-                                ${u.estatus === 'activo' && u.id !== usuarioActual.id 
-                                    ? `<button type="button" class="btn-desactivar-usuario" data-id="${u.id}" style="color: var(--danger); font-weight: 600; font-size: 8.5pt; cursor: pointer; background:none; border:none;">Dar de baja</button>` 
-                                    : '--'}
+                                ${u.estatus === 'activo' && u.id !== usuarioActual.id
+                                ? `<button type="button" class="btn-desactivar-usuario" data-id="${u.id}" style="color: var(--danger); font-weight: 600; font-size: 8.5pt; cursor: pointer; background:none; border:none;">Dar de baja</button>`
+                                : '--'}
                             </td>
                         `;
                         userTableBody.appendChild(tr);
@@ -2856,7 +2853,7 @@
                 const nombre = document.getElementById('newUserName').value;
                 const email = document.getElementById('newUserEmail').value;
                 let rol = document.getElementById('newUserRole').value;
-                
+
                 // Mapear rol a minúsculas para el backend
                 if (rol.includes('Administrador')) rol = 'admin';
                 else if (rol.includes('Supervisor')) rol = 'supervisor';
@@ -2870,7 +2867,7 @@
 
                     showToast(`Usuario creado. Token de onboarding generado.`, 'success');
                     alert(`[ONBOARDING SEGURO] Token generado para el usuario:\n${respuesta.token_activacion}\n\nEnlace de activación:\nhttp://localhost:3001/api/auth/activar`);
-                    
+
                     hideModal();
                     cargarUsuarios();
                 } catch (err) {
@@ -2887,7 +2884,7 @@
                         method: 'POST',
                         body: JSON.stringify({ reasignar_a_id: parseInt(reasignarA) })
                     });
-                    
+
                     showToast(data.message, 'success');
                     cargarUsuarios();
                 } catch (err) {
@@ -2908,7 +2905,7 @@
 
                     const res = await apiFetch(endpoint);
                     const logs = res.data || [];
-                    
+
                     logTableBody.innerHTML = '';
 
                     if (logs.length === 0) {
@@ -2918,7 +2915,7 @@
                     logs.forEach(l => {
                         const tr = document.createElement('tr');
                         tr.className = 'log-row';
-                        
+
                         // Formatear fecha legible
                         const fecha = new Date(l.timestamp_utc * 1000).toLocaleString();
 
@@ -2939,16 +2936,11 @@
             }
 
             logSearch.addEventListener('input', (e) => {
-                cargarBitacora(e.target.value);
-            });
-
-            // Validar la firma criptográfica ledger inmutable (CU-04)
-            btnVerifyLedger.addEventListener('click', async () => {
-                showToast('Validando firmas en la base de datos...', 'info');
-                try {
-                    const data = await apiFetch('/bitacora/integridad');
-                    if (data.valida) {
-                        showToast(data.mensaje, 'success');
+                const query = e.target.value.toLowerCase();
+                logRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(query)) {
+                        row.style.display = '';
                     } else {
                         showToast(data.mensaje, 'danger');
                     }
@@ -2961,48 +2953,61 @@
                 showToast('Exportación iniciada exitosamente.', 'success');
             });
 
-            // --- INICIALIZACIÓN MOCKUPS EN CASO OFFLINE (FALLBACK GITHUB PAGES) ---
-            function mockRequest(endpoint, options) {
-                // Caída de simulación de endpoints en memoria para compatibilidad offline (Github Pages sin servidor)
-                if (endpoint.includes('/dashboard/kpis')) {
-                    return Promise.resolve({ total: 5, vigentes: 3, preventivos: 1, criticos: 1, expirados: 0 });
-                }
-                if (endpoint.includes('/contribuyentes') && options.method === 'POST') {
-                    return Promise.resolve({ ok: true, estatus: 'vigente', dias_restantes: 1459 });
-                }
-                if (endpoint.includes('/contribuyentes')) {
-                    return Promise.resolve({
-                        data: [
-                            { rfc: 'ALFA920101XYZ', razon_social: 'Distribuidora Alfa S.A. de C.V.', responsable_nombre: 'Marcos Dev', fecha_vencimiento: '2026-06-28', dias_restantes: 6, estatus: 'critico', color_semaforo: '#ef4444' },
-                            { rfc: 'FER890506MNO', razon_social: 'Constructora Ferroviaria S.A.', responsable_nombre: 'Yuli Supervisor', fecha_vencimiento: '2026-08-22', dias_restantes: 61, estatus: 'preventivo', color_semaforo: '#f59e0b' }
-                        ]
-                    });
-                }
-                if (endpoint.includes('/usuarios')) {
-                    return Promise.resolve([
-                        { id: 1, nombre: 'Marcos Dev', email: 'admin@fiel.mx', rol: 'admin', estatus: 'activo', total_asignados: 2 }
-                    ]);
-                }
-                if (endpoint.includes('/bitacora')) {
-                    return Promise.resolve({
-                        data: [
-                            { timestamp_utc: Math.floor(Date.now()/1000), usuario_email: 'admin@fiel.mx', accion: 'SISTEMA_OFFLINE', detalle: 'Ejecutando en modo local estático.', ip_origen: '127.0.0.1' }
-                        ]
-                    });
-                }
-                if (endpoint.includes('/alertas/config')) {
-                    return Promise.resolve({ umbral_critico_dias: 30, umbral_preventivo_dias: 90, correo_activo: 1, whatsapp_activo: 0 });
-                }
-                return Promise.reject(new Error('Modo offline no soporta esta petición.'));
-            }
+            // Cambiar línea de tiempo de cliente
+            const timelineClient = document.getElementById('timelineClient');
+            const timelineContainer = document.getElementById('timelineContainer');
 
-            function inicializarDatosDemo() {
-                document.getElementById('sidebarUserName').textContent = 'Operador Local';
-                document.getElementById('sidebarUserRole').textContent = 'DEMO';
-                document.getElementById('navbarUserName').textContent = 'Marcos Demo';
-                document.getElementById('sidebarUserAvatar').textContent = 'ML';
-                cargarTablero();
-            }
+            timelineClient.addEventListener('change', (e) => {
+                const client = e.target.value;
+                if (client === 'ferro') {
+                    timelineContainer.innerHTML = `
+                        <div class="timeline-item timeline-success">
+                            <div class="timeline-header">
+                                <span>22/08/2022</span>
+                                <span>Sistema</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Carga de Firma Inicial</h4>
+                                <p>Certificado cargado con vencimiento para el 22/08/2026.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item timeline-warning">
+                            <div class="timeline-header">
+                                <span>22/06/2026</span>
+                                <span>Alerta Bot</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Notificación Preventiva</h4>
+                                <p>Alerta de expiración enviada a Yuli Supervisor por Correo.</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    timelineContainer.innerHTML = `
+                        <div class="timeline-item timeline-success">
+                            <div class="timeline-header">
+                                <span>28/06/2022</span>
+                                <span>Sistema</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Carga de Firma Inicial</h4>
+                                <p>Certificado cargado con vencimiento para el 28/06/2026.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item timeline-danger">
+                            <div class="timeline-header">
+                                <span>22/06/2026</span>
+                                <span>Alerta Bot</span>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>Notificación de Fase Crítica</h4>
+                                <p>Alerta de expiración enviada a Marcos Dev por WhatsApp.</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                showToast('Línea de tiempo de renovaciones actualizada.', 'info');
+            });
         });
     </script>
 </body>
