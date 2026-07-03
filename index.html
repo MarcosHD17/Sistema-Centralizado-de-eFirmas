@@ -2680,10 +2680,11 @@
                 // Redirigir a Dashboard
                 setTimeout(() => {
                     document.querySelector('[data-target="dashboard"]').click();
-                } catch (err) {
-                    showToast(err.message, 'danger');
-                }
-            });
+                }, 500);
+            } catch (err) {
+                showToast(err.message, 'danger');
+            }
+        });
 
             // --- CONFIGURACIÓN DE ALERTAS (MÓDULO 3) ---
             const sliderCritico = document.getElementById('sliderCritico');
