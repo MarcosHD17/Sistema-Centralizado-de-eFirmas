@@ -1960,6 +1960,8 @@
                                 <input type="text" id="logSearch" class="form-control"
                                     placeholder="Buscar por usuario, IP o acción...">
                             </div>
+                            <button type="button" class="btn" id="btnVerifyLedger"
+                                style="width: auto; white-space: nowrap; margin-right: 8px; background: var(--accent-gradient);">Verificar Ledger</button>
                             <button type="button" class="btn" id="btnExportLogs"
                                 style="width: auto; white-space: nowrap;">Exportar CSV</button>
                         </div>
@@ -2097,6 +2099,23 @@
     <!-- --- LÓGICA JAVASCRIPT --- -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+
+            // --- CONFIGURACIÓN DE CONEXIÓN Y ESTADO DE SESIÓN ---
+            const API_URL = (window.location.protocol === 'file:' || window.location.hostname === '') 
+                ? 'http://localhost:3001/api' 
+                : `${window.location.origin}/api`;
+            let token = localStorage.getItem('sat_token') || null;
+            let usuarioActual = null;
+            let modoOffline = false;
+
+            // Fallbacks para evitar excepciones si el backend no es detectado
+            function inicializarDatosDemo() {
+                console.warn('[Offline] Inicializando datos demo...');
+            }
+            function mockRequest(endpoint, options) {
+                console.warn('[Offline] Mock request para:', endpoint);
+                return Promise.resolve({});
+            }
 
             // --- NAVEGACIÓN SPA ---
             const sidebarItems = document.querySelectorAll('.sidebar-item');
@@ -2634,7 +2653,8 @@
             // Guardar firma procesada
             const btnSaveFirm = document.getElementById('btnSaveFirm');
             btnSaveFirm.addEventListener('click', () => {
-                const rfc = document.getElementById('previewRfc').textContent;
+                try {
+                    const rfc = document.getElementById('previewRfc').textContent;
                 const nombre = document.getElementById('previewNombre').textContent;
                 const responsable = document.getElementById('assignedResponsable').value;
 
@@ -2938,10 +2958,22 @@
 
             logSearch.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase();
+                const logRows = document.querySelectorAll('.log-row');
                 logRows.forEach(row => {
                     const text = row.textContent.toLowerCase();
                     if (text.includes(query)) {
                         row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            btnVerifyLedger.addEventListener('click', async () => {
+                try {
+                    const data = await apiFetch('/bitacora/integridad');
+                    if (data.valida) {
+                        showToast(data.mensaje, 'success');
                     } else {
                         showToast(data.mensaje, 'danger');
                     }
