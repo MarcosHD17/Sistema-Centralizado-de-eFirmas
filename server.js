@@ -1,5 +1,5 @@
 // ============================================================
-// Versión: v2.2.0
+// Versión: v2.2.3
 // Archivo: server.js
 // Descripción: Servidor principal Express para la API del
 // Sistema Centralizado de eFirmas (SAT Control Manager).
@@ -78,7 +78,7 @@ app.get('/api/health', (req, res) => {
     res.json({
         status: 'OK',
         timestamp: new Date().toISOString(),
-        version: '2.2.0',
+        version: '2.2.3',
         db_connected: !!db
     });
 });
