@@ -1,6 +1,6 @@
 {
   "name": "sat-control-manager",
-  "version": "2.2.1",
+  "version": "2.2.3",
   "description": "Sistema Centralizado de eFirmas (FIEL/SAT) - Backend API REST con seguridad criptográfica en cliente, auditoría ledger-chain e integración de alertas multicanal.",
   "main": "server.js",
   "type": "commonjs",
