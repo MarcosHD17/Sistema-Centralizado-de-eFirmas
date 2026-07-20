@@ -1,6 +1,6 @@
 {
   "name": "sat-control-manager",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Sistema Centralizado de eFirmas (FIEL/SAT) - Backend API REST con seguridad criptográfica en cliente, auditoría ledger-chain e integración de alertas multicanal.",
   "main": "server.js",
   "type": "commonjs",
@@ -13,24 +13,19 @@
     "type": "git",
     "url": "git+https://github.com/MarcosHD17/Sistema-Centralizado-de-eFirmas.git"
   },
-  "keywords": [
-    "SAT",
-    "eFirma",
-    "FIEL",
-    "Node.js",
-    "Express",
-    "SQLite",
-    "SaaS"
-  ],
+  "keywords": ["SAT", "eFirma", "FIEL", "Node.js", "Express", "SQLite", "SaaS"],
   "author": "Despacho Contable SaaS",
   "license": "UNLICENSED",
   "dependencies": {
     "bcryptjs": "^3.0.2",
-    "better-sqlite3": "^12.11.1",
+    "better-sqlite3": "^11.10.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-rate-limit": "^7.4.1",
     "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.16",
     "otplib": "^12.0.1"
   },
   "devDependencies": {

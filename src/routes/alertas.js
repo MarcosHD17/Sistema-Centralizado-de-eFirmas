@@ -15,6 +15,8 @@ const db      = require('../db/database');
 const { autenticar, requerirRol, obtenerIP } = require('../middleware/auth');
 const { registrarLog } = require('../utils/ledger');
 const { recalcularTodos } = require('../utils/semaforo');
+const { cifrar } = require('../utils/crypto');
+const { encolarAlerta, procesarColaAlertas } = require('../utils/colaAlertas');
 
 const router = express.Router();
 
@@ -72,15 +74,25 @@ router.put('/config', autenticar, requerirRol('admin', 'supervisor'), (req, res)
         }
     }
 
-    // Para esta versión local de desarrollo, el "cifrado" de llaves del server se simula con base64.
-    // En producción se usaría cifrado simétrico AES-256-GCM usando la llave de sesión del server.
-    const passCifrado = correo_smtp_pass 
-        ? Buffer.from(correo_smtp_pass).toString('base64') 
-        : existente.correo_smtp_pass_cifrado;
+    // Fix QA-ALTA (alertas.js): cifrado simétrico REAL con AES-256-GCM
+    // (src/utils/crypto.js) usando ENCRYPTION_KEY del entorno del servidor,
+    // en vez de la codificación Base64 anterior (que era trivialmente reversible).
+    let passCifrado, tokenCifrado;
+    try {
+        passCifrado = correo_smtp_pass
+            ? cifrar(correo_smtp_pass)
+            : existente.correo_smtp_pass_cifrado;
 
-    const tokenCifrado = whatsapp_api_token 
-        ? Buffer.from(whatsapp_api_token).toString('base64') 
-        : existente.whatsapp_api_token_cifrado;
+        tokenCifrado = whatsapp_api_token
+            ? cifrar(whatsapp_api_token)
+            : existente.whatsapp_api_token_cifrado;
+    } catch (err) {
+        // Fallo típico: ENCRYPTION_KEY ausente o mal formada en el .env
+        return res.status(500).json({
+            error: 'No fue posible cifrar las credenciales proporcionadas.',
+            detalle: err.message
+        });
+    }
 
     try {
         db.prepare(`
@@ -129,75 +141,72 @@ router.put('/config', autenticar, requerirRol('admin', 'supervisor'), (req, res)
 
 // ─────────────────────────────────────────────────
 // POST /api/alertas/probar
-// Simulación de envío de alerta de prueba (CU-02b v1.1)
-// Muestra el flujo completo con reintentos y backoff exponencial simulado
+// Fix hallazgos QA #12, #13 y #8: ya no simula el envío con
+// Math.random(). Encola la alerta en 'cola_alertas' (persiste ante
+// una caída del servidor) e intenta procesarla de inmediato contra
+// el proveedor SMTP/WhatsApp real configurado en alertas_config. El
+// resultado que se reporta es el resultado real de esa conexión —
+// determinístico, no aleatorio — y cualquier reintento pendiente
+// queda agendado con backoff real (5/15/30 min) para que lo recoja
+// el cron de server.js.
 // ─────────────────────────────────────────────────
-router.post('/probar', autenticar, (req, res) => {
+router.post('/probar', autenticar, async (req, res) => {
     const { tipo, destinatario } = req.body; // tipo: 'correo' o 'whatsapp'
 
     if (!tipo || !destinatario) {
         return res.status(400).json({ error: 'Tipo de prueba (correo/whatsapp) y destinatario son requeridos.' });
     }
-
-    const config = db.prepare('SELECT * FROM alertas_config WHERE id = 1').get() || {};
-    const maxIntentos = config.max_reintentos || 3;
-    const bitacoraReintentos = [];
-
-    // Simulador de motor de envío con reintentos y backoff exponencial (CU-02)
-    let enviadoExitosamente = false;
-    
-    for (let intento = 1; intento <= maxIntentos; intento++) {
-        // Simular retraso de backoff exponencial en milisegundos: 100 * 2^(intento - 1)
-        const delayMs = 100 * Math.pow(2, intento - 1);
-        
-        // Simular una probabilidad de fallo temporal en los primeros intentos (ej. fallo de red 60%)
-        const esFalloTemporal = intento < maxIntentos && Math.random() < 0.6;
-
-        bitacoraReintentos.push({
-            intento,
-            backoff_delay_ms: delayMs,
-            timestamp: new Date().toISOString(),
-            estatus: esFalloTemporal ? 'fallo_temporal_red' : 'exito',
-            detalle: esFalloTemporal 
-                ? `Fallo al conectar con el servidor de ${tipo}. Reintentando con retraso de ${delayMs}ms...`
-                : `Mensaje de prueba enviado exitosamente a ${destinatario} en el intento ${intento}.`
-        });
-
-        if (!esFalloTemporal) {
-            enviadoExitosamente = true;
-            break;
-        }
+    if (!['correo', 'whatsapp'].includes(tipo)) {
+        return res.status(400).json({ error: "Tipo inválido. Usa 'correo' o 'whatsapp'." });
     }
 
-    if (enviadoExitosamente) {
+    const config = db.prepare('SELECT * FROM alertas_config WHERE id = 1').get() || {};
+
+    const idCola = encolarAlerta({
+        tipo,
+        destinatario,
+        asunto: 'SAT Control Manager — Mensaje de prueba',
+        mensaje: `Este es un mensaje de prueba de canal (${tipo}) generado desde la configuración de alertas.`,
+        max_intentos: config.max_reintentos || 3
+    });
+
+    const resultado = await procesarColaAlertas();
+    const alertaFinal = db.prepare('SELECT * FROM cola_alertas WHERE id = ?').get(idCola);
+
+    if (alertaFinal.estatus === 'enviado') {
         registrarLog({
             usuario_id: req.user.id,
             usuario_email: req.user.email,
             accion: 'ALERTAS_PRUEBA_ENVIADA',
-            detalle: `Prueba de alertas (${tipo}) enviada a ${destinatario}. Intentos requeridos: ${bitacoraReintentos.length}`,
+            detalle: `Prueba de alertas (${tipo}) enviada a ${destinatario} en el intento ${alertaFinal.intentos_realizados}.`,
             ip_origen: obtenerIP(req)
         });
 
         return res.json({
             ok: true,
             mensaje: `Mensaje de prueba enviado exitosamente a ${destinatario}.`,
-            intentos: bitacoraReintentos
-        });
-    } else {
-        registrarLog({
-            usuario_id: req.user.id,
-            usuario_email: req.user.email,
-            accion: 'ALERTAS_PRUEBA_FALLIDA',
-            detalle: `Error definitivo al enviar prueba de alertas (${tipo}) a ${destinatario} tras ${maxIntentos} intentos.`,
-            ip_origen: obtenerIP(req)
-        });
-
-        return res.status(502).json({
-            error: `Fallo definitivo al enviar mensaje a ${destinatario} tras ${maxIntentos} intentos con backoff exponencial.`,
-            codigo: 'FALLO_PROVEEDOR_ALERTAS',
-            intentos: bitacoraReintentos
+            intentos_realizados: alertaFinal.intentos_realizados
         });
     }
+
+    // 'pendiente' significa que falló este intento pero aún hay reintentos
+    // programados (backoff real); 'fallido' significa que ya se agotaron.
+    registrarLog({
+        usuario_id: req.user.id,
+        usuario_email: req.user.email,
+        accion: 'ALERTAS_PRUEBA_FALLIDA',
+        detalle: `Fallo al enviar prueba de alertas (${tipo}) a ${destinatario}: ${alertaFinal.ultimo_error}`,
+        ip_origen: obtenerIP(req)
+    });
+
+    return res.status(502).json({
+        error: alertaFinal.ultimo_error || `Fallo al enviar mensaje a ${destinatario}.`,
+        codigo: 'FALLO_PROVEEDOR_ALERTAS',
+        estatus_cola: alertaFinal.estatus,
+        proximo_reintento_en: alertaFinal.estatus === 'pendiente'
+            ? new Date(alertaFinal.proximo_reintento_en * 1000).toISOString()
+            : null
+    });
 });
 
 // ─────────────────────────────────────────────────

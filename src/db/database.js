@@ -32,4 +32,32 @@ db.pragma('foreign_keys = ON');
 
 console.log(`[DB] Conexión establecida: ${dbPath}`);
 
+// ------------------------------------------------------------
+// Auto-migración idempotente para bases de datos ya existentes:
+// 'npm run init-db' solo corre CREATE TABLE IF NOT EXISTS, así que
+// una BD creada con una versión anterior del esquema no recibe
+// columnas nuevas automáticamente. Este bloque las agrega si faltan,
+// sin afectar instalaciones que ya las tengan.
+// ------------------------------------------------------------
+function agregarColumnaSiFalta(tabla, columna, definicion) {
+    const columnas = db.prepare(`PRAGMA table_info(${tabla})`).all().map(c => c.name);
+    if (!columnas.includes(columna)) {
+        db.exec(`ALTER TABLE ${tabla} ADD COLUMN ${columna} ${definicion}`);
+        console.log(`[DB] Migración: columna '${columna}' agregada a '${tabla}'.`);
+    }
+}
+
+try {
+    const tablas = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map(t => t.name);
+    if (tablas.includes('contribuyentes')) {
+        agregarColumnaSiFalta('contribuyentes', 'activo', 'INTEGER NOT NULL DEFAULT 1');
+    }
+    if (tablas.includes('usuarios')) {
+        agregarColumnaSiFalta('usuarios', 'intentos_fallidos', 'INTEGER NOT NULL DEFAULT 0');
+        agregarColumnaSiFalta('usuarios', 'bloqueado_hasta', 'INTEGER');
+    }
+} catch (err) {
+    console.error('[DB] Error durante la auto-migración:', err.message);
+}
+
 module.exports = db;

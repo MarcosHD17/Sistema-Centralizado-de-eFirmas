@@ -1681,14 +1681,21 @@
                             <svg viewBox="0 0 24 24">
                                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                             </svg>
-                            Lectura Criptográfica Exitosa (X.509)
+                            Lectura Criptográfica del Certificado (X.509)
                         </h4>
+                        <p id="extractedMensaje" style="color: var(--text-muted); font-size: 8.5pt; margin: 4px 0 12px;"></p>
                         <div class="extracted-grid">
-                            <div class="extracted-item">RFC: <strong id="previewRfc">MOGO890101HA2</strong></div>
-                            <div class="extracted-item">Razón Social: <strong id="previewNombre">Marcos Gómez
-                                    Ocaña</strong></div>
-                            <div class="extracted-item">Emisión: <strong id="previewEmision">22/06/2026</strong></div>
-                            <div class="extracted-item">Vencimiento: <strong id="previewVencimiento">21/06/2030</strong>
+                            <div class="extracted-item">RFC:
+                                <input type="text" id="previewRfc" class="form-control" style="display:inline-block; width:auto;" placeholder="Confirma el RFC">
+                            </div>
+                            <div class="extracted-item">Razón Social:
+                                <input type="text" id="previewNombre" class="form-control" style="display:inline-block; width:auto;" placeholder="Confirma la razón social">
+                            </div>
+                            <div class="extracted-item">Emisión:
+                                <input type="date" id="previewEmision" class="form-control" style="display:inline-block; width:auto;">
+                            </div>
+                            <div class="extracted-item">Vencimiento:
+                                <input type="date" id="previewVencimiento" class="form-control" style="display:inline-block; width:auto;">
                             </div>
                         </div>
                         <button type="button" class="btn" id="btnSaveFirm"
@@ -1960,11 +1967,12 @@
                                 <input type="text" id="logSearch" class="form-control"
                                     placeholder="Buscar por usuario, IP o acción...">
                             </div>
-                            <button type="button" class="btn" id="btnVerifyLedger"
-                                style="width: auto; white-space: nowrap; margin-right: 8px; background: var(--accent-gradient);">Verificar Ledger</button>
                             <button type="button" class="btn" id="btnExportLogs"
                                 style="width: auto; white-space: nowrap;">Exportar CSV</button>
+                            <button type="button" class="btn" id="btnVerifyLedger"
+                                style="width: auto; white-space: nowrap;">Verificar Ledger</button>
                         </div>
+                        <div id="ledgerAuditResult" style="display:none; margin-top: 4px;"></div>
                     </div>
 
                     <div class="table-responsive">
@@ -2100,22 +2108,19 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- CONFIGURACIÓN DE CONEXIÓN Y ESTADO DE SESIÓN ---
-            const API_URL = (window.location.protocol === 'file:' || window.location.hostname === '') 
-                ? 'http://localhost:3001/api' 
-                : `${window.location.origin}/api`;
+            // --- ESTADO GLOBAL DE LA SPA ---
+            // Fix hallazgo adicional detectado durante la corrección #9/#12:
+            // API_URL, token, usuarioActual y modoOffline se usaban en todo
+            // el script pero nunca se declaraban en ningún punto del archivo.
+            // Como este bloque de JavaScript no está en 'use strict', leerlas ANTES de su
+            // primera asignación (ej. "if (token)" al cargar la página)
+            // producía un ReferenceError inmediato — independiente del
+            // SyntaxError de los catch huérfanos ya corregido. Sin esto,
+            // la aplicación seguía sin arrancar en un navegador real.
+            const API_URL = 'http://localhost:3001/api';
             let token = localStorage.getItem('sat_token') || null;
             let usuarioActual = null;
             let modoOffline = false;
-
-            // Fallbacks para evitar excepciones si el backend no es detectado
-            function inicializarDatosDemo() {
-                console.warn('[Offline] Inicializando datos demo...');
-            }
-            function mockRequest(endpoint, options) {
-                console.warn('[Offline] Mock request para:', endpoint);
-                return Promise.resolve({});
-            }
 
             // --- NAVEGACIÓN SPA ---
             const sidebarItems = document.querySelectorAll('.sidebar-item');
@@ -2167,6 +2172,62 @@
                     toast.classList.remove('show');
                     setTimeout(() => toast.remove(), 300);
                 }, 4000);
+            }
+
+            // --- MODO DEMOSTRACIÓN OFFLINE (RESILIENCIA) ---
+            // Fix hallazgo QA (BUG-002 del informe de auditoría): estas dos
+            // funciones se invocaban desde apiFetch() pero nunca existían en
+            // el archivo, provocando un ReferenceError en cuanto el backend
+            // no respondía. Aquí quedan implementadas con datos estáticos en
+            // memoria, suficientes para que la SPA siga siendo navegable
+            // (ej. en un despliegue estático sin backend, como GitHub Pages).
+            let demoData = null;
+
+            function inicializarDatosDemo() {
+                const ahora = Math.floor(Date.now() / 1000);
+                demoData = {
+                    usuario: { id: 1, nombre: 'Demo Admin', email: 'demo@fiel.mx', rol: 'admin', totp_activado: false },
+                    contribuyentes: [
+                        { rfc: 'MOGO890101HA2', razon_social: 'Marcos Gómez Ocaña (Demo)', fecha_vencimiento: '2030-06-21', dias_restantes: 1459, estatus: 'vigente', color_semaforo: '#10b981', responsable_nombre: 'Demo Admin' },
+                        { rfc: 'DEMO850505XX1', razon_social: 'Comercializadora Demo SA de CV', fecha_vencimiento: '2026-08-10', dias_restantes: 24, estatus: 'critico', color_semaforo: '#ef4444', responsable_nombre: 'Demo Admin' }
+                    ]
+                };
+                showToast('Modo demostración: datos de ejemplo cargados en memoria (sin backend).', 'info');
+            }
+
+            // Responde peticiones de apiFetch con datos de 'demoData' cuando
+            // no hay backend disponible. Cubre solo las lecturas usadas por
+            // el tablero; las escrituras (POST/PUT/DELETE) se rechazan con
+            // un mensaje claro en vez de fingir que se guardaron.
+            async function mockRequest(endpoint, options = {}) {
+                if (!demoData) inicializarDatosDemo();
+                const metodo = (options.method || 'GET').toUpperCase();
+
+                if (endpoint === '/auth/login' && metodo === 'POST') {
+                    return { token: 'demo-token', usuario: demoData.usuario };
+                }
+                if (endpoint === '/auth/me') {
+                    return demoData.usuario;
+                }
+                if (endpoint === '/contribuyentes/dashboard/kpis') {
+                    const c = demoData.contribuyentes;
+                    return {
+                        total: c.length,
+                        vigentes: c.filter(x => x.estatus === 'vigente').length,
+                        preventivos: c.filter(x => x.estatus === 'preventivo').length,
+                        criticos: c.filter(x => x.estatus === 'critico').length,
+                        expirados: c.filter(x => x.estatus === 'expirado').length,
+                        proximos_a_vencer: c.filter(x => x.dias_restantes <= 30)
+                    };
+                }
+                if (endpoint.startsWith('/contribuyentes') && metodo === 'GET') {
+                    return { data: demoData.contribuyentes, pagina: 1, limite: 20 };
+                }
+                if (endpoint === '/bitacora/integridad') {
+                    return { valida: true, registros: 1, primer_fallo_id: null, tiempo_verificacion_ms: 0, mensaje: '✓ Modo demostración: no hay ledger real que auditar.' };
+                }
+
+                throw new Error('Esta acción no está disponible en modo demostración (sin backend conectado).');
             }
 
             // --- MANEJADOR DE PETICIONES HTTP (FETCH WRAPPER) ---
@@ -2613,9 +2674,25 @@
             // Simular/Extraer información criptográfica del Certificado (CU-01 v1.1)
             let metadataExtraida = null;
 
+            // Convierte un File a una cadena base64 (para enviar el .cer público al backend)
+            function fileToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            }
+
             btnExtract.addEventListener('click', async () => {
                 if (loadedFiles.length < 2) {
                     showToast('Carga tanto el archivo .cer como el .key para continuar.', 'warning');
+                    return;
+                }
+                const cerFile = loadedFiles.find(f => f.name.toLowerCase().endsWith('.cer'));
+                const keyFile = loadedFiles.find(f => f.name.toLowerCase().endsWith('.key'));
+                if (!cerFile || !keyFile) {
+                    showToast('Se requiere exactamente un archivo .cer y un archivo .key.', 'warning');
                     return;
                 }
                 const password = document.getElementById('keyPassword').value;
@@ -2625,86 +2702,86 @@
                 }
 
                 loaderOverlay.style.display = 'flex';
+                try {
+                    // Fix hallazgo QA #11: se envía ÚNICAMENTE el certificado
+                    // público (.cer) al backend para lectura X.509 real; la
+                    // contraseña y el .key jamás salen del navegador aquí.
+                    const cerBase64 = await fileToBase64(cerFile);
+                    const datos = await apiFetch('/contribuyentes/extraer-certificado', {
+                        method: 'POST',
+                        body: JSON.stringify({ cer_base64: cerBase64 })
+                    });
 
-                setTimeout(() => {
-                    loaderOverlay.style.display = 'none';
+                    document.getElementById('previewRfc').value = datos.rfc_detectado || '';
+                    document.getElementById('previewNombre').value = datos.razon_social_detectada || '';
+                    document.getElementById('previewEmision').value = datos.fecha_emision || '';
+                    document.getElementById('previewVencimiento').value = datos.fecha_vencimiento || '';
+                    document.getElementById('extractedMensaje').textContent = datos.mensaje;
+
                     extractedPreview.style.display = 'block';
-
-                    // Extraer nombres simulados basados en archivos
-                    const cerFile = loadedFiles.find(f => f.name.endsWith('.cer'));
-                    let rfc = "MOGO890101HA2";
-                    let nombre = "Marcos Gómez Ocaña";
-
-                    if (cerFile) {
-                        const baseName = cerFile.name.toUpperCase().replace('.CER', '');
-                        if (baseName.length >= 12) {
-                            rfc = baseName.substring(0, 13);
-                            nombre = `Corporativo ${baseName.substring(0, 5)} S.A. de C.V.`;
-                        }
-                    }
-
-                    document.getElementById('previewRfc').textContent = rfc;
-                    document.getElementById('previewNombre').textContent = nombre;
-
-                    showToast('Certificado X.509 decodificado exitosamente.', 'success');
-                }, 2000);
+                    showToast(datos.mensaje, datos.requiere_confirmacion_manual ? 'warning' : 'success');
+                } catch (err) {
+                    showToast(err.message || 'Error al leer el certificado.', 'danger');
+                } finally {
+                    loaderOverlay.style.display = 'none';
+                }
             });
 
-            // Guardar firma procesada
+            // Guardar firma procesada — fix hallazgo QA #11: ahora sí cifra
+            // localmente el .key (cifrarClaveLocal, AES-GCM-256/PBKDF2) y lo
+            // persiste con un POST real a /api/contribuyentes, en vez de solo
+            // manipular el DOM. Al terminar, recarga el tablero desde la API.
             const btnSaveFirm = document.getElementById('btnSaveFirm');
-            btnSaveFirm.addEventListener('click', () => {
+            btnSaveFirm.addEventListener('click', async () => {
                 try {
-                    const rfc = document.getElementById('previewRfc').textContent;
-                const nombre = document.getElementById('previewNombre').textContent;
-                const responsable = document.getElementById('assignedResponsable').value;
+                    const rfc = document.getElementById('previewRfc').value.trim().toUpperCase();
+                    const razon_social = document.getElementById('previewNombre').value.trim();
+                    const fecha_emision = document.getElementById('previewEmision').value;
+                    const fecha_vencimiento = document.getElementById('previewVencimiento').value;
+                    const password = document.getElementById('keyPassword').value;
+                    const keyFile = loadedFiles.find(f => f.name.toLowerCase().endsWith('.key'));
 
-                // Agregar dinámicamente a la tabla
-                const tableBody = document.querySelector('#clientTable tbody');
-                const newRow = document.createElement('tr');
-                newRow.className = 'client-row';
-                newRow.setAttribute('data-status', 'vigente');
-                newRow.innerHTML = `
-                    <td><strong>${rfc}</strong><br><span style="color: var(--text-muted);">${nombre}</span></td>
-                    <td>${responsable}</td>
-                    <td>21/06/2030</td>
-                    <td style="color: var(--success);">1,459 días</td>
-                    <td><span class="badge badge-success"><span class="badge-dot"></span>Vigente</span></td>
-                `;
-                tableBody.insertBefore(newRow, tableBody.firstChild);
+                    if (!rfc || !razon_social || !fecha_emision || !fecha_vencimiento) {
+                        showToast('Completa RFC, razón social y ambas fechas antes de guardar.', 'warning');
+                        return;
+                    }
+                    if (!keyFile || !password) {
+                        showToast('Falta el archivo .key o la contraseña.', 'warning');
+                        return;
+                    }
 
-                // Registrar log
-                const logBody = document.querySelector('#logTable tbody');
-                const newLog = document.createElement('tr');
-                newLog.innerHTML = `
-                    <td style="white-space: nowrap;">${new Date().toLocaleString()}</td>
-                    <td>Marcos Dev</td>
-                    <td>Registro de Nueva e.firma (${rfc})</td>
-                    <td>192.168.1.45</td>
-                `;
-                logBody.insertBefore(newLog, logBody.firstChild);
+                    btnSaveFirm.disabled = true;
+                    btnSaveFirm.textContent = 'Cifrando y guardando...';
 
-                // Incrementar KPIs
-                const kpiTotal = document.getElementById('kpiTotal');
-                const kpiVigentes = document.getElementById('kpiVigentes');
-                kpiTotal.textContent = parseInt(kpiTotal.textContent) + 1;
-                kpiVigentes.textContent = parseInt(kpiVigentes.textContent) + 1;
+                    const keyPayloadCifrado = await cifrarClaveLocal(keyFile, password);
 
-                showToast(`e.firma de ${rfc} guardada con éxito en el expediente digital.`, 'success');
+                    await apiFetch('/contribuyentes', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            rfc, razon_social, fecha_emision, fecha_vencimiento,
+                            key_payload_cifrado: keyPayloadCifrado
+                        })
+                    });
 
-                // Resetear Formulario
-                uploadForm.reset();
-                loadedFiles = [];
-                renderFiles();
-                extractedPreview.style.display = 'none';
+                    showToast(`e.firma de ${rfc} cifrada y guardada exitosamente en el expediente digital.`, 'success');
 
-                // Redirigir a Dashboard
-                setTimeout(() => {
-                    document.querySelector('[data-target="dashboard"]').click();
-                }, 500);
-            } catch (err) {
-                showToast(err.message, 'danger');
-            }
-        });
+                    // Resetear formulario y recargar datos reales desde la API
+                    uploadForm.reset();
+                    loadedFiles = [];
+                    renderFiles();
+                    extractedPreview.style.display = 'none';
+                    await cargarTablero();
+
+                    setTimeout(() => {
+                        document.querySelector('[data-target="dashboard"]').click();
+                    }, 500);
+                } catch (err) {
+                    showToast(err.message, 'danger');
+                } finally {
+                    btnSaveFirm.disabled = false;
+                    btnSaveFirm.textContent = 'Guardar Expediente Cifrado';
+                }
+            });
 
             // --- CONFIGURACIÓN DE ALERTAS (MÓDULO 3) ---
             const sliderCritico = document.getElementById('sliderCritico');
@@ -2957,28 +3034,50 @@
             }
 
             logSearch.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase();
-                const logRows = document.querySelectorAll('.log-row');
-                logRows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    if (text.includes(query)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+                cargarBitacora(e.target.value);
             });
 
+            // Fix QA-ALTA (hallazgo #6): botón "Verificar Ledger" — antes no
+            // existía ni el elemento en el HTML ni un handler funcional; solo
+            // quedaban restos de código huérfano mezclados con logSearch.
             btnVerifyLedger.addEventListener('click', async () => {
+                const resultBox = document.getElementById('ledgerAuditResult');
+                btnVerifyLedger.disabled = true;
+                btnVerifyLedger.textContent = 'Verificando...';
+
                 try {
                     const data = await apiFetch('/bitacora/integridad');
+
+                    resultBox.style.display = 'block';
                     if (data.valida) {
+                        resultBox.innerHTML = `
+                            <span class="badge badge-success">
+                                <span class="badge-dot"></span>Ledger íntegro
+                            </span>
+                            <span style="margin-left:8px; color: var(--text-muted); font-size: 8.5pt;">
+                                ${data.mensaje} (${data.tiempo_verificacion_ms} ms)
+                            </span>`;
                         showToast(data.mensaje, 'success');
                     } else {
+                        resultBox.innerHTML = `
+                            <span class="badge badge-danger">
+                                <span class="badge-dot"></span>Cadena alterada
+                            </span>
+                            <span style="margin-left:8px; color: var(--text-muted); font-size: 8.5pt;">
+                                ${data.mensaje}
+                            </span>`;
                         showToast(data.mensaje, 'danger');
                     }
                 } catch (err) {
+                    resultBox.style.display = 'block';
+                    resultBox.innerHTML = `
+                        <span class="badge badge-danger">
+                            <span class="badge-dot"></span>Error de verificación
+                        </span>`;
                     showToast('Error al verificar el ledger.', 'danger');
+                } finally {
+                    btnVerifyLedger.disabled = false;
+                    btnVerifyLedger.textContent = 'Verificar Ledger';
                 }
             });
 

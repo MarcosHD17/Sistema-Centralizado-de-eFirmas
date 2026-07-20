@@ -14,6 +14,7 @@
 const express    = require('express');
 const bcrypt     = require('bcryptjs');
 const jwt        = require('jsonwebtoken');
+const rateLimit  = require('express-rate-limit');
 const { authenticator } = require('otplib');
 const db         = require('../db/database');
 const { autenticar, obtenerIP } = require('../middleware/auth');
@@ -22,11 +23,28 @@ require('dotenv').config();
 
 const router = express.Router();
 
+// Fix hallazgo QA #14: sin esto, un atacante con email/password válidos
+// podía intentar fuerza bruta contra el código TOTP de 6 dígitos sin
+// ningún freno. Límite por IP: 5 intentos fallidos cada 15 minutos.
+// Se complementa con el bloqueo por cuenta más abajo (intentos_fallidos /
+// bloqueado_hasta), que protege incluso si el atacante rota de IP.
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    skipSuccessfulRequests: true,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en unos minutos.' }
+});
+
+const MAX_INTENTOS_CUENTA = 5;
+const BLOQUEO_MINUTOS = 15;
+
 // ─────────────────────────────────────────────────
 // POST /api/auth/login
 // Inicia sesión con email + contraseña + TOTP (si está activado)
 // ─────────────────────────────────────────────────
-router.post('/login', (req, res) => {
+router.post('/login', loginLimiter, (req, res) => {
     const { email, password, totp_code } = req.body;
     const ip = obtenerIP(req);
 
@@ -35,8 +53,33 @@ router.post('/login', (req, res) => {
     }
 
     const usuario = db.prepare('SELECT * FROM usuarios WHERE email = ?').get(email);
+    const ahora = Math.floor(Date.now() / 1000);
+
+    // Fix hallazgo QA #14 (bloqueo por cuenta): si la cuenta está
+    // temporalmente bloqueada por demasiados intentos fallidos, no se
+    // evalúa la contraseña en absoluto.
+    if (usuario && usuario.bloqueado_hasta && usuario.bloqueado_hasta > ahora) {
+        const minutosRestantes = Math.ceil((usuario.bloqueado_hasta - ahora) / 60);
+        return res.status(423).json({
+            error: `Cuenta bloqueada temporalmente por demasiados intentos fallidos. Intenta en ${minutosRestantes} minuto(s).`,
+            codigo: 'CUENTA_BLOQUEADA'
+        });
+    }
 
     if (!usuario || !bcrypt.compareSync(password, usuario.password_hash)) {
+        if (usuario) {
+            const intentos = usuario.intentos_fallidos + 1;
+            const bloquear = intentos >= MAX_INTENTOS_CUENTA;
+            db.prepare(`
+                UPDATE usuarios
+                SET intentos_fallidos = ?, bloqueado_hasta = ?
+                WHERE id = ?
+            `).run(
+                bloquear ? 0 : intentos,
+                bloquear ? ahora + (BLOQUEO_MINUTOS * 60) : usuario.bloqueado_hasta,
+                usuario.id
+            );
+        }
         registrarLog({
             accion: 'AUTH_LOGIN_FALLO',
             detalle: `Intento fallido para email: ${email}`,
@@ -52,13 +95,30 @@ router.post('/login', (req, res) => {
     // Verificar TOTP si está activado (requerido para ver contraseñas - CU-04)
     if (usuario.totp_activado) {
         if (!totp_code) {
+            // Fix hallazgo QA #6: se conserva el HTTP 200 (el frontend ya
+            // depende de este contrato para mostrar el segundo paso), pero
+            // ahora se agrega 'codigo' explícito, consistente con el resto
+            // de la API, para que cualquier cliente lo distinga sin tener
+            // que inferirlo solo del booleano.
             return res.status(200).json({
                 requiere_totp: true,
+                codigo: 'TOTP_REQUERIDO',
                 message: 'Por favor ingresa el código de autenticación de dos factores.'
             });
         }
         const esValido = authenticator.verify({ token: totp_code, secret: usuario.totp_secret });
         if (!esValido) {
+            const intentos = usuario.intentos_fallidos + 1;
+            const bloquear = intentos >= MAX_INTENTOS_CUENTA;
+            db.prepare(`
+                UPDATE usuarios
+                SET intentos_fallidos = ?, bloqueado_hasta = ?
+                WHERE id = ?
+            `).run(
+                bloquear ? 0 : intentos,
+                bloquear ? ahora + (BLOQUEO_MINUTOS * 60) : usuario.bloqueado_hasta,
+                usuario.id
+            );
             registrarLog({
                 usuario_id: usuario.id,
                 usuario_email: usuario.email,
@@ -69,6 +129,9 @@ router.post('/login', (req, res) => {
             return res.status(401).json({ error: 'Código 2FA inválido o expirado.' });
         }
     }
+
+    // Login exitoso: limpiar contador de intentos fallidos
+    db.prepare('UPDATE usuarios SET intentos_fallidos = 0, bloqueado_hasta = NULL WHERE id = ?').run(usuario.id);
 
     // Generar el token JWT de sesión
     const payload = {

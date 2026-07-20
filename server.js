@@ -10,19 +10,40 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const cron = require('node-cron');
 require('dotenv').config();
 
 const db = require('./src/db/database');
 const { recalcularTodos } = require('./src/utils/semaforo');
 const { registrarLog } = require('./src/utils/ledger');
+const { procesarColaAlertas } = require('./src/utils/colaAlertas');
 
 // Inicializar Express
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Fix QA-MEDIA (server.js): CORS restrictivo por variable de entorno.
+// CORS_ALLOWED_ORIGINS admite una lista separada por comas, ej.:
+//   CORS_ALLOWED_ORIGINS=https://midespacho.github.io,http://localhost:5500
+// Si la variable no está definida, se usa un valor por defecto seguro
+// solo para desarrollo local (evita dejar el servidor abierto por accidente
+// si alguien olvida configurar el .env en producción).
+const ORIGENES_PERMITIDOS = (process.env.CORS_ALLOWED_ORIGINS || 'http://localhost:5500,http://127.0.0.1:5500')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+
 // Configurar Middleware
 app.use(cors({
-    origin: '*', // En producción, especificar el dominio del frontend (ej. GitHub Pages)
+    origin: (origin, callback) => {
+        // Peticiones sin header Origin (curl, Postman, apps móviles, mismo servidor)
+        // se permiten porque no representan un navegador de terceros.
+        if (!origin || ORIGENES_PERMITIDOS.includes(origin)) {
+            return callback(null, true);
+        }
+        console.warn(`[CORS] Origen rechazado: ${origin}`);
+        return callback(new Error('Origen no autorizado por la política de CORS.'));
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -65,7 +86,12 @@ app.get('/api/health', (req, res) => {
 // Middleware para manejo global de errores
 app.use((err, req, res, next) => {
     console.error('[Error Global]', err.stack);
-    
+
+    // Los rechazos de CORS no son errores internos del servidor: son un 403.
+    if (err.message === 'Origen no autorizado por la política de CORS.') {
+        return res.status(403).json({ error: err.message });
+    }
+
     // Intentar registrar el fallo en la bitácora si es posible
     try {
         registrarLog({
@@ -98,6 +124,34 @@ const servidor = app.listen(PORT, () => {
     } catch (err) {
         console.error('[Semáforo] Error al realizar recálculo inicial:', err.message);
     }
+
+    // Fix hallazgo QA #15: antes el recálculo solo ocurría al iniciar el
+    // servidor o de forma manual (POST /api/alertas/recalcular). Si el
+    // proceso llevaba varios días corriendo sin reiniciarse, los estatus
+    // quedaban desactualizados. Ahora corre todos los días a las 00:00 UTC.
+    cron.schedule('0 0 * * *', () => {
+        try {
+            const total = recalcularTodos(db);
+            console.log(`[Cron] Recálculo semafórico nocturno completado. Contribuyentes procesados: ${total}`);
+        } catch (err) {
+            console.error('[Cron] Error en el recálculo semafórico nocturno:', err.message);
+        }
+    }, { timezone: 'UTC' });
+
+    // Fix hallazgo QA #13: procesa la cola persistente de alertas
+    // (reintentos con backoff real de 5/15/30 min) cada minuto, para que
+    // los mensajes agendados por /api/alertas/probar o por el aviso a
+    // supervisores (hallazgo #16) efectivamente se envíen con el tiempo.
+    cron.schedule('* * * * *', async () => {
+        try {
+            const resultado = await procesarColaAlertas();
+            if (resultado.procesadas > 0) {
+                console.log(`[Cron] Cola de alertas: ${resultado.enviadas} enviadas, ${resultado.fallidas} fallidas definitivamente, de ${resultado.procesadas} procesadas.`);
+            }
+        } catch (err) {
+            console.error('[Cron] Error al procesar la cola de alertas:', err.message);
+        }
+    });
 });
 
 // Manejar apagado seguro del servidor

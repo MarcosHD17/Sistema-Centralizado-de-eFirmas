@@ -14,6 +14,9 @@ CREATE TABLE IF NOT EXISTS usuarios (
     rol             TEXT NOT NULL CHECK(rol IN ('admin', 'supervisor', 'operador')),
     totp_secret     TEXT,
     totp_activado   INTEGER NOT NULL DEFAULT 0,
+    -- Control de fuerza bruta (OBS-001): intentos fallidos consecutivos y bloqueo temporal
+    intentos_fallidos INTEGER NOT NULL DEFAULT 0,
+    bloqueado_hasta   INTEGER,
     estatus         TEXT NOT NULL DEFAULT 'pendiente' CHECK(estatus IN ('activo', 'inactivo', 'pendiente')),
     token_activacion TEXT,
     token_expira_en INTEGER,
@@ -38,6 +41,8 @@ CREATE TABLE IF NOT EXISTS contribuyentes (
     -- Estatus calculado por el motor semafórico
     estatus             TEXT NOT NULL DEFAULT 'vigente' CHECK(estatus IN ('vigente', 'preventivo', 'critico', 'expirado')),
     dias_restantes      INTEGER,
+    -- Soft-delete (CU-01c): 1 = activo/visible, 0 = dado de baja
+    activo               INTEGER NOT NULL DEFAULT 1,
     responsable_id      INTEGER NOT NULL REFERENCES usuarios(id),
     creado_en           INTEGER NOT NULL DEFAULT (unixepoch()),
     actualizado_en      INTEGER NOT NULL DEFAULT (unixepoch())
@@ -94,6 +99,24 @@ CREATE TABLE IF NOT EXISTS bitacora_logs (
     current_hash    TEXT NOT NULL
 );
 
+-- Tabla de Cola de Alertas con Reintentos Persistentes (OBS-005)
+-- Sobrevive a reinicios del servidor: una alerta pendiente no se
+-- pierde si el proceso cae a mitad de un reintento.
+CREATE TABLE IF NOT EXISTS cola_alertas (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    tipo                TEXT NOT NULL CHECK(tipo IN ('correo', 'whatsapp')),
+    destinatario        TEXT NOT NULL,
+    asunto              TEXT,
+    mensaje             TEXT NOT NULL,
+    intentos_realizados INTEGER NOT NULL DEFAULT 0,
+    max_intentos        INTEGER NOT NULL DEFAULT 3,
+    proximo_reintento_en INTEGER NOT NULL DEFAULT (unixepoch()),
+    estatus             TEXT NOT NULL DEFAULT 'pendiente' CHECK(estatus IN ('pendiente', 'enviado', 'fallido')),
+    ultimo_error        TEXT,
+    creado_en           INTEGER NOT NULL DEFAULT (unixepoch()),
+    actualizado_en      INTEGER NOT NULL DEFAULT (unixepoch())
+);
+
 -- Índices de Rendimiento
 CREATE INDEX IF NOT EXISTS idx_contribuyentes_estatus ON contribuyentes(estatus);
 CREATE INDEX IF NOT EXISTS idx_contribuyentes_responsable ON contribuyentes(responsable_id);
@@ -101,3 +124,5 @@ CREATE INDEX IF NOT EXISTS idx_contribuyentes_vencimiento ON contribuyentes(fech
 CREATE INDEX IF NOT EXISTS idx_bitacora_timestamp ON bitacora_logs(timestamp_utc DESC);
 CREATE INDEX IF NOT EXISTS idx_bitacora_usuario ON bitacora_logs(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_consultas_usuario_fecha ON consultas_contrasena_log(usuario_id, fecha_consulta);
+CREATE INDEX IF NOT EXISTS idx_cola_alertas_estatus ON cola_alertas(estatus, proximo_reintento_en);
+CREATE INDEX IF NOT EXISTS idx_contribuyentes_activo ON contribuyentes(activo);

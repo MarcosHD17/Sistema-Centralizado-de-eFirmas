@@ -2,22 +2,25 @@
 // Versión: v2.2.0
 // Archivo: src/routes/contribuyentes.js
 // Descripción: CRUD completo de expedientes de contribuyentes.
-// GET    /api/contribuyentes          → Listar (con filtros y paginación)
-// POST   /api/contribuyentes          → Registrar nuevo expediente (CU-01 v1.1)
-// GET    /api/contribuyentes/:rfc     → Obtener expediente por RFC
-// PUT    /api/contribuyentes/:rfc     → Renovar certificado (CU-01b)
-// DELETE /api/contribuyentes/:rfc     → Dar de baja (soft-delete)
-// POST   /api/contribuyentes/:rfc/key → Consultar contraseña cifrada (CU-04, límite 10/día)
-// GET    /api/dashboard/kpis          → KPIs del tablero ejecutivo
+// GET    /api/contribuyentes                  → Listar (con filtros y paginación)
+// POST   /api/contribuyentes                  → Registrar nuevo expediente (CU-01 v1.1)
+// GET    /api/contribuyentes/dashboard/kpis    → KPIs del tablero ejecutivo (declarada antes de '/:rfc' — fix QA #1)
+// GET    /api/contribuyentes/:rfc              → Obtener expediente por RFC
+// PUT    /api/contribuyentes/:rfc              → Renovar certificado (CU-01b), con validación de cartera (fix QA #2)
+// DELETE /api/contribuyentes/:rfc              → Dar de baja (soft-delete, admin/supervisor) [fix QA #5]
+// POST   /api/contribuyentes/extraer-certificado → Leer metadatos reales del .cer (X.509) [fix QA #11]
+// POST   /api/contribuyentes/:rfc/key          → Consultar contraseña cifrada (CU-04, límite 10/día)
 // ============================================================
 
 'use strict';
 
 const express = require('express');
+const crypto = require('crypto');
 const db = require('../db/database');
 const { autenticar, requerirRol, obtenerIP } = require('../middleware/auth');
 const { registrarLog } = require('../utils/ledger');
 const { calcularEstatus } = require('../utils/semaforo');
+const { encolarAlerta } = require('../utils/colaAlertas');
 require('dotenv').config();
 
 const router = express.Router();
@@ -34,7 +37,7 @@ router.get('/', autenticar, (req, res) => {
         SELECT c.*, u.nombre AS responsable_nombre
         FROM contribuyentes c
         LEFT JOIN usuarios u ON c.responsable_id = u.id
-        WHERE 1=1
+        WHERE c.activo = 1
     `;
     const params = [];
 
@@ -133,6 +136,101 @@ router.post('/', autenticar, requerirRol('admin', 'supervisor', 'operador'), (re
 });
 
 // ─────────────────────────────────────────────────
+// POST /api/contribuyentes/extraer-certificado
+// Fix hallazgo QA #11 (parte 1/2): lee metadatos REALES del
+// certificado público .cer (RFC/razón social vía subject, fechas de
+// vigencia, número de serie, emisor) usando el módulo nativo 'crypto'
+// de Node (crypto.X509Certificate, disponible desde Node 15.6+).
+// Solo procesa el archivo .cer PÚBLICO — la contraseña y el archivo
+// .key NUNCA se envían a este ni a ningún otro endpoint del backend,
+// consistente con el criterio de aceptación de CU-01.
+// ─────────────────────────────────────────────────
+router.post('/extraer-certificado', autenticar, requerirRol('admin', 'supervisor', 'operador'), (req, res) => {
+    const { cer_base64 } = req.body;
+
+    if (!cer_base64) {
+        return res.status(400).json({ error: 'Se requiere el archivo .cer codificado en base64 (campo cer_base64).' });
+    }
+
+    let x509;
+    try {
+        const cerBuffer = Buffer.from(cer_base64, 'base64');
+        x509 = new crypto.X509Certificate(cerBuffer);
+    } catch (err) {
+        return res.status(400).json({
+            error: 'El archivo no es un certificado X.509 válido o está corrupto.',
+            codigo: 'CERTIFICADO_INVALIDO',
+            detalle: err.message
+        });
+    }
+
+    // El campo "subject" trae pares clave=valor (ej. "CN=..., x500UniqueIdentifier=RFC...").
+    // Los CSD/e.firma del SAT suelen incluir el RFC en x500UniqueIdentifier o en el CN;
+    // se intentan ambos patrones y se deja vacío si no se puede inferir con certeza,
+    // para que el operador lo confirme manualmente en el formulario.
+    const subject = x509.subject || '';
+    const partes = Object.fromEntries(
+        subject.split('\n').map(l => l.split('=').map(s => s.trim())).filter(p => p.length === 2)
+    );
+
+    const rfcDetectado = (partes['x500UniqueIdentifier'] || '').toUpperCase().match(/^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{3}$/)
+        ? partes['x500UniqueIdentifier'].toUpperCase()
+        : '';
+
+    res.json({
+        rfc_detectado: rfcDetectado,
+        razon_social_detectada: partes['CN'] || partes['O'] || '',
+        fecha_emision: x509.validFrom ? new Date(x509.validFrom).toISOString().split('T')[0] : '',
+        fecha_vencimiento: x509.validTo ? new Date(x509.validTo).toISOString().split('T')[0] : '',
+        cer_numero_serie: x509.serialNumber || '',
+        cer_emisor: x509.issuer || '',
+        requiere_confirmacion_manual: !rfcDetectado,
+        mensaje: rfcDetectado
+            ? 'Certificado leído correctamente. Verifica los datos antes de guardar.'
+            : 'Certificado leído, pero no fue posible inferir el RFC automáticamente. Complétalo manualmente.'
+    });
+});
+
+// ─────────────────────────────────────────────────
+// GET /api/contribuyentes/dashboard/kpis
+// KPIs para el tablero ejecutivo
+// NOTA (fix QA-CRÍTICO #1): esta ruta DEBE declararse antes que
+// GET '/:rfc'. Express evalúa las rutas en el orden en que se
+// registran; si '/:rfc' se declara primero, intercepta cualquier
+// petición a '/dashboard/kpis' interpretando 'dashboard' como si
+// fuera un RFC, y el endpoint de KPIs nunca es alcanzado.
+// ─────────────────────────────────────────────────
+router.get('/dashboard/kpis', autenticar, (req, res) => {
+    // Fix hallazgo #5: los KPIs deben excluir contribuyentes dados de baja
+    let whereClause = 'WHERE activo = 1';
+    const params = [];
+
+    if (req.user.rol === 'operador') {
+        whereClause += ' AND responsable_id = ?';
+        params.push(req.user.id);
+    }
+
+    const total        = db.prepare(`SELECT COUNT(*) AS n FROM contribuyentes ${whereClause}`).get(...params).n;
+    const vigentes     = db.prepare(`SELECT COUNT(*) AS n FROM contribuyentes ${whereClause} AND estatus = 'vigente'`).get(...params).n;
+    const preventivos  = db.prepare(`SELECT COUNT(*) AS n FROM contribuyentes ${whereClause} AND estatus = 'preventivo'`).get(...params).n;
+    const criticos     = db.prepare(`SELECT COUNT(*) AS n FROM contribuyentes ${whereClause} AND estatus = 'critico'`).get(...params).n;
+    const expirados    = db.prepare(`SELECT COUNT(*) AS n FROM contribuyentes ${whereClause} AND estatus = 'expirado'`).get(...params).n;
+
+    // Próximos a vencer en los siguientes 30 días
+    const proximos30d = db.prepare(`
+        SELECT rfc, razon_social, fecha_vencimiento, dias_restantes, estatus
+        FROM contribuyentes ${whereClause}
+        AND dias_restantes BETWEEN 0 AND 30
+        ORDER BY dias_restantes ASC LIMIT 5
+    `).all(...params);
+
+    res.json({
+        total, vigentes, preventivos, criticos, expirados,
+        proximos_a_vencer: proximos30d
+    });
+});
+
+// ─────────────────────────────────────────────────
 // GET /api/contribuyentes/:rfc
 // Obtener expediente completo por RFC
 // ─────────────────────────────────────────────────
@@ -143,7 +241,7 @@ router.get('/:rfc', autenticar, (req, res) => {
         SELECT c.*, u.nombre AS responsable_nombre, u.email AS responsable_email
         FROM contribuyentes c
         LEFT JOIN usuarios u ON c.responsable_id = u.id
-        WHERE c.rfc = ?
+        WHERE c.rfc = ? AND c.activo = 1
     `;
     const params = [rfc];
 
@@ -185,9 +283,20 @@ router.put('/:rfc', autenticar, requerirRol('admin', 'supervisor', 'operador'), 
         return res.status(400).json({ error: 'Las nuevas fechas de emisión y vencimiento son requeridas.' });
     }
 
-    const existente = db.prepare('SELECT * FROM contribuyentes WHERE rfc = ?').get(rfc);
+    const existente = db.prepare('SELECT * FROM contribuyentes WHERE rfc = ? AND activo = 1').get(rfc);
     if (!existente) {
         return res.status(404).json({ error: `Contribuyente con RFC ${rfc} no encontrado.` });
+    }
+
+    // Fix QA-CRÍTICO #2 (fuga de RBAC): a diferencia de GET /:rfc, este
+    // endpoint no validaba que un operador solo pueda renovar contribuyentes
+    // de su propia cartera. Se aplica el mismo criterio de aislamiento que
+    // ya usa el listado y la consulta individual (responsable_id === req.user.id).
+    if (req.user.rol === 'operador' && existente.responsable_id !== req.user.id) {
+        return res.status(403).json({
+            error: 'No tienes permiso para renovar un contribuyente fuera de tu cartera asignada.',
+            codigo: 'FUERA_DE_CARTERA'
+        });
     }
 
     const renovar = db.transaction(() => {
@@ -235,6 +344,37 @@ router.put('/:rfc', autenticar, requerirRol('admin', 'supervisor', 'operador'), 
 });
 
 // ─────────────────────────────────────────────────
+// DELETE /api/contribuyentes/:rfc
+// Dar de baja un expediente (soft-delete, CU-01c) — fix hallazgo QA #5.
+// No se borra físicamente el registro (se conserva para auditoría e
+// historial_renovaciones); solo se marca activo = 0 y desaparece de
+// los listados normales. Restringido a admin/supervisor: es una
+// acción destructiva que no debe quedar en manos de operadores.
+// ─────────────────────────────────────────────────
+router.delete('/:rfc', autenticar, requerirRol('admin', 'supervisor'), (req, res) => {
+    const rfc = req.params.rfc.toUpperCase();
+
+    const existente = db.prepare('SELECT * FROM contribuyentes WHERE rfc = ? AND activo = 1').get(rfc);
+    if (!existente) {
+        return res.status(404).json({ error: `Contribuyente con RFC ${rfc} no encontrado.` });
+    }
+
+    db.prepare(
+        'UPDATE contribuyentes SET activo = 0, actualizado_en = ? WHERE rfc = ?'
+    ).run(Math.floor(Date.now() / 1000), rfc);
+
+    registrarLog({
+        usuario_id: req.user.id,
+        usuario_email: req.user.email,
+        accion: 'CONTRIBUYENTE_BAJA',
+        detalle: `RFC: ${rfc} | Razón social: ${existente.razon_social} | Dado de baja (soft-delete).`,
+        ip_origen: obtenerIP(req)
+    });
+
+    res.json({ ok: true, rfc, message: 'Contribuyente dado de baja exitosamente.' });
+});
+
+// ─────────────────────────────────────────────────
 // POST /api/contribuyentes/:rfc/key
 // Consultar el payload cifrado de la clave privada (CU-04 v1.1)
 // Solo Admin/Supervisor con TOTP activo. Límite: 10/día.
@@ -268,6 +408,26 @@ router.post('/:rfc/key', autenticar, requerirRol('admin', 'supervisor'), (req, r
             detalle: `Intentó consultar la clave de RFC: ${rfc}. Límite diario (${MAX}) alcanzado.`,
             ip_origen: ip
         });
+
+        // Fix hallazgo QA #16: antes solo quedaba en la bitácora; ahora se
+        // notifica proactivamente a supervisores/admins activos en vez de
+        // depender de que alguien revise los logs manualmente.
+        try {
+            const responsables = db.prepare(
+                "SELECT email FROM usuarios WHERE rol IN ('admin', 'supervisor') AND estatus = 'activo'"
+            ).all();
+            for (const r of responsables) {
+                encolarAlerta({
+                    tipo: 'correo',
+                    destinatario: r.email,
+                    asunto: 'Límite diario de consultas de clave excedido',
+                    mensaje: `El usuario ${req.user.email} alcanzó el límite diario de ${MAX} consultas de claves privadas (último intento sobre RFC ${rfc}). Revisa la bitácora de auditoría.`
+                });
+            }
+        } catch (e) {
+            console.error('[Alertas] No fue posible encolar la notificación a supervisores:', e.message);
+        }
+
         return res.status(429).json({
             error: `Límite diario de ${MAX} consultas de claves alcanzado. Intenta mañana.`,
             codigo: 'LIMITE_DIARIO_EXCEDIDO'
@@ -275,7 +435,7 @@ router.post('/:rfc/key', autenticar, requerirRol('admin', 'supervisor'), (req, r
     }
 
     const contribuyente = db.prepare(
-        'SELECT key_payload_cifrado, razon_social FROM contribuyentes WHERE rfc = ?'
+        'SELECT key_payload_cifrado, razon_social FROM contribuyentes WHERE rfc = ? AND activo = 1'
     ).get(rfc);
 
     if (!contribuyente) {
@@ -306,39 +466,6 @@ router.post('/:rfc/key', autenticar, requerirRol('admin', 'supervisor'), (req, r
         key_payload_cifrado: contribuyente.key_payload_cifrado,
         consultas_usadas: consultas_hoy + 1,
         consultas_restantes: MAX - (consultas_hoy + 1)
-    });
-});
-
-// ─────────────────────────────────────────────────
-// GET /api/dashboard/kpis
-// KPIs para el tablero ejecutivo
-// ─────────────────────────────────────────────────
-router.get('/dashboard/kpis', autenticar, (req, res) => {
-    let whereClause = '';
-    const params = [];
-
-    if (req.user.rol === 'operador') {
-        whereClause = 'WHERE responsable_id = ?';
-        params.push(req.user.id);
-    }
-
-    const total        = db.prepare(`SELECT COUNT(*) AS n FROM contribuyentes ${whereClause}`).get(...params).n;
-    const vigentes     = db.prepare(`SELECT COUNT(*) AS n FROM contribuyentes ${whereClause ? whereClause + ' AND' : 'WHERE'} estatus = 'vigente'`).get(...params).n;
-    const preventivos  = db.prepare(`SELECT COUNT(*) AS n FROM contribuyentes ${whereClause ? whereClause + ' AND' : 'WHERE'} estatus = 'preventivo'`).get(...params).n;
-    const criticos     = db.prepare(`SELECT COUNT(*) AS n FROM contribuyentes ${whereClause ? whereClause + ' AND' : 'WHERE'} estatus = 'critico'`).get(...params).n;
-    const expirados    = db.prepare(`SELECT COUNT(*) AS n FROM contribuyentes ${whereClause ? whereClause + ' AND' : 'WHERE'} estatus = 'expirado'`).get(...params).n;
-
-    // Próximos a vencer en los siguientes 30 días
-    const proximos30d = db.prepare(`
-        SELECT rfc, razon_social, fecha_vencimiento, dias_restantes, estatus
-        FROM contribuyentes ${whereClause}
-        ${whereClause ? 'AND' : 'WHERE'} dias_restantes BETWEEN 0 AND 30
-        ORDER BY dias_restantes ASC LIMIT 5
-    `).all(...params);
-
-    res.json({
-        total, vigentes, preventivos, criticos, expirados,
-        proximos_a_vencer: proximos30d
     });
 });
 

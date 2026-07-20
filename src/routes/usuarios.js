@@ -115,14 +115,44 @@ router.put('/:id', autenticar, requerirRol('admin'), (req, res) => {
         return res.status(404).json({ error: 'Usuario no encontrado.' });
     }
 
-    db.prepare(`
-        UPDATE usuarios
-        SET nombre = COALESCE(?, nombre),
-            email  = COALESCE(?, email),
-            rol    = COALESCE(?, rol),
-            actualizado_en = ?
-        WHERE id = ?
-    `).run(nombre || null, email || null, rol || null, Math.floor(Date.now() / 1000), id);
+    // Fix QA-ALTA (usuarios.js): validar duplicidad de email ANTES del UPDATE,
+    // excluyendo al propio usuario que se está editando. Antes, un email ya
+    // usado por otro usuario llegaba directo a la restricción UNIQUE de la BD
+    // y provocaba un 500 no controlado.
+    if (email) {
+        const emailEnUso = db.prepare(
+            'SELECT id FROM usuarios WHERE email = ? AND id != ?'
+        ).get(email, id);
+        if (emailEnUso) {
+            return res.status(409).json({
+                error: 'Ya existe otro usuario registrado con ese email.',
+                codigo: 'EMAIL_DUPLICADO'
+            });
+        }
+    }
+
+    const roles_validos = ['admin', 'supervisor', 'operador'];
+    if (rol && !roles_validos.includes(rol)) {
+        return res.status(400).json({ error: `Rol inválido. Opciones: ${roles_validos.join(', ')}` });
+    }
+
+    try {
+        db.prepare(`
+            UPDATE usuarios
+            SET nombre = COALESCE(?, nombre),
+                email  = COALESCE(?, email),
+                rol    = COALESCE(?, rol),
+                actualizado_en = ?
+            WHERE id = ?
+        `).run(nombre || null, email || null, rol || null, Math.floor(Date.now() / 1000), id);
+    } catch (err) {
+        // Red de seguridad adicional por si otra restricción de la BD falla
+        // (ej. condición de carrera con otro alta simultánea del mismo email).
+        return res.status(409).json({
+            error: 'No fue posible actualizar el usuario: conflicto con datos existentes.',
+            detalle: err.message
+        });
+    }
 
     registrarLog({
         usuario_id: req.user.id,
