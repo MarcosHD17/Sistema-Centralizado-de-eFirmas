@@ -65,6 +65,7 @@ const usuariosRouter = require('./src/routes/usuarios');
 const contribuyentesRouter = require('./src/routes/contribuyentes');
 const bitacoraRouter = require('./src/routes/bitacora');
 const alertasRouter = require('./src/routes/alertas');
+const downloadsRouter = require('./src/routes/downloads');
 
 // Registrar Rutas de la API
 app.use('/api/auth', authRouter);
@@ -72,6 +73,7 @@ app.use('/api/usuarios', usuariosRouter);
 app.use('/api/contribuyentes', contribuyentesRouter);
 app.use('/api/bitacora', bitacoraRouter);
 app.use('/api/alertas', alertasRouter);
+app.use('/api/download', downloadsRouter);
 
 // Ruta de estado de salud (Health Check)
 app.get('/api/health', (req, res) => {
