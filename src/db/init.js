@@ -183,6 +183,27 @@ const initSchema = db.transaction(() => {
     `);
 
     // ─────────────────────────────────────────────────
+    // TABLA: download_tokens
+    // Enlaces temporales de descarga segura (TTL & Single-Use)
+    // ─────────────────────────────────────────────────
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS download_tokens (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            token_hash TEXT NOT NULL UNIQUE,
+            contribuyente_id INTEGER NOT NULL,
+            file_type TEXT CHECK(file_type IN ('CER', 'KEY')) NOT NULL,
+            expires_at DATETIME NOT NULL,
+            is_used INTEGER DEFAULT 0,
+            created_by INTEGER NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            ip_creacion TEXT,
+            ip_descarga TEXT,
+            FOREIGN KEY (contribuyente_id) REFERENCES contribuyentes(id) ON DELETE CASCADE,
+            FOREIGN KEY (created_by) REFERENCES usuarios(id)
+        );
+    `);
+
+    // ─────────────────────────────────────────────────
     // ÍNDICES para optimizar consultas frecuentes
     // ─────────────────────────────────────────────────
     db.exec(`
@@ -194,6 +215,7 @@ const initSchema = db.transaction(() => {
         CREATE INDEX IF NOT EXISTS idx_bitacora_usuario ON bitacora_logs(usuario_id);
         CREATE INDEX IF NOT EXISTS idx_consultas_usuario_fecha ON consultas_contrasena_log(usuario_id, fecha_consulta);
         CREATE INDEX IF NOT EXISTS idx_cola_alertas_estatus ON cola_alertas(estatus, proximo_reintento_en);
+        CREATE INDEX IF NOT EXISTS idx_download_tokens_hash ON download_tokens(token_hash);
     `);
 
 });

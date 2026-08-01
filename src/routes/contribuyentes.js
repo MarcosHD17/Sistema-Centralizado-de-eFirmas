@@ -468,5 +468,59 @@ router.post('/:rfc/key', autenticar, requerirRol('admin', 'supervisor'), (req, r
         consultas_restantes: MAX - (consultas_hoy + 1)
     });
 });
+// ─────────────────────────────────────────────────
+// POST /api/contribuyentes/:rfc/download-token
+// Generar un token temporal para descarga segura de archivos (CER o KEY)
+// ─────────────────────────────────────────────────
+router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor', 'operador'), (req, res) => {
+    const rfc = req.params.rfc.toUpperCase();
+    const { file_type, ttl_minutes = 60 } = req.body;
+    const { generarTokenSeguro, hashToken, calcularExpiracion } = require('../utils/token');
+
+    if (!file_type || !['CER', 'KEY'].includes(file_type.toUpperCase())) {
+        return res.status(400).json({ error: 'file_type debe ser CER o KEY.' });
+    }
+
+    const ttl = parseInt(ttl_minutes);
+    if (isNaN(ttl) || ttl <= 0 || ttl > 1440) {
+        return res.status(400).json({ error: 'ttl_minutes debe ser un número entre 1 y 1440 (24 horas).' });
+    }
+
+    const contribuyente = db.prepare('SELECT id, razon_social FROM contribuyentes WHERE rfc = ? AND activo = 1').get(rfc);
+    if (!contribuyente) {
+        return res.status(404).json({ error: `Contribuyente con RFC ${rfc} no encontrado.` });
+    }
+
+    try {
+        const tokenPlano = generarTokenSeguro();
+        const tokenHash = hashToken(tokenPlano);
+        const fechaExpiracion = calcularExpiracion(ttl);
+        const ip_creacion = obtenerIP(req);
+
+        db.prepare(`
+            INSERT INTO download_tokens 
+            (token_hash, contribuyente_id, file_type, expires_at, created_by, ip_creacion)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `).run(tokenHash, contribuyente.id, file_type.toUpperCase(), fechaExpiracion, req.user.id, ip_creacion);
+
+        registrarLog({
+            usuario_id: req.user.id,
+            usuario_email: req.user.email,
+            accion: 'GENERACION_ENLACE_DESCARGA',
+            detalle: `RFC: ${rfc} | Archivo: ${file_type.toUpperCase()} | TTL: ${ttl} min | Expira: ${fechaExpiracion}`,
+            ip_origen: ip_creacion
+        });
+
+        res.status(201).json({
+            ok: true,
+            mensaje: 'Enlace temporal creado exitosamente',
+            download_url: `/api/download/${tokenPlano}`,
+            expires_at: fechaExpiracion,
+            file_type: file_type.toUpperCase()
+        });
+    } catch (err) {
+        res.status(500).json({ error: 'Error al generar el token de descarga.', detalle: err.message });
+    }
+});
 
 module.exports = router;

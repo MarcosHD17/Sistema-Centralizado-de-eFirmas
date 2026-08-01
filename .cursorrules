@@ -1,0 +1,26 @@
+# Reglas de Desarrollo y Gobernanza - SAT Control Manager (v2.2.3)
+
+## Restricciones Generales
+1. NUNCA realizar cambios directamente en la rama `main`. Todo el trabajo debe realizarse en ramas de características (`feature/*`).
+2. NO modificar ni alterar el núcleo criptográfico existente (AES-GCM-256 + PBKDF2 / Web Crypto / node-forge) ni el flujo de lectura en memoria validado en QA v2.2.0/v2.2.3.
+3. Cada iteración o cambio en código debe ser modular, probado y documentado previamente en `STATE.md`.
+
+## Estándares de Base de Datos (SQLite / better-sqlite3)
+1. Utilizar consultas preparadas (`db.prepare(...)`) para prevenir inyecciones SQL.
+2. Manejar transacciones explícitas (`db.transaction(...)`) en operaciones compuestas o críticas.
+3. No realizar cambios destructivos en las tablas existentes (`contribuyentes`, `bitacora_logs`) sin un script de migración previo.
+4. Nota del esquema actual: `contribuyentes` utiliza `id` AUTOINCREMENT como PK y `rfc` UNIQUE; los metadatos de certificados usan `cer_numero_serie` y `cer_emisor`.
+
+## Manejo de Archivos y Tokens Seguros
+1. Ningún archivo sensible (`.key`, `.cer`) debe exponerse mediante rutas estáticas sin autenticación o token validado.
+2. Los tokens de descarga deben almacenarse en la base de datos utilizando HASHING (ej. SHA-256) y NUNCA en texto plano.
+3. Los enlaces deben ser de ÚNICO USO (`is_used = 1`) e invalidarse inmediatamente tras ser consumidos o al expirar su tiempo de vida (TTL).
+4. Toda descarga o intento de descarga mediante token DEBE registrarse en la `bitacora_logs` utilizando el formato real de hash de auditoría:
+   SHA256(timestamp_utc | usuario_email | accion | detalle | ip_origen | prev_hash)
+
+## Flujo de Trabajo
+1. Consultar siempre `PRD.md` antes de implementar cualquier cambio.
+2. Registrar cada cambio, prueba exitosa o decisión en `STATE.md`.
+
+## Protocolo de Pruebas y Optimización
+1. EL AGENTE NO DEBE ejecutar suites de pruebas ni comandos pesados en la terminal por su cuenta. Para cada cambio, debe proporcionar los comandos exactos al desarrollador para que los ejecute localmente y reporte el resultado.
