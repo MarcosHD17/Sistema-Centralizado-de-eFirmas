@@ -477,8 +477,8 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
     const { file_type, ttl_minutes = 60 } = req.body;
     const { generarTokenSeguro, hashToken, calcularExpiracion } = require('../utils/token');
 
-    if (!file_type || !['CER', 'KEY'].includes(file_type.toUpperCase())) {
-        return res.status(400).json({ error: 'file_type debe ser CER o KEY.' });
+    if (!file_type || !['CER', 'KEY', 'ZIP'].includes(file_type.toUpperCase())) {
+        return res.status(400).json({ error: 'file_type debe ser CER, KEY o ZIP.' });
     }
 
     const ttl = parseInt(ttl_minutes);
@@ -486,9 +486,15 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
         return res.status(400).json({ error: 'ttl_minutes debe ser un número entre 1 y 1440 (24 horas).' });
     }
 
-    const contribuyente = db.prepare('SELECT id, razon_social FROM contribuyentes WHERE rfc = ? AND activo = 1').get(rfc);
+    const contribuyente = db.prepare('SELECT id, razon_social, cer_numero_serie, key_payload_cifrado FROM contribuyentes WHERE rfc = ? AND activo = 1').get(rfc);
     if (!contribuyente) {
         return res.status(404).json({ error: `Contribuyente con RFC ${rfc} no encontrado.` });
+    }
+
+    if (file_type.toUpperCase() === 'ZIP') {
+        if (!contribuyente.cer_numero_serie || !contribuyente.key_payload_cifrado) {
+            return res.status(400).json({ error: 'El contribuyente no cuenta con ambos archivos (.cer y .key) registrados para generar un paquete ZIP' });
+        }
     }
 
     try {
@@ -519,6 +525,7 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
             file_type: file_type.toUpperCase()
         });
     } catch (err) {
+        console.error(`[Token ZIP] Error interno al generar token para ${rfc}:`, err);
         res.status(500).json({ error: 'Error al generar el token de descarga.', detalle: err.message });
     }
 });
