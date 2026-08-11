@@ -1319,6 +1319,14 @@
                         Auditoría y Bitácora
                     </a>
                 </li>
+                <li class="sidebar-item" data-target="enlaces">
+                    <a href="#enlaces">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+                        </svg>
+                        Enlaces Temporales
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-footer" style="flex-wrap: wrap; gap: 12px; justify-content: space-between;">
@@ -2063,6 +2071,84 @@
                 </div>
             </div>
         </section>
+
+        <!-- MÓDULO: ENLACES TEMPORALES -->
+        <section id="enlaces" class="content-section">
+            <div class="page-header">
+                <h1>Enlaces Temporales de Descarga</h1>
+                <p>Genera enlaces criptográficos de único uso para compartir la FIEL de forma segura.</p>
+            </div>
+
+            <div class="dashboard-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Columna Izquierda: Formulario -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+                            </svg>
+                            Configurar Enlace
+                        </h2>
+                    </div>
+                    <form id="shareForm" onsubmit="return false;" style="margin-top: 15px;">
+                        <div class="form-group">
+                            <label>Seleccionar Contribuyente</label>
+                            <select id="shareRfcSelect" class="form-control" required>
+                                <option value="">-- Seleccione un contribuyente --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Archivo</label>
+                            <select id="shareFileType" class="form-control" required>
+                                <option value="CER">Certificado (.cer)</option>
+                                <option value="KEY">Clave Privada (.key)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tiempo de Expiración (TTL)</label>
+                            <select id="shareTtl" class="form-control" required>
+                                <option value="60">1 Hora</option>
+                                <option value="120">2 Horas</option>
+                                <option value="1440">24 Horas</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btnGenerateShare" style="width: 100%; margin-top: 10px;">Generar Enlace Seguro</button>
+                    </form>
+                    
+                    <div id="shareResult" class="hidden" style="margin-top: 25px; padding: 15px; background: rgba(16, 185, 129, 0.1); border: 1px dashed var(--success); border-radius: var(--radius-md); text-align: center;">
+                        <p style="font-size: 12px; color: var(--success); margin-bottom: 8px;">Enlace Seguro Generado:</p>
+                        <input type="text" id="shareUrlInput" class="form-control" readonly style="width: 100%; font-size: 11px; margin-bottom: 10px; text-align:center; padding: 8px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-page); color: var(--text-main);" />
+                        <button type="button" class="btn btn-outline" id="btnCopyShareUrl" style="width:100%; font-size: 12px; padding: 8px; color: var(--success); border-color: var(--success);">Copiar al Portapapeles</button>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Instrucciones -->
+                <div class="card" style="background-color: var(--bg-active); border: 1px dashed var(--border-color);">
+                    <div class="card-header">
+                        <h2 class="card-title" style="color: var(--info);">
+                            <svg viewBox="0 0 24 24" fill="var(--info)">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                            </svg>
+                            ¿Cómo funciona?
+                        </h2>
+                    </div>
+                    <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 15px; font-size: 10pt; color: var(--text-muted);">
+                        <div style="display: flex; gap: 12px; align-items: flex-start;">
+                            <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">1</div>
+                            <div><strong>Genera el enlace:</strong> Selecciona al cliente, el archivo y el tiempo de validez para crear un token criptográfico.</div>
+                        </div>
+                        <div style="display: flex; gap: 12px; align-items: flex-start;">
+                            <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">2</div>
+                            <div><strong>Compártelo:</strong> Copia el enlace y envíaselo al cliente o colaborador. Funciona sin necesidad de iniciar sesión.</div>
+                        </div>
+                        <div style="display: flex; gap: 12px; align-items: flex-start;">
+                            <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--danger); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">3</div>
+                            <div><strong>Autodestrucción:</strong> El enlace expirará automáticamente o <strong>se destruirá</strong> en la primera descarga exitosa.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- VENTANA MODAL: AGREGAR USUARIO -->
@@ -2143,6 +2229,7 @@
                     if (targetId === 'usuarios') cargarUsuarios();
                     if (targetId === 'bitacora') cargarBitacora();
                     if (targetId === 'alertas') cargarAlertasConfig();
+                    if (targetId === 'enlaces') cargarEnlacesDropdown();
                 });
             });
 
@@ -2476,6 +2563,7 @@
                         tr.innerHTML = `
                             <td>
                                 <strong style="cursor:pointer; color:var(--accent);" class="client-rfc-link" data-rfc="${c.rfc}">${c.rfc}</strong>
+                                <span style="margin-left: 8px; font-size: 10px; color: var(--info); cursor: pointer;" onclick="window.abrirSeccionCompartir('${c.rfc}')">[Compartir]</span>
                                 <br><span style="color: var(--text-muted);">${c.razon_social}</span>
                             </td>
                             <td>${c.responsable_nombre || 'No asignado'}</td>
@@ -3140,8 +3228,82 @@
                 }
                 showToast('Línea de tiempo de renovaciones actualizada.', 'info');
             });
+
+            // --- ENLACES TEMPORALES (SECCIÓN DEDICADA) ---
+            window.abrirSeccionCompartir = function(rfc) {
+                const navEnlaces = document.querySelector('[data-target="enlaces"]');
+                if (navEnlaces) navEnlaces.click();
+                
+                setTimeout(() => {
+                    const select = document.getElementById('shareRfcSelect');
+                    if (select) select.value = rfc;
+                    document.getElementById('shareResult').classList.add('hidden');
+                }, 400); 
+            };
+
+            async function cargarEnlacesDropdown() {
+                try {
+                    const res = await apiFetch('/contribuyentes');
+                    const lista = res.data || [];
+                    const select = document.getElementById('shareRfcSelect');
+                    const currentValue = select.value; 
+                    
+                    select.innerHTML = '<option value="">-- Seleccione un contribuyente --</option>';
+                    lista.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.rfc;
+                        opt.textContent = `${c.rfc} - ${c.razon_social}`;
+                        select.appendChild(opt);
+                    });
+                    
+                    if (currentValue && lista.find(c => c.rfc === currentValue)) {
+                        select.value = currentValue;
+                    }
+                } catch (err) {
+                    showToast('Error al cargar la lista de contribuyentes', 'danger');
+                }
+            }
+
+            document.getElementById('shareForm').addEventListener('submit', async () => {
+                const rfc = document.getElementById('shareRfcSelect').value;
+                const fileType = document.getElementById('shareFileType').value;
+                const ttl = document.getElementById('shareTtl').value;
+                
+                if (!rfc) {
+                    showToast('Selecciona un contribuyente.', 'warning');
+                    return;
+                }
+                
+                try {
+                    const btn = document.getElementById('btnGenerateShare');
+                    btn.disabled = true;
+                    btn.textContent = 'Generando...';
+
+                    const data = await apiFetch(`/contribuyentes/${rfc}/download-token`, {
+                        method: 'POST',
+                        body: JSON.stringify({ file_type: fileType, ttl_minutes: ttl })
+                    });
+                    
+                    const fullUrl = window.location.origin + data.download_url;
+                    document.getElementById('shareUrlInput').value = fullUrl;
+                    document.getElementById('shareResult').classList.remove('hidden');
+                    showToast('Enlace de único uso generado correctamente.', 'success');
+                } catch (err) {
+                    showToast(err.message || 'Error al generar el enlace', 'danger');
+                } finally {
+                    const btn = document.getElementById('btnGenerateShare');
+                    btn.disabled = false;
+                    btn.textContent = 'Generar Enlace Seguro';
+                }
+            });
+
+            document.getElementById('btnCopyShareUrl').addEventListener('click', () => {
+                const urlInput = document.getElementById('shareUrlInput');
+                urlInput.select();
+                document.execCommand('copy');
+                showToast('Enlace copiado al portapapeles', 'success');
+            });
         });
     </script>
 </body>
-
 </html>
