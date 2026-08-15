@@ -472,10 +472,11 @@ router.post('/:rfc/key', autenticar, requerirRol('admin', 'supervisor'), (req, r
 // POST /api/contribuyentes/:rfc/download-token
 // Generar un token temporal para descarga segura de archivos (CER o KEY)
 // ─────────────────────────────────────────────────
-router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor', 'operador'), (req, res) => {
+router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor', 'operador'), async (req, res) => {
     const rfc = req.params.rfc.toUpperCase();
-    const { file_type, ttl_minutes = 60 } = req.body;
+    const { file_type, ttl_minutes = 60, email_destino } = req.body;
     const { generarTokenSeguro, hashToken, calcularExpiracion } = require('../utils/token');
+    const { enviarEnlaceTemporal } = require('../services/emailService');
 
     if (!file_type || !['CER', 'KEY', 'ZIP'].includes(file_type.toUpperCase())) {
         return res.status(400).json({ error: 'file_type debe ser CER, KEY o ZIP.' });
@@ -517,12 +518,41 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
             ip_origen: ip_creacion
         });
 
+        const downloadUrl = `/api/download/${tokenPlano}`;
+        let previewUrl = null;
+
+        // Si se provee un email de destino, enviar el correo de notificación
+        if (email_destino) {
+            const emailResult = await enviarEnlaceTemporal({
+                emailDestino: email_destino,
+                rfc: rfc,
+                razonSocial: contribuyente.razon_social,
+                fileType: file_type.toUpperCase(),
+                downloadUrl: req.protocol + '://' + req.get('host') + downloadUrl,
+                expiresAt: fechaExpiracion
+            });
+
+            if (emailResult.success) {
+                registrarLog({
+                    usuario_id: req.user.id,
+                    usuario_email: req.user.email,
+                    accion: 'ENVIO_CORREO_ENLACE_TEMPORAL',
+                    detalle: `Enviado a: ${email_destino} | RFC: ${rfc} | Archivo: ${file_type.toUpperCase()}`,
+                    ip_origen: ip_creacion
+                });
+                previewUrl = emailResult.previewUrl;
+            } else {
+                console.error(`[Token Correo] Falló el envío de correo a ${email_destino}: ${emailResult.error}`);
+            }
+        }
+
         res.status(201).json({
             ok: true,
             mensaje: 'Enlace temporal creado exitosamente',
-            download_url: `/api/download/${tokenPlano}`,
+            download_url: downloadUrl,
             expires_at: fechaExpiracion,
-            file_type: file_type.toUpperCase()
+            file_type: file_type.toUpperCase(),
+            preview_url: previewUrl
         });
     } catch (err) {
         console.error(`[Token ZIP] Error interno al generar token para ${rfc}:`, err);
