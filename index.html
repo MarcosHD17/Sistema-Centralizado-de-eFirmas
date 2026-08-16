@@ -2102,6 +2102,7 @@
                             <select id="shareFileType" class="form-control" required>
                                 <option value="CER">Certificado (.cer)</option>
                                 <option value="KEY">Clave Privada (.key)</option>
+                                <option value="ZIP">Paquete Completo (.zip - .cer + .key)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -2112,6 +2113,10 @@
                                 <option value="1440">24 Horas</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label>Correo del Cliente (Opcional)</label>
+                            <input type="email" id="shareEmailDestino" class="form-control" placeholder="correo@cliente.com (opcional para enviar por email)">
+                        </div>
                         <button type="submit" class="btn btn-primary" id="btnGenerateShare" style="width: 100%; margin-top: 10px;">Generar Enlace Seguro</button>
                     </form>
                     
@@ -2119,6 +2124,7 @@
                         <p style="font-size: 12px; color: var(--success); margin-bottom: 8px;">Enlace Seguro Generado:</p>
                         <input type="text" id="shareUrlInput" class="form-control" readonly style="width: 100%; font-size: 11px; margin-bottom: 10px; text-align:center; padding: 8px; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: var(--bg-page); color: var(--text-main);" />
                         <button type="button" class="btn btn-outline" id="btnCopyShareUrl" style="width:100%; font-size: 12px; padding: 8px; color: var(--success); border-color: var(--success);">Copiar al Portapapeles</button>
+                        <div id="shareEmailPreview" style="margin-top: 10px; display: none;"></div>
                     </div>
                 </div>
 
@@ -3268,6 +3274,7 @@
                 const rfc = document.getElementById('shareRfcSelect').value;
                 const fileType = document.getElementById('shareFileType').value;
                 const ttl = document.getElementById('shareTtl').value;
+                const emailDestino = document.getElementById('shareEmailDestino').value;
                 
                 if (!rfc) {
                     showToast('Selecciona un contribuyente.', 'warning');
@@ -3279,14 +3286,26 @@
                     btn.disabled = true;
                     btn.textContent = 'Generando...';
 
+                    const payload = { file_type: fileType, ttl_minutes: ttl };
+                    if (emailDestino) payload.email_destino = emailDestino;
+
                     const data = await apiFetch(`/contribuyentes/${rfc}/download-token`, {
                         method: 'POST',
-                        body: JSON.stringify({ file_type: fileType, ttl_minutes: ttl })
+                        body: JSON.stringify(payload)
                     });
                     
                     const fullUrl = window.location.origin + data.download_url;
                     document.getElementById('shareUrlInput').value = fullUrl;
                     document.getElementById('shareResult').classList.remove('hidden');
+
+                    const previewContainer = document.getElementById('shareEmailPreview');
+                    if (data.preview_url) {
+                        previewContainer.style.display = 'block';
+                        previewContainer.innerHTML = `<a href="${data.preview_url}" target="_blank" style="display: block; font-size: 12px; color: #3b82f6; text-decoration: none; padding: 8px; border: 1px solid #3b82f6; border-radius: 4px; background: rgba(59, 130, 246, 0.1);">📧 Ver vista previa del correo enviado (Ethereal)</a>`;
+                    } else {
+                        previewContainer.style.display = 'none';
+                    }
+
                     showToast('Enlace de único uso generado correctamente.', 'success');
                 } catch (err) {
                     showToast(err.message || 'Error al generar el enlace', 'danger');

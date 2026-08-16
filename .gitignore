@@ -19,10 +19,8 @@ comparativa_texto.txt
 # Archivos del sistema Windows
 Thumbs.db
 desktop.ini
-
-# Archivos del prueba
+# Archivos de prueba
 certificados_prueba/
 
-# Archivos del documenracion
+# Archivos de documentación
 DOC/
-

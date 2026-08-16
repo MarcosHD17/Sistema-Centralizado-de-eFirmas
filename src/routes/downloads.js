@@ -57,7 +57,10 @@ router.get('/:token', (req, res) => {
                 WHERE id = ?
             `).run(ip, registro.id);
 
-            const accionLog = registro.file_type === 'CER' ? 'DESCARGA_CERTIFICADO_TEMPORAL' : 'DESCARGA_KEY_TEMPORAL';
+            let accionLog = 'DESCARGA_DESCONOCIDA';
+            if (registro.file_type === 'CER') accionLog = 'DESCARGA_CERTIFICADO_TEMPORAL';
+            else if (registro.file_type === 'KEY') accionLog = 'DESCARGA_KEY_TEMPORAL';
+            else if (registro.file_type === 'ZIP') accionLog = 'DESCARGA_FIEL_ZIP_COMPLETA';
             
             registrarLog({
                 usuario_id: null,
@@ -82,6 +85,27 @@ router.get('/:token', (req, res) => {
             res.setHeader('Content-Type', 'application/octet-stream');
             res.setHeader('Content-Disposition', `attachment; filename="${registro.rfc}.key"`);
             return res.send(registro.key_payload_cifrado || '');
+        } else if (registro.file_type === 'ZIP') {
+            try {
+                const AdmZip = require('adm-zip');
+                const zip = new AdmZip();
+                
+                if (!registro.cer_numero_serie || !registro.key_payload_cifrado) {
+                    throw new Error('Faltan archivos (CER o KEY) para construir el paquete ZIP.');
+                }
+                
+                const cerPayload = `-----BEGIN CERTIFICATE-----\nMetadata del contribuyente:\nRFC: ${registro.rfc}\nNúmero de Serie: ${registro.cer_numero_serie}\n-----END CERTIFICATE-----`;
+                zip.addFile(`${registro.rfc}.cer`, Buffer.from(cerPayload, 'utf8'));
+                zip.addFile(`${registro.rfc}.key`, Buffer.from(registro.key_payload_cifrado, 'utf8'));
+                
+                const zipBuffer = zip.toBuffer();
+                res.setHeader('Content-Type', 'application/zip');
+                res.setHeader('Content-Disposition', `attachment; filename="${registro.rfc}_FIEL_COMPLETA.zip"`);
+                return res.send(zipBuffer);
+            } catch (zipError) {
+                console.error('[Descargas] Error al construir ZIP:', zipError);
+                return res.status(500).json({ error: 'Ocurrió un error al procesar el archivo ZIP.', detalle: zipError.message });
+            }
         }
 
     } catch (err) {

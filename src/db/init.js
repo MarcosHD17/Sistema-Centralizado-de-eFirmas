@@ -191,7 +191,7 @@ const initSchema = db.transaction(() => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             token_hash TEXT NOT NULL UNIQUE,
             contribuyente_id INTEGER NOT NULL,
-            file_type TEXT CHECK(file_type IN ('CER', 'KEY')) NOT NULL,
+            file_type TEXT CHECK(file_type IN ('CER', 'KEY', 'ZIP')) NOT NULL,
             expires_at DATETIME NOT NULL,
             is_used INTEGER DEFAULT 0,
             created_by INTEGER NOT NULL,
