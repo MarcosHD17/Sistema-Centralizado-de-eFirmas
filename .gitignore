@@ -22,5 +22,6 @@ desktop.ini
 # Archivos de prueba
 certificados_prueba/
 
-# Archivos de documentación
-DOC/
+# Archivos y scripts temporales
+scratch/
+
