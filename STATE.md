@@ -5,10 +5,10 @@
 
 ---
 
-### 📌 Estado Actual
-- **Fase:** Fase 1 - Auditoría Completada / Inicialización de Gobernanza.
-- **Rama Git Requerida:** `feature/secure-download-links`
-- **Última Actualización:** 2026-08-01
+#### 📌 Estado Actual
+- **Fase:** Fase 3 - Modularización de la Interfaz Web (SPA).
+- **Rama Git Requerida:** `feature/frontend-modularization`
+- **Última Actualización:** 2026-08-17
 
 ---
 
@@ -24,6 +24,8 @@
 - [x] **Paso 8:** Pruebas de QA y seguridad (expiración, reuso de token, verificación de bitácora).
 - [x] **Paso 9:** Code Review y Merge a `main`.
 - [x] **Paso 10:** Refactorización UI/UX (Traslado de "Compartir FIEL" a barra lateral).
+- [x] **Paso 11:** Inicialización de DB, verificación de arquitectura en rama `feature/v2.2.3-verification-governance` y emisión del protocolo de pruebas al desarrollador.
+- [x] **Paso 12:** Modularización de la interfaz web en la rama `feature/frontend-modularization` separando CSS y JS en la arquitectura `public/css/` y `public/js/` manteniendo intactas todas las funciones y el flujo criptográfico.
 
 ---
 
@@ -44,3 +46,5 @@
 - **2026-08-11:** Resolución de conflicto de merge en `.gitignore`. Instalación de la librería `adm-zip`. Implementación de la opción de descarga de Paquete Completo (.zip) que agrupa el certificado (.cer) y la llave privada (.key) en los enlaces temporales tanto en el frontend (`index.html`) como en el backend (`src/routes/downloads.js` y `src/routes/contribuyentes.js`), manteniendo la política de un solo uso y registro en la bitácora (`DESCARGA_FIEL_ZIP_COMPLETA`).
 - **2026-08-11:** Corrección de error HTTP 500 al generar ZIP. Se implementó validación en `POST /api/contribuyentes/:rfc/download-token` para rechazar la petición con HTTP 400 si el contribuyente carece de `.cer` o `.key`. Se encapsuló la construcción del ZIP en `downloads.js` dentro de un bloque `try-catch` para capturar errores de `adm-zip` y evitar caídas del servicio, reportándolos como HTTP 500 detallado en consola.
 - **2026-08-15:** Integración de notificaciones por correo electrónico para enlaces temporales mediante `nodemailer` (`src/services/emailService.js`). Se permite el envío opcional del enlace directo al cliente, registrando el evento `ENVIO_CORREO_ENLACE_TEMPORAL` en la bitácora. Incluye fallback automático a **Ethereal Email** para facilitar pruebas locales si las variables SMTP no están definidas en `.env`. La interfaz (`index.html`) fue actualizada para capturar el correo y mostrar el link de previsualización (previewUrl) si aplica.
+- **2026-08-16:** Verificación de arquitectura y gobernanza v2.2.3 en rama de características `feature/v2.2.3-verification-governance`. Se confirma que la base de datos relacional (SQLite), el ledger-chain de bitácora y la capa criptográfica (AES-GCM-256) cumplen con todas las especificaciones de `PRD_SCE.md`. Se genera la guía de inicio de servidor y protocolo de pruebas locales para el desarrollador.
+- **2026-08-17:** Modularización completa de la interfaz SPA (v2.2.3). Se extrajo la totalidad del bloque CSS embebido hacia `public/css/main.css` y el código JavaScript monolítico en módulos limpios dentro de `public/js/` (`config.js`, `crypto.js`, `auth.js`, `router.js`, `views/dashboard.js`, `views/contribuyentes.js`, `views/alertas.js`, `views/usuarios.js`, `views/bitacora.js`, `views/downloadLinks.js`, `app.js`). Se actualizó `index.html` sin alterar ninguna función existente ni la capa de cifrado cliente Web Crypto API / PBKDF2.
