@@ -204,6 +204,22 @@ const initSchema = db.transaction(() => {
     `);
 
     // ─────────────────────────────────────────────────
+    // TABLA: solicitudes_renovacion
+    // Solicitudes públicas de clientes para reexpedir enlaces temporales
+    // ─────────────────────────────────────────────────
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS solicitudes_renovacion (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            rfc TEXT NOT NULL,
+            email_solicitante TEXT NOT NULL,
+            motivo TEXT,
+            estado TEXT DEFAULT 'PENDIENTE' CHECK(estado IN ('PENDIENTE', 'APROBADA', 'RECHAZADA')),
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            resolved_at DATETIME
+        );
+    `);
+
+    // ─────────────────────────────────────────────────
     // ÍNDICES para optimizar consultas frecuentes
     // ─────────────────────────────────────────────────
     db.exec(`

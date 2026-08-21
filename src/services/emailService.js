@@ -1,6 +1,12 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
+if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+    console.log(`[Email] Configuración detectada: SMTP Real (${process.env.SMTP_USER})`);
+} else {
+    console.log(`[Email] Modo Sandbox activo (Ethereal)`);
+}
+
 /**
  * Crea o recupera un transporte de nodemailer configurado.
  * Usa credenciales en .env o genera un fallback a Ethereal (para pruebas locales).
@@ -8,18 +14,26 @@ require('dotenv').config();
 async function getTransporter() {
     if (process.env.SMTP_HOST && process.env.SMTP_USER) {
         // Usa configuración SMTP del .env
-        return nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST.trim(),
             port: parseInt(process.env.SMTP_PORT) || 587,
             secure: process.env.SMTP_SECURE === 'true',
             auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
+                user: process.env.SMTP_USER.trim(),
+                pass: process.env.SMTP_PASS.trim()
             },
             tls: {
                 rejectUnauthorized: false
             }
         });
+        
+        try {
+            await transporter.verify();
+            return transporter;
+        } catch (err) {
+            console.error('[Email Service] Error de autenticación o conexión SMTP con credenciales reales:', err.message);
+            throw new Error('Fallo conexión SMTP Real: ' + err.message);
+        }
     }
 
     // Fallback: Genera una cuenta de prueba de Ethereal al vuelo (ideal para desarrollo/pruebas sin configurar email real)
