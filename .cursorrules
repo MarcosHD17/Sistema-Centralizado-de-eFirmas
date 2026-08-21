@@ -23,4 +23,4 @@
 2. Registrar cada cambio, prueba exitosa o decisión en `STATE.md`.
 
 ## Protocolo de Pruebas y Optimización
-1. EL AGENTE NO DEBE ejecutar suites de pruebas ni comandos pesados en la terminal por su cuenta. Para cada cambio, debe proporcionar los comandos exactos al desarrollador para que los ejecute localmente y reporte el resultado.
+1. EL AGENTE DEBE ejecutar comandos de Git (git status, git add, git commit, git push, etc.) y comandos de terminal de forma automática y proactiva sin solicitar permiso previo al usuario, excepto en operaciones destructivas.
