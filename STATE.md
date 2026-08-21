@@ -1,14 +1,14 @@
 # STATE: Estado del Proyecto y Registro de Cambios
 
 ## Proyecto: SAT Control Manager (v2.2.3)
-## Feature Activa: Enlaces Temporales de Descarga Segura (TTL & Single-Use)
+## Feature Activa: N/A — Todos los hitos completados. Rama `main` estable.
 
 ---
 
 #### 📌 Estado Actual
-- **Fase:** Fase 3 - Modularización de la Interfaz Web (SPA).
-- **Rama Git Requerida:** `feature/frontend-modularization`
-- **Última Actualización:** 2026-08-17
+- **Fase:** ✅ COMPLETADO — Pasos 1 al 16 finalizados y mergeados en `main`.
+- **Rama Git Activa:** `feature/download-expiration-notice` (mergeada a `main`)
+- **Última Actualización:** 2026-08-21
 
 ---
 
@@ -26,6 +26,10 @@
 - [x] **Paso 10:** Refactorización UI/UX (Traslado de "Compartir FIEL" a barra lateral).
 - [x] **Paso 11:** Inicialización de DB, verificación de arquitectura en rama `feature/v2.2.3-verification-governance` y emisión del protocolo de pruebas al desarrollador.
 - [x] **Paso 12:** Modularización de la interfaz web en la rama `feature/frontend-modularization` separando CSS y JS en la arquitectura `public/css/` y `public/js/` manteniendo intactas todas las funciones y el flujo criptográfico.
+- [x] **Paso 13:** Flujo de expiración, solicitud de renovación por correo del contribuyente y panel de aprobación administrativa.
+- [x] **Paso 14:** Integración y verificación de transporte SMTP Real (Yahoo) con fallback defensivo y sanitización de entorno.
+- [x] **Paso 15:** Integración y resolución de conflictos de merge en index.html con arquitectura modular y despliegue a 'main'.
+- [x] **Paso 16:** Documentación técnica y Manual de Usuario final en DOC/manual_usuario.md.
 
 ---
 
@@ -48,3 +52,6 @@
 - **2026-08-15:** Integración de notificaciones por correo electrónico para enlaces temporales mediante `nodemailer` (`src/services/emailService.js`). Se permite el envío opcional del enlace directo al cliente, registrando el evento `ENVIO_CORREO_ENLACE_TEMPORAL` en la bitácora. Incluye fallback automático a **Ethereal Email** para facilitar pruebas locales si las variables SMTP no están definidas en `.env`. La interfaz (`index.html`) fue actualizada para capturar el correo y mostrar el link de previsualización (previewUrl) si aplica.
 - **2026-08-16:** Verificación de arquitectura y gobernanza v2.2.3 en rama de características `feature/v2.2.3-verification-governance`. Se confirma que la base de datos relacional (SQLite), el ledger-chain de bitácora y la capa criptográfica (AES-GCM-256) cumplen con todas las especificaciones de `PRD_SCE.md`. Se genera la guía de inicio de servidor y protocolo de pruebas locales para el desarrollador.
 - **2026-08-17:** Modularización completa de la interfaz SPA (v2.2.3). Se extrajo la totalidad del bloque CSS embebido hacia `public/css/main.css` y el código JavaScript monolítico en módulos limpios dentro de `public/js/` (`config.js`, `crypto.js`, `auth.js`, `router.js`, `views/dashboard.js`, `views/contribuyentes.js`, `views/alertas.js`, `views/usuarios.js`, `views/bitacora.js`, `views/downloadLinks.js`, `app.js`). Se actualizó `index.html` sin alterar ninguna función existente ni la capa de cifrado cliente Web Crypto API / PBKDF2.
+- **2026-08-21:** Implementación del endpoint `POST /api/download/solicitar-renovacion`, tabla de solicitudes y módulo administrativo `src/routes/solicitudes.js` para autorizar nuevos tokens sin reexponer credenciales.
+- **2026-08-21:** Conexión y saneamiento de variables SMTP en `src/services/emailService.js` (.trim() y verificación activa vía `transporter.verify()`), permitiendo el despacho real de correos de renovación.
+- **2026-08-21:** Resolución de conflicto de merge en `index.html` combinando la hoja de estilos base `public/css/main.css` con los componentes interactivos de solicitudes y generador de enlaces. Validación y merge exitoso en `main`.
