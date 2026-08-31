@@ -1,13 +1,13 @@
 # STATE: Estado del Proyecto y Registro de Cambios
 
 ## Proyecto: SAT Control Manager (v2.2.3)
-## Feature Activa: `feature/whatsapp-notifications` — Integración de notificaciones vía WhatsApp pendiente.
+## Feature Activa: N/A — Todos los hitos completados. Rama `main` estable.
 
 ---
 
 #### 📌 Estado Actual
-- **Fase:** 🔄 EN PROGRESO — Pasos 1 al 16 completados. Paso 17 (WhatsApp) pendiente.
-- **Rama Git Activa:** `main` (estable) — próxima rama: `feature/whatsapp-notifications`
+- **Fase:** ✅ COMPLETADO — Pasos 1 al 17 finalizados y mergeados en `main`.
+- **Rama Git Activa:** `main` (estable)
 - **Última Actualización:** 2026-08-31
 
 ---
@@ -30,7 +30,7 @@
 - [x] **Paso 14:** Integración y verificación de transporte SMTP Real (Yahoo) con fallback defensivo y sanitización de entorno.
 - [x] **Paso 15:** Integración y resolución de conflictos de merge en index.html con arquitectura modular y despliegue a 'main'.
 - [x] **Paso 16:** Documentación técnica y Manual de Usuario final en DOC/manual_usuario.md.
-- [ ] **Paso 17:** Integración real de notificaciones por WhatsApp. El módulo adaptador `src/utils/whatsapp.js` ya existe (webhook REST genérico con Bearer token, compatible con Twilio/Meta Cloud API). Falta: conectar `enviarWhatsapp()` al flujo de alertas de vencimiento y al envío de enlaces temporales (igual que el correo en `emailService.js`), exponer la configuración en la UI (número origen, activar/desactivar canal) y probarlo con un proveedor real vía `WHATSAPP_API_URL` en `.env`.
+- [x] **Paso 17:** Integración real de notificaciones por WhatsApp. Nuevo `src/services/whatsappService.js` (análogo a `emailService.js`). Conectado al endpoint `POST /:rfc/download-token` en `contribuyentes.js`. Campos de configuración en UI (número origen, token API, toggle activar/desactivar). Selector de canal en prueba de alertas. Validación E.164 en backend y frontend. Fix de seguridad y calidad aplicados (hallazgos #2–#6 del análisis de Claude).
 
 ---
 
@@ -57,3 +57,4 @@
 - **2026-08-21:** Conexión y saneamiento de variables SMTP en `src/services/emailService.js` (.trim() y verificación activa vía `transporter.verify()`), permitiendo el despacho real de correos de renovación.
 - **2026-08-21:** Resolución de conflicto de merge en `index.html` combinando la hoja de estilos base `public/css/main.css` con los componentes interactivos de solicitudes y generador de enlaces. Validación y merge exitoso en `main`.
 - **2026-08-31:** Registro de deuda técnica (Paso 17): las notificaciones por **correo electrónico ya funcionan** en producción (SMTP Yahoo real + fallback Ethereal). Las notificaciones por **WhatsApp están pendientes** de integración. El adaptador `src/utils/whatsapp.js` está implementado (POST REST + Bearer token descifrado con AES-GCM) pero no está conectado al flujo de alertas ni al envío de enlaces temporales. Requiere configurar `WHATSAPP_API_URL` en `.env` y un proveedor contratado.
+- **2026-08-31:** **Paso 17 completado.** Análisis externo con Claude identificó 6 hallazgos (1 INFO, 1 ALTA, 2 MEDIA, 2 BAJA). Se aplicaron todos los fixes y se completó la integración de WhatsApp: nuevo `src/services/whatsappService.js`, conexión en `contribuyentes.js` (endpoint `download-token`), validación E.164 en `alertas.js` route (fix #2 ALTA), `AbortSignal.timeout(10000)` en `whatsapp.js` (fix #3 MEDIA), ocultación de `token_activacion` en producción en `usuarios.js` (fix #4 MEDIA), validación de tamaño de archivo `.key` en frontend `crypto.js` (fix #5 BAJA), campo WhatsApp en `downloadLinks.js` + config en `alertas.js` view + inputs HTML en `index.html`. Commit: `ef908a5`.

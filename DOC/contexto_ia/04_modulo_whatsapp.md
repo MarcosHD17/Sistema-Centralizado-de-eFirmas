@@ -1,116 +1,54 @@
-# Módulo WhatsApp — Estado Actual y Pendientes
+# Módulo WhatsApp — Estado Actual (COMPLETADO ✅)
 
-## Resumen ejecutivo
+> **Actualizado:** 2026-08-31 — Paso 17 completado. Todo mergeado en `main` (commit `ef908a5`).
+
+## Resumen de estado
 
 | Canal | Estado |
 |-------|--------|
 | Correo electrónico (SMTP Yahoo) | ✅ **Funciona en producción** |
-| WhatsApp | ❌ **Adaptador listo, NO conectado al flujo** |
+| WhatsApp | ✅ **Integrado y funcional** — requiere `WHATSAPP_API_URL` en `.env` |
 
 ---
 
-## Lo que YA existe (no tocar)
+## Arquitectura implementada
 
-### `src/utils/whatsapp.js`
-Adaptador HTTP REST genérico. **Ya implementado y funcional como módulo aislado.**
+### Archivos nuevos / modificados en el Paso 17
 
-```js
-async function enviarWhatsapp(config, destinatario, mensaje)
-```
-
-**Cómo funciona:**
-1. Verifica que `config.whatsapp_activo === true`
-2. Verifica que `config.whatsapp_api_token_cifrado` y `config.whatsapp_numero_origen` existan
-3. Lee `WHATSAPP_API_URL` del `.env`
-4. Descifra el token con `descifrar()` (AES-GCM-256)
-5. Hace `POST` al proveedor con:
-   ```json
-   {
-     "from": "<numero_origen>",
-     "to": "<destinatario>",
-     "message": "<mensaje>"
-   }
-   ```
-   Header: `Authorization: Bearer <token_descifrado>`
-6. Retorna el JSON de respuesta del proveedor o lanza Error
-
-**Decisión de diseño:** No usa ningún SDK propietario (Twilio SDK, Meta SDK, whatsapp-web.js). Es un adaptador HTTP genérico para no amarrar el proyecto a un solo proveedor. Si el proveedor tiene un formato de body diferente, solo se ajusta el payload en `enviarWhatsapp()`.
-
-### `src/routes/alertas.js` — Ya configurado en BD
-- `GET /api/alertas/config` ya devuelve `whatsapp_api_token_configurado: true/false` (sin exponer el token)
-- `PUT /api/alertas/config` ya recibe `whatsapp_api_token` y `whatsapp_numero_origen`, los cifra con AES-GCM y los guarda en `alertas_config`
-- `POST /api/alertas/probar` ya acepta `tipo: 'whatsapp'` — encola la alerta pero **no se procesa** porque `colaAlertas.js` no llama a `enviarWhatsapp()`
+| Archivo | Tipo | Cambio |
+|---------|------|--------|
+| `src/services/whatsappService.js` | **NUEVO** | Servicio análogo a `emailService.js` |
+| `src/routes/contribuyentes.js` | Modificado | WhatsApp en endpoint `download-token` |
+| `src/routes/alertas.js` | Modificado | Validación E.164 en `POST /probar` |
+| `src/utils/whatsapp.js` | Modificado | `AbortSignal.timeout(10000)` en fetch |
+| `src/routes/usuarios.js` | Modificado | `token_activacion` oculto en producción |
+| `public/js/crypto.js` | Modificado | Validación tamaño `.key` < 1MB |
+| `public/js/views/downloadLinks.js` | Modificado | Campo WhatsApp + validación E.164 |
+| `public/js/views/alertas.js` | Modificado | Config WhatsApp (número, token, toggle) |
+| `index.html` | Modificado | Inputs HTML para ambas secciones |
 
 ---
 
-## Lo que FALTA implementar (Paso 17)
+## Cómo funciona el flujo completo
 
-### Gap 1 — `src/utils/colaAlertas.js`
-Cuando `procesarColaAlertas()` encuentra una alerta con `tipo === 'whatsapp'`, actualmente la ignora o falla.
+### Envío de enlace temporal por WhatsApp
+1. El usuario selecciona un contribuyente en la vista `downloadLinks`
+2. Ingresa el número de WhatsApp en formato E.164 (`+521234567890`)
+3. El frontend valida el formato antes de enviar
+4. `POST /api/contribuyentes/:rfc/download-token` recibe `whatsappDestino`
+5. El backend valida de nuevo el formato E.164
+6. Llama a `enviarEnlaceTemporalWhatsApp()` de `whatsappService.js`
+7. Este llama a `enviarWhatsapp()` de `whatsapp.js`
+8. Descifra el token API con AES-GCM, hace `POST` al proveedor con timeout de 10s
+9. Registra `ENVIO_WHATSAPP_ENLACE_TEMPORAL` o `ENVIO_WHATSAPP_ENLACE_FALLO` en bitácora
+10. El fallo no bloquea la respuesta (mismo patrón que el correo)
 
-**Fix:** Agregar el branch de WhatsApp en la función procesadora, igual que el branch de correo con `mailer.js`.
-
-```js
-// Lo que debe hacer:
-if (alerta.tipo === 'whatsapp') {
-    const config = db.prepare('SELECT * FROM alertas_config WHERE id = 1').get();
-    await enviarWhatsapp(config, alerta.destinatario, alerta.mensaje);
-}
-```
-
-### Gap 2 — `src/services/whatsappService.js` (archivo nuevo)
-Análogo a `emailService.js`. Debe tener:
-
-```js
-async function enviarEnlaceTemporalWhatsApp({ 
-    numeroDestino, rfc, razonSocial, fileType, downloadUrl, expiresAt 
-})
-```
-
-El mensaje debe ser texto plano con emojis (WhatsApp no admite HTML):
-```
-🔐 SAT Control Manager
-Se generó un enlace seguro para: RAZON_SOCIAL (RFC)
-Archivo: Paquete Completo (.zip)
-🔗 Descarga aquí: https://...
-⚠️ Enlace de único uso. Expira: DD/MM/YYYY HH:MM
-```
-
-### Gap 3 — `src/routes/contribuyentes.js`
-En `POST /api/contribuyentes/:rfc/download-token`, después de generar el token:
-
-```js
-// Ya existe esto para correo:
-if (emailDestino) {
-    await enviarEnlaceTemporal({ emailDestino, rfc, ... });
-    registrarLog({ accion: 'ENVIO_CORREO_ENLACE_TEMPORAL', ... });
-}
-
-// Agregar esto para WhatsApp:
-if (whatsappDestino) {
-    await enviarEnlaceTemporalWhatsApp({ numeroDestino: whatsappDestino, rfc, ... });
-    registrarLog({ accion: 'ENVIO_WHATSAPP_ENLACE_TEMPORAL', ... });
-}
-```
-
-Si falla el envío, **no bloquear la respuesta** — reportarlo como advertencia (mismo patrón que el correo).
-
-### Gap 4 — `public/js/views/downloadLinks.js`
-Agregar campo de input para número WhatsApp debajo del campo de correo existente:
-
-```html
-<input type="tel" id="whatsappDestino" placeholder="+521234567890" />
-```
-
-Enviarlo como `whatsappDestino` en el body del `POST`.
-
-### Gap 5 — `public/js/views/alertas.js`
-Verificar que la vista de configuración tenga campos para:
-- Toggle `whatsapp_activo`
-- Input `whatsapp_api_token` (tipo password)
-- Input `whatsapp_numero_origen`
-
-Si no existen, agregarlos con el mismo patrón visual de los campos SMTP.
+### Configuración del canal WhatsApp (en UI de Alertas)
+1. Admin abre la sección de Alertas
+2. Ingresa número de origen y token API del proveedor
+3. Hace clic en "Guardar Config. WhatsApp"
+4. El token se cifra con AES-GCM antes de guardarse en `alertas_config`
+5. Para probar: selecciona canal "WhatsApp", ingresa número destino, clic en "Enviar Alerta de Prueba"
 
 ---
 
@@ -120,20 +58,33 @@ Si no existen, agregarlos con el mismo patrón visual de los campos SMTP.
 WHATSAPP_API_URL=https://api.tuproveedor.com/v1/messages
 ```
 
-Esta variable debe estar documentada en los comentarios del código. Si no está definida, `enviarWhatsapp()` lanza un `Error` con mensaje claro (no falla silenciosamente).
+Sin esta variable, `enviarWhatsapp()` lanza `Error('WHATSAPP_API_URL no está configurada...')` — falla con mensaje claro, no silenciosamente.
 
 ---
 
-## Proveedores compatibles (ejemplos)
+## Hallazgos resueltos (análisis Claude)
 
-El adaptador es genérico — cualquier proveedor con API REST Bearer funciona:
+| # | Severidad | Descripción | Fix |
+|---|-----------|-------------|-----|
+| #1 | INFO | `colaAlertas.js` ya tenía WhatsApp conectado | Sin cambios |
+| #2 | **ALTA** | `POST /probar` no validaba formato E.164 | Regex `^\+[1-9]\d{7,14}$` agregado |
+| #3 | MEDIA | `fetch` sin timeout podía atascar el cron | `AbortSignal.timeout(10000)` |
+| #4 | MEDIA | `token_activacion` expuesto en producción | Oculto cuando `NODE_ENV=production` |
+| #5 | BAJA | Sin validación de tamaño de `.key` | Límite de 1MB antes de cifrar |
+| #6 | BAJA | Botón no se deshabilitaba durante envío | Cubierto en `downloadLinks.js` |
 
-| Proveedor | Notas |
-|-----------|-------|
-| Twilio WhatsApp | Puede requerir ajuste en el formato del body |
-| Meta Cloud API (oficial) | Puede requerir ajuste en el body (template messages) |
-| UltraMsg | Compatible directo con el formato actual |
-| CallMeBot | Compatible directo |
-| ChatAPI | Compatible directo |
+---
 
-Si el proveedor usa un formato de body diferente, solo se modifica el objeto `body` dentro de `enviarWhatsapp()` en `src/utils/whatsapp.js`.
+## Proveedores compatibles
+
+El adaptador es genérico — cualquier proveedor REST con `Authorization: Bearer` funciona:
+
+| Proveedor | Compatibilidad |
+|-----------|---------------|
+| UltraMsg | ✅ Directo |
+| CallMeBot | ✅ Directo |
+| ChatAPI | ✅ Directo |
+| Twilio WhatsApp | ⚠️ Puede requerir ajuste del body |
+| Meta Cloud API (oficial) | ⚠️ Requiere template messages |
+
+Si el proveedor usa un formato de body diferente, solo se ajusta el objeto `body` dentro de `enviarWhatsapp()` en `src/utils/whatsapp.js`.
