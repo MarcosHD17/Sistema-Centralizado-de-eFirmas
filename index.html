@@ -1894,8 +1894,29 @@
                         style="display: flex; flex-direction: column; justify-content: center; gap: 10px; font-size: 9pt; color: var(--text-muted);">
                         <p>El sistema reemplazará los campos encerrados entre corchetes <code>[...]</code> de manera
                             automática al lanzar el cronjob diario.</p>
-                        <button type="button" class="btn" id="btnTestAlert" style="width: 200px;">Enviar Alerta de
-                            Prueba</button>
+                        <div class="form-group" style="margin-bottom: 8px;">
+                            <label style="font-size: 9pt;">Canal de prueba</label>
+                            <select id="testAlertTipo" class="form-control" style="font-size: 9pt; padding: 5px;">
+                                <option value="correo">Correo electrónico</option>
+                                <option value="whatsapp">WhatsApp</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 8px;">
+                            <label style="font-size: 9pt;">Destinatario</label>
+                            <input type="text" id="testAlertDestino" class="form-control" style="font-size: 9pt; padding: 5px;" placeholder="correo@ejemplo.com o +521234567890">
+                        </div>
+                        <button type="button" class="btn" id="btnTestAlert" style="width: 200px;">Enviar Alerta de Prueba</button>
+                        <hr style="border-color: var(--border-color); margin: 6px 0;">
+                        <p style="font-weight: 600; color: var(--text-main);">⚙️ Config. WhatsApp</p>
+                        <div class="form-group" style="margin-bottom: 6px;">
+                            <label style="font-size: 9pt;">Número origen <span id="whatsappTokenStatus" style="font-size: 8pt; margin-left: 6px;"></span></label>
+                            <input type="text" id="whatsappNumeroOrigen" class="form-control" style="font-size: 9pt; padding: 5px;" placeholder="+521234567890">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 6px;">
+                            <label style="font-size: 9pt;">Token API (dejar vacío para no cambiar)</label>
+                            <input type="password" id="whatsappApiToken" class="form-control" style="font-size: 9pt; padding: 5px;" placeholder="Bearer token del proveedor">
+                        </div>
+                        <button type="button" class="btn btn-outline" id="btnSaveWhatsappConfig" style="width: 200px; font-size: 9pt;">Guardar Config. WhatsApp</button>
                     </div>
                 </div>
             </div>
@@ -2148,6 +2169,10 @@
                         <div class="form-group">
                             <label>Correo del Cliente (Opcional)</label>
                             <input type="email" id="shareEmailDestino" class="form-control" placeholder="correo@cliente.com (opcional para enviar por email)">
+                        </div>
+                        <div class="form-group">
+                            <label>WhatsApp del Cliente (Opcional)</label>
+                            <input type="text" id="shareWhatsappDestino" class="form-control" placeholder="+521234567890 (formato internacional)">
                         </div>
                         <button type="submit" class="btn btn-primary" id="btnGenerateShare" style="width: 100%; margin-top: 10px;">Generar Enlace Seguro</button>
                     </form>

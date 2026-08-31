@@ -1,8 +1,8 @@
 // ============================================================
-// Versión: v2.2.3
+// Versión: v2.2.3 — Paso 17: WhatsApp
 // Archivo: public/js/views/downloadLinks.js
 // Descripción: Generación y gestión de Enlaces Temporales de Descarga Segura
-//              (TTL, Single-Use, Paquetes ZIP y Notificación por Correo).
+//              (TTL, Single-Use, Paquetes ZIP, Notificación por Correo y WhatsApp).
 // ============================================================
 
 async function cargarEnlacesDropdown() {
@@ -41,9 +41,17 @@ function inicializarEnlacesTemporales() {
             const fileType = document.getElementById('shareFileType').value;
             const ttl = document.getElementById('shareTtl').value;
             const emailDestino = document.getElementById('shareEmailDestino').value;
+            const whatsappInput = document.getElementById('shareWhatsappDestino');
+            const whatsappDestino = whatsappInput ? whatsappInput.value.trim() : '';
 
             if (!rfc) {
                 showToast('Selecciona un contribuyente.', 'warning');
+                return;
+            }
+
+            // Fix hallazgo #6 BAJA + validación E.164 en frontend
+            if (whatsappDestino && !/^\+[1-9]\d{7,14}$/.test(whatsappDestino)) {
+                showToast('Número de WhatsApp inválido. Usa formato internacional, ej: +521234567890', 'warning');
                 return;
             }
 
@@ -56,6 +64,7 @@ function inicializarEnlacesTemporales() {
 
                 const payload = { file_type: fileType, ttl_minutes: ttl };
                 if (emailDestino) payload.email_destino = emailDestino;
+                if (whatsappDestino) payload.whatsappDestino = whatsappDestino;
 
                 const data = await apiFetch(`/contribuyentes/${rfc}/download-token`, {
                     method: 'POST',

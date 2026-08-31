@@ -1,8 +1,9 @@
 // ============================================================
-// Versión: v2.2.3
+// Versión: v2.2.3 — Paso 17: WhatsApp
 // Archivo: public/js/views/alertas.js
 // Descripción: Configuración de alertas, umbrales del semáforo
-//              (crítico / preventivo) y pruebas del motor de mensajería.
+//              (crítico / preventivo), configuración de canales
+//              (Correo + WhatsApp) y pruebas del motor de mensajería.
 // ============================================================
 
 async function cargarAlertasConfig() {
@@ -24,6 +25,20 @@ async function cargarAlertasConfig() {
 
         if (chCorreo) chCorreo.checked = !!config.correo_activo;
         if (chWA) chWA.checked = !!config.whatsapp_activo;
+
+        // Paso 17: cargar configuración de WhatsApp
+        const waNumero = document.getElementById('whatsappNumeroOrigen');
+        const waTokenStatus = document.getElementById('whatsappTokenStatus');
+        const waTokenInput = document.getElementById('whatsappApiToken');
+
+        if (waNumero) waNumero.value = config.whatsapp_numero_origen || '';
+        if (waTokenStatus) {
+            waTokenStatus.textContent = config.whatsapp_api_token_configurado
+                ? '✓ Token configurado' : '⚠ Sin token';
+            waTokenStatus.style.color = config.whatsapp_api_token_configurado
+                ? 'var(--success)' : 'var(--warning)';
+        }
+        if (waTokenInput) waTokenInput.value = ''; // nunca se precarga el secreto
     } catch (err) {
         showToast('Error al cargar la configuración de alertas.', 'danger');
     }
@@ -75,24 +90,53 @@ function inicializarConfigAlertas() {
         });
     });
 
+    // Paso 17: guardar número de origen y token de WhatsApp
+    const waNumero = document.getElementById('whatsappNumeroOrigen');
+    const waTokenInput = document.getElementById('whatsappApiToken');
+    const btnSaveWhatsapp = document.getElementById('btnSaveWhatsappConfig');
+
+    if (btnSaveWhatsapp) {
+        btnSaveWhatsapp.addEventListener('click', async () => {
+            try {
+                const body = {};
+                if (waNumero && waNumero.value.trim()) body.whatsapp_numero_origen = waNumero.value.trim();
+                if (waTokenInput && waTokenInput.value.trim()) body.whatsapp_api_token = waTokenInput.value.trim();
+
+                if (Object.keys(body).length === 0) {
+                    showToast('No hay cambios para guardar.', 'warning');
+                    return;
+                }
+
+                await apiFetch('/alertas/config', { method: 'PUT', body: JSON.stringify(body) });
+                showToast('Configuración de WhatsApp actualizada.', 'success');
+                if (waTokenInput) waTokenInput.value = '';
+                cargarAlertasConfig();
+            } catch (err) {
+                showToast(err.message, 'danger');
+            }
+        });
+    }
+
     if (btnTestAlert) {
         btnTestAlert.addEventListener('click', async () => {
+            const tipoSelect = document.getElementById('testAlertTipo');
+            const destinoInput = document.getElementById('testAlertDestino');
+            const tipo = tipoSelect ? tipoSelect.value : 'correo';
+            const destinatario = destinoInput && destinoInput.value.trim()
+                ? destinoInput.value.trim()
+                : (tipo === 'whatsapp' ? '+521234567890' : 'contacto@despacho.com');
+
             try {
-                showToast('Iniciando prueba del motor de alertas...', 'info');
+                showToast(`Enviando prueba por ${tipo}...`, 'info');
 
                 const data = await apiFetch('/alertas/probar', {
                     method: 'POST',
-                    body: JSON.stringify({
-                        tipo: 'correo',
-                        destinatario: 'contacto@despacho.com'
-                    })
+                    body: JSON.stringify({ tipo, destinatario })
                 });
 
-                const logs = data.intentos.map(i => `Intento ${i.intento}: ${i.estatus.toUpperCase()} (${i.backoff_delay_ms}ms)`).join('\n');
-                alert(`[Simulación del Motor de Alertas]\n\n${logs}\n\n${data.mensaje}`);
                 showToast(data.mensaje, 'success');
             } catch (err) {
-                showToast('Error al procesar la prueba de alertas.', 'danger');
+                showToast(err.message || 'Error al procesar la prueba de alertas.', 'danger');
             }
         });
     }

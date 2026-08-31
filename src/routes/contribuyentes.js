@@ -474,9 +474,10 @@ router.post('/:rfc/key', autenticar, requerirRol('admin', 'supervisor'), (req, r
 // ─────────────────────────────────────────────────
 router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor', 'operador'), async (req, res) => {
     const rfc = req.params.rfc.toUpperCase();
-    const { file_type, ttl_minutes = 60, email_destino } = req.body;
+    const { file_type, ttl_minutes = 60, email_destino, whatsappDestino } = req.body;
     const { generarTokenSeguro, hashToken, calcularExpiracion } = require('../utils/token');
     const { enviarEnlaceTemporal } = require('../services/emailService');
+    const { enviarEnlaceTemporalWhatsApp } = require('../services/whatsappService');
 
     if (!file_type || !['CER', 'KEY', 'ZIP'].includes(file_type.toUpperCase())) {
         return res.status(400).json({ error: 'file_type debe ser CER, KEY o ZIP.' });
@@ -543,6 +544,30 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
                 previewUrl = emailResult.previewUrl;
             } else {
                 console.error(`[Token Correo] Falló el envío de correo a ${email_destino}: ${emailResult.error}`);
+            }
+        }
+
+        // Si se provee un número de WhatsApp, enviar notificación por ese canal
+        if (whatsappDestino) {
+            const wappResult = await enviarEnlaceTemporalWhatsApp({
+                numeroDestino: whatsappDestino,
+                rfc,
+                razonSocial: contribuyente.razon_social,
+                fileType: file_type.toUpperCase(),
+                downloadUrl: req.protocol + '://' + req.get('host') + downloadUrl,
+                expiresAt: fechaExpiracion
+            });
+
+            registrarLog({
+                usuario_id: req.user.id,
+                usuario_email: req.user.email,
+                accion: wappResult.success ? 'ENVIO_WHATSAPP_ENLACE_TEMPORAL' : 'ENVIO_WHATSAPP_ENLACE_FALLO',
+                detalle: `RFC: ${rfc} | Destino: ${whatsappDestino}${wappResult.error ? ' | Error: ' + wappResult.error : ''}`,
+                ip_origen: ip_creacion
+            });
+
+            if (!wappResult.success) {
+                console.error(`[Token WhatsApp] Falló el envío a ${whatsappDestino}: ${wappResult.error}`);
             }
         }
 

@@ -160,6 +160,21 @@ router.post('/probar', autenticar, async (req, res) => {
         return res.status(400).json({ error: "Tipo inválido. Usa 'correo' o 'whatsapp'." });
     }
 
+    // Fix hallazgo #2 ALTA: validar formato del destinatario según el canal
+    // antes de encolar para no desperdiciar reintentos con datos mal formados.
+    if (tipo === 'whatsapp' && !/^\+[1-9]\d{7,14}$/.test(destinatario)) {
+        return res.status(400).json({
+            error: 'Número de WhatsApp inválido. Usa formato E.164 internacional, ej: +521234567890',
+            codigo: 'FORMATO_WHATSAPP_INVALIDO'
+        });
+    }
+    if (tipo === 'correo' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destinatario)) {
+        return res.status(400).json({
+            error: 'Dirección de correo electrónico inválida.',
+            codigo: 'FORMATO_CORREO_INVALIDO'
+        });
+    }
+
     const config = db.prepare('SELECT * FROM alertas_config WHERE id = 1').get() || {};
 
     const idCola = encolarAlerta({

@@ -86,16 +86,23 @@ router.post('/', autenticar, requerirRol('admin'), (req, res) => {
             ip_origen: obtenerIP(req)
         });
 
-        // En producción, este token se enviaría por correo al nuevo usuario.
-        // En esta versión de desarrollo, se retorna en la respuesta.
+        // Fix hallazgo QA MEDIA: el token de activación NO se expone en producción
+        // (quedaría en logs de red/proxy y permitiría toma de control de cuentas nuevas).
+        // En desarrollo se retorna para facilitar pruebas locales.
+        // TODO: integrar con emailService.js para enviar el enlace de activación por correo.
+        const esDev = process.env.NODE_ENV !== 'production';
         res.status(201).json({
             ok: true,
             id: resultado.lastInsertRowid,
             nombre, email, rol,
             estatus: 'pendiente',
-            token_activacion,
-            instruccion: `Enviar al usuario el enlace de activación con el token. El token expira en 24 horas.`,
-            enlace_activacion: `/activar?token=${token_activacion}`
+            ...(esDev ? {
+                token_activacion,
+                enlace_activacion: `/activar?token=${token_activacion}`,
+                aviso: 'Token visible solo en modo development. En producción se enviará por correo.'
+            } : {
+                instruccion: `Se ha creado el usuario. Envíale el enlace de activación por correo. El token expira en 24 horas.`
+            })
         });
     } catch (err) {
         res.status(500).json({ error: 'Error al crear el usuario.', detalle: err.message });

@@ -7,6 +7,11 @@
 
 // Cifra localmente la llave privada con AES-GCM usando una llave derivada de la contraseña
 async function cifrarClaveLocal(fileData, password) {
+    // Fix hallazgo QA BAJA: validar tamaño máximo antes de leer el ArrayBuffer.
+    // Archivos .key legítimos pesan < 2KB. Límite de 1MB previene congelación del hilo.
+    if (fileData && fileData.size !== undefined && fileData.size > 1024 * 1024) {
+        throw new Error('El archivo de clave privada supera el tamaño máximo permitido (1 MB). Verifica que sea un archivo .key válido.');
+    }
     try {
         const encoder = new TextEncoder();
         const passwordBuffer = encoder.encode(password);

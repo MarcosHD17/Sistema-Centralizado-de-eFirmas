@@ -35,6 +35,8 @@ async function enviarWhatsapp(config, destinatario, mensaje) {
 
     const tokenPlano = descifrar(config.whatsapp_api_token_cifrado);
 
+    // Fix hallazgo QA MEDIA: agregar timeout para evitar que el cron de la cola
+    // se atasque indefinidamente si el proveedor de WhatsApp no responde.
     const respuesta = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -45,7 +47,8 @@ async function enviarWhatsapp(config, destinatario, mensaje) {
             from: config.whatsapp_numero_origen,
             to: destinatario,
             message: mensaje
-        })
+        }),
+        signal: AbortSignal.timeout(10000) // 10 segundos máximo
     });
 
     if (!respuesta.ok) {
