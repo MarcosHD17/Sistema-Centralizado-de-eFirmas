@@ -547,9 +547,10 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
             }
         }
 
+    const whatsappDestinoRaw = req.body.whatsappDestino || req.body.whatsapp_destino || req.body.whatsapp || req.body.whatsappNumero || req.body.whatsapp_numero;
         let whatsappResultado = null;
-        if (whatsappDestino) {
-            let limpio = String(whatsappDestino).replace(/[\s\-\(\)]/g, '').trim();
+        if (whatsappDestinoRaw) {
+            let limpio = String(whatsappDestinoRaw).replace(/[\s\-\(\)]/g, '').trim();
             if (/^\d{10}$/.test(limpio)) limpio = `+521${limpio}`;
             else if (/^\+52\d{10}$/.test(limpio)) limpio = limpio.replace('+52', '+521');
             else if (/^52\d{10}$/.test(limpio)) limpio = `+521${limpio.slice(2)}`;
