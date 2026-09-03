@@ -25,3 +25,5 @@ certificados_prueba/
 # Archivos y scripts temporales
 scratch/
 
+# Archivos de documentación
+DOC/
