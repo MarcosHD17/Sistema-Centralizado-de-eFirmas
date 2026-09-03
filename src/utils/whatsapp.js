@@ -1,62 +1,91 @@
 // ============================================================
-// Versión: v2.2.1
+// Versión: v2.3.0
 // Archivo: src/utils/whatsapp.js
-// Descripción: Envío REAL de WhatsApp vía un webhook REST genérico
-// (fix hallazgo QA #12). En vez de amarrar el proyecto a un SDK
-// propietario específico (Twilio, Meta Cloud API, etc.), se expone
-// un adaptador HTTP simple compatible con la mayoría de proveedores
-// que exponen una API REST con autenticación Bearer:
+// Descripción: Envío REAL de WhatsApp vía Twilio SDK oficial.
 //
-//   POST {WHATSAPP_API_URL}
-//   Authorization: Bearer <whatsapp_api_token descifrado>
-//   { "from": "<numero_origen>", "to": "<destinatario>", "message": "<texto>" }
+// Requiere en .env:
+//   TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//   TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 //
-// Configura WHATSAPP_API_URL en el .env apuntando al endpoint real
-// del proveedor contratado. Si el proveedor usa un formato de body
-// distinto, ajustar el payload en enviarWhatsapp().
+// El número de origen (whatsapp_numero_origen en alertas_config)
+// debe ser el Sandbox o el número aprobado de Twilio en formato:
+//   whatsapp:+14155238886   ← Sandbox de Twilio
+//   whatsapp:+521XXXXXXXXXX ← Número propio aprobado
+//
+// El campo whatsapp_api_token_cifrado en alertas_config ya no se
+// usa para la autenticación de Twilio (que usa Account SID + Auth
+// Token desde el .env). Se mantiene el campo para compatibilidad
+// con la UI de configuración, pero puede dejarse vacío.
+//
+// Formato de número destinatario (formato E.164):
+//   +521234567890  →  El SDK lo prefija como "whatsapp:+521234567890"
 // ============================================================
 
 'use strict';
 
-const { descifrar } = require('./crypto');
+require('dotenv').config();
 
+/**
+ * Envía un mensaje de WhatsApp usando el SDK oficial de Twilio.
+ * Propaga el error al llamador (colaAlertas) para que gestione
+ * el backoff y los reintentos — no captura excepciones internamente.
+ *
+ * @param {object} config - Fila de alertas_config (de la BD)
+ * @param {string} destinatario - Número en formato E.164, ej: +521234567890
+ * @param {string} mensaje - Texto del mensaje
+ */
 async function enviarWhatsapp(config, destinatario, mensaje) {
     if (!config.whatsapp_activo) {
         throw new Error('El canal de WhatsApp está desactivado en la configuración de alertas.');
     }
-    if (!config.whatsapp_api_token_cifrado || !config.whatsapp_numero_origen) {
-        throw new Error('Faltan credenciales de WhatsApp (token o número de origen) en la configuración de alertas.');
+    if (!config.whatsapp_numero_origen) {
+        throw new Error(
+            'Falta el número de origen de WhatsApp en la configuración de alertas. ' +
+            'Usa el formato: whatsapp:+14155238886 (Sandbox Twilio) o whatsapp:+52XXXXXXXXXX'
+        );
     }
 
-    const apiUrl = process.env.WHATSAPP_API_URL;
-    if (!apiUrl) {
-        throw new Error('WHATSAPP_API_URL no está configurada en el entorno del servidor.');
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken  = process.env.TWILIO_AUTH_TOKEN;
+
+    if (!accountSid || !authToken) {
+        throw new Error(
+            'TWILIO_ACCOUNT_SID o TWILIO_AUTH_TOKEN no están configurados en el .env del servidor.'
+        );
     }
 
-    const tokenPlano = descifrar(config.whatsapp_api_token_cifrado);
+    // Importación dinámica para no romper el servidor si twilio no está instalado
+    // (falla claro en el momento de envío, no al arrancar)
+    let twilioClient;
+    try {
+        const twilio = require('twilio');
+        twilioClient = twilio(accountSid, authToken);
+    } catch (err) {
+        throw new Error(
+            'El paquete "twilio" no está instalado. Ejecuta: npm install twilio'
+        );
+    }
 
-    // Fix hallazgo QA MEDIA: agregar timeout para evitar que el cron de la cola
-    // se atasque indefinidamente si el proveedor de WhatsApp no responde.
-    const respuesta = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${tokenPlano}`
-        },
-        body: JSON.stringify({
-            from: config.whatsapp_numero_origen,
-            to: destinatario,
-            message: mensaje
-        }),
-        signal: AbortSignal.timeout(10000) // 10 segundos máximo
+    // Twilio exige el prefijo "whatsapp:" en ambos números.
+    // Si el usuario ya lo incluyó en la config, lo respetamos;
+    // si solo puso el número plano, lo normalizamos aquí.
+    const from = config.whatsapp_numero_origen.startsWith('whatsapp:')
+        ? config.whatsapp_numero_origen
+        : `whatsapp:${config.whatsapp_numero_origen}`;
+
+    const to = destinatario.startsWith('whatsapp:')
+        ? destinatario
+        : `whatsapp:${destinatario}`;
+
+    const message = await twilioClient.messages.create({
+        from,
+        to,
+        body: mensaje
     });
 
-    if (!respuesta.ok) {
-        const texto = await respuesta.text().catch(() => '');
-        throw new Error(`El proveedor de WhatsApp respondió ${respuesta.status}: ${texto}`);
-    }
-
-    return respuesta.json().catch(() => ({}));
+    // El SDK lanza una excepción en caso de error HTTP (4xx/5xx de Twilio),
+    // lo que propaga el error hacia procesarColaAlertas() para el backoff.
+    return { sid: message.sid, status: message.status };
 }
 
 module.exports = { enviarWhatsapp };
