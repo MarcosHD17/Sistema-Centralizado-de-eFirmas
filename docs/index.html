@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SAT Control Manager — Dashboard Arquitectura v2.2.3</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ── Variables y reset ── */
+    :root {
+      --glass: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.09);
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --black-badge: #374151;
+      --bg: #070b14;
+      --card: #0d1526;
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    /* Animated gradient background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(99,102,241,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(16,185,129,0.06) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* ── Glass panel ── */
+    .glass {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.3); border-radius: 4px; }
+    /* ── Nav tabs ── */
+    .tab-btn {
+      padding: 0.5rem 1.1rem;
+      border-radius: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      color: var(--muted);
+      background: transparent;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .tab-btn.active { background: var(--accent); color: #fff; box-shadow: 0 0 20px rgba(99,102,241,0.35); }
+    /* ── Section visibility ── */
+    .section { display: none; }
+    .section.active { display: block; }
+    /* ── Badge ── */
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .badge-core { background: rgba(99,102,241,0.2); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); }
+    .badge-route { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+    .badge-service { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+    .badge-util { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.25); }
+    .badge-ui { background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.25); }
+    .badge-db { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.22); }
+    .badge-mw { background: rgba(251,191,36,0.12); color: #fde68a; border: 1px solid rgba(251,191,36,0.22); }
+    /* ── Code block ── */
+    pre, code {
+      font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+    pre {
+      background: rgba(0,0,0,0.45);
+      border: 1px solid var(--glass-border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      overflow-x: auto;
+      line-height: 1.6;
+      position: relative;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: rgba(99,102,241,0.2);
+      border: 1px solid rgba(99,102,241,0.3);
+      color: #818cf8;
+      border-radius: 0.3rem;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { background: rgba(99,102,241,0.4); }
+    /* ── Syntax highlight ── */
+    .kw { color: #818cf8; }
+    .str { color: #34d399; }
+    .cm { color: #475569; font-style: italic; }
+    .fn { color: #fbbf24; }
+    .num { color: #f87171; }
+    .prop { color: #93c5fd; }
+    /* ── Traffic light ── */
+    .semaforo-vigente { color: #10b981; }
+    .semaforo-preventivo { color: #f59e0b; }
+    .semaforo-critico { color: #ef4444; }
+    .semaforo-expirado { color: #6b7280; }
+    /* ── Pipeline step ── */
+    .pipeline-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 0.4rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.82rem;
+      transition: all 0.3s;
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    .pipeline-step.visible { opacity: 1; transform: translateX(0); }
+    .pipeline-step .step-num {
+      min-width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    /* ── Module card ── */
+    .module-card {
+      border-radius: 0.75rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--glass-border);
+      background: rgba(13,21,38,0.7);
+      margin-bottom: 0.7rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      cursor: default;
+    }
+    .module-card:hover {
+      border-color: rgba(99,102,241,0.4);
+      box-shadow: 0 0 15px rgba(99,102,241,0.08);
+    }
+    .module-card.hidden-card { display: none; }
+    /* ── Impact risk ── */
+    .risk-high { color: #ef4444; }
+    .risk-med  { color: #f59e0b; }
+    .risk-low  { color: #10b981; }
+    /* ── Golden rule row ── */
+    .rule-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+    @media (max-width: 768px) {
+      .rule-row { grid-template-columns: 1fr; }
+      .tab-btn { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+    }
+    /* ── Toggle switch ── */
+    .toggle-switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: #374151; border-radius: 22px; transition: 0.3s;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute; width: 16px; height: 16px;
+      left: 3px; bottom: 3px;
+      background: #94a3b8; border-radius: 50%; transition: 0.3s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: var(--accent); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); background: #fff; }
+    /* ── Simulator controls ── */
+    .sim-control {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0.9rem;
+      border-radius: 0.4rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--glass-border);
+      margin-bottom: 0.5rem;
+      gap: 1rem;
+    }
+    .sim-control label { font-size: 0.82rem; color: var(--text); }
+    .sim-input {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 0.35rem;
+      color: var(--text);
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+      width: 120px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .sim-input:focus { border-color: var(--accent); }
+    /* ── Verdict box ── */
+    .verdict {
+      border-radius: 0.5rem;
+      padding: 0.8rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      border-left: 3px solid;
+      margin-top: 0.5rem;
+    }
+    .verdict-green { border-color: var(--green); background: rgba(16,185,129,0.07); }
+    .verdict-yellow { border-color: var(--yellow); background: rgba(245,158,11,0.07); }
+    .verdict-red { border-color: var(--red); background: rgba(239,68,68,0.07); }
+    .verdict-grey { border-color: #6b7280; background: rgba(107,114,128,0.07); }
+    /* ── Scrollable panel ── */
+    .scroll-panel { max-height: 420px; overflow-y: auto; padding-right: 4px; }
+    /* ── Table ── */
+    .arch-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .arch-table th {
+      text-align: left; padding: 0.6rem 0.8rem;
+      color: var(--muted); font-weight: 600; font-size: 0.72rem;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .arch-table td {
+      padding: 0.55rem 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      vertical-align: top;
+    }
+    .arch-table tr:hover td { background: rgba(99,102,241,0.04); }
+    /* ── Glow pulse ── */
+    @keyframes glow-pulse { 0%,100% { box-shadow: 0 0 5px rgba(99,102,241,0.4); } 50% { box-shadow: 0 0 20px rgba(99,102,241,0.7); } }
+    .glow { animation: glow-pulse 2s infinite; }
+    /* ── Recipe card ── */
+    .recipe-card {
+      border-radius: 0.6rem;
+      border: 1px solid var(--glass-border);
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .recipe-header {
+      background: rgba(99,102,241,0.1);
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+    .recipe-header:hover { background: rgba(99,102,241,0.15); }
+    .recipe-body {
+      display: none;
+      padding: 1rem;
+      background: rgba(0,0,0,0.2);
+    }
+    .recipe-body.open { display: block; }
+    .recipe-step {
+      display: flex;
+      gap: 0.8rem;
+      margin-bottom: 0.9rem;
+      align-items: flex-start;
+    }
+    .step-circle {
+      min-width: 1.8rem;
+      height: 1.8rem;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+    /* ── Search box ── */
+    .search-box {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--glass-border);
+      border-radius: 0.5rem;
+      color: var(--text);
+      padding: 0.55rem 0.9rem;
+      width: 100%;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-box:focus { border-color: var(--accent); }
+    /* ── Filter chips ── */
+    .filter-chip {
+      padding: 0.3rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--glass-border);
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .filter-chip:hover { color: var(--text); }
+    .filter-chip.active-chip { background: var(--accent); color: #fff; border-color: var(--accent); }
+    /* ── Dependency item ── */
+    .dep-item {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: 0.45rem;
+      padding: 0.7rem 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    .dep-item pre { margin-top: 0.6rem; }
+    /* ── Toast notification ── */
+    #toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: rgba(99,102,241,0.95); color: #fff;
+      padding: 0.6rem 1.2rem; border-radius: 0.5rem;
+      font-size: 0.8rem; z-index: 9999;
+      transform: translateY(100px); opacity: 0;
+      transition: all 0.3s;
+      box-shadow: 0 8px 20px rgba(99,102,241,0.4);
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+  </style>
+</head>
+<body class="relative z-10">
+
+<!-- ═══════════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════════ -->
+<header class="glass sticky top-0 z-50 px-4 py-3 flex items-center justify-between border-b border-white/[0.07]">
+  <div class="flex items-center gap-3">
+    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm glow">⚡</div>
+    <div>
+      <div class="text-sm font-bold text-white">SAT Control Manager</div>
+      <div class="text-xs text-slate-400">Arquitectura Interactiva · v2.2.3</div>
+    </div>
+  </div>
+  <div class="flex items-center gap-1.5 overflow-x-auto" id="navTabs">
+    <button class="tab-btn active" data-section="simulator">🔄 Simulador</button>
+    <button class="tab-btn" data-section="catalog">📦 Módulos</button>
+    <button class="tab-btn" data-section="impact">🎯 Impacto</button>
+    <button class="tab-btn" data-section="recipes">🛠️ Recetas</button>
+    <button class="tab-btn" data-section="golden">🛡️ Reglas</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 1 — SIMULADOR REACTIVO
+═══════════════════════════════════════════════════════════ -->
+<section id="simulator" class="section active px-4 py-6 max-w-7xl mx-auto">
+  <h2 class="text-xl font-bold mb-1 text-white">🔄 Simulador Reactivo en Vivo</h2>
+  <p class="text-slate-400 text-sm mb-5">Modifica los controles y observa en tiempo real qué módulos se activan, qué decisiones toma la lógica central y el resultado final.</p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <!-- Panel Izquierdo: Controles -->
+    <div class="glass rounded-xl p-5">
+      <h3 class="text-sm font-semibold text-indigo-300 mb-4 uppercase tracking-wider">Configuración del Escenario</h3>
+
+      <!-- Endpoint seleccionado -->
+      <div class="sim-control">
+        <label>Endpoint / Flujo</label>
+        <select id="simEndpoint" class="sim-input" style="width:160px">
+          <option value="login">POST /api/auth/login</option>
+          <option value="register">POST /api/contribuyentes</option>
+          <option value="kpis">GET /dashboard/kpis</option>
+          <option value="key">POST /:rfc/key</option>
+          <option value="alert">POST /alertas/probar</option>
+          <option value="download">GET /api/download/:token</option>
+          <option value="recalc">POST /alertas/recalcular</option>
+        </select>
+      </div>
+
+      <!-- Rol de usuario -->
+      <div class="sim-control">
+        <label>Rol del Usuario</label>
+        <select id="simRol" class="sim-input" style="width:120px">
+          <option value="admin">admin</option>
+          <option value="supervisor">supervisor</option>
+          <option value="operador">operador</option>
+          <option value="anonimo">anónimo</option>
+        </select>
+      </div>
+
+      <!-- Token JWT -->
+      <div class="sim-control">
+        <label>Token JWT presente</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="simJWT" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- TOTP activo -->
+      <div class="sim-control">
+        <label>2FA / TOTP activo</label>
+        <label class="toggle-switch">
+          <input type="checkbox" id="simTOTP">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Días de vencimiento -->
+      <div class="sim-control" id="ctrlDias">
+        <label>Días restantes del certificado</label>
+        <input type="number" id="simDias" value="45" min="0" max="365" class="sim-input">
+      </div>
+
+      <!-- Canal de alerta -->
+      <div class="sim-control" id="ctrlCanal">
+        <label>Canal de alerta</label>
+        <select id="simCanal" class="sim-input" style="width:110px">
+          <option value="correo">correo</option>
+          <option value="whatsapp">whatsapp</option>
+        </select>
+      </div>
+
+      <!-- Umbral crítico -->
+      <div class="sim-control">
+        <label>Umbral crítico (días)</label>
+        <input type="number" id="simUmbralCrit" value="30" min="1" max="90" class="sim-input">
+      </div>
+
+      <!-- Umbral preventivo -->
+      <div class="sim-control">
+        <label>Umbral preventivo (días)</label>
+        <input type="number" id="simUmbralPrev" value="90" min="31" max="365" class="sim-input">
+      </div>
+    </div>
+
+    <!-- Panel Derecho: Resultado en vivo -->
+    <div class="glass rounded-xl p-5 flex flex-col">
+      <h3 class="text-sm font-semibold text-indigo-300 mb-4 uppercase tracking-wider">Resultado en Vivo</h3>
+
+      <!-- Pipeline -->
+      <div class="mb-4">
+        <div class="text-xs text-slate-400 mb-2 font-medium">Pipeline de Ejecución</div>
+        <div id="simPipeline" class="scroll-panel"></div>
+      </div>
+
+      <!-- Estado interno -->
+      <div class="mb-4">
+        <div class="text-xs text-slate-400 mb-2 font-medium">Eventos / Estados internos</div>
+        <div id="simEvents" class="text-xs text-slate-300 bg-black/30 border border-white/5 rounded-lg p-3 min-h-[60px] font-mono leading-5"></div>
+      </div>
+
+      <!-- Veredicto -->
+      <div>
+        <div class="text-xs text-slate-400 mb-2 font-medium">Veredicto Final</div>
+        <div id="simVerdict"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 2 — CATÁLOGO DE MÓDULOS
+═══════════════════════════════════════════════════════════ -->
+<section id="catalog" class="section px-4 py-6 max-w-7xl mx-auto">
+  <h2 class="text-xl font-bold mb-1 text-white">📦 Catálogo Dinámico de Módulos</h2>
+  <p class="text-slate-400 text-sm mb-5">Todos los archivos del proyecto organizados por capas arquitectónicas. Busca o filtra por capa.</p>
+
+  <div class="flex flex-col sm:flex-row gap-3 mb-5">
+    <input type="text" id="catalogSearch" class="search-box" placeholder="🔍 Buscar módulo, ruta o función...">
+    <div class="flex gap-2 flex-wrap">
+      <button class="filter-chip active-chip" data-layer="all">Todos</button>
+      <button class="filter-chip" data-layer="core">Core</button>
+      <button class="filter-chip" data-layer="route">Rutas</button>
+      <button class="filter-chip" data-layer="service">Servicios</button>
+      <button class="filter-chip" data-layer="util">Utils</button>
+      <button class="filter-chip" data-layer="db">DB</button>
+      <button class="filter-chip" data-layer="mw">Middleware</button>
+      <button class="filter-chip" data-layer="ui">Frontend</button>
+    </div>
+  </div>
+
+  <div id="catalogList" class="scroll-panel" style="max-height:560px"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 3 — ANALIZADOR DE IMPACTO
+═══════════════════════════════════════════════════════════ -->
+<section id="impact" class="section px-4 py-6 max-w-7xl mx-auto">
+  <h2 class="text-xl font-bold mb-1 text-white">🎯 Analizador de Impacto</h2>
+  <p class="text-slate-400 text-sm mb-5">Selecciona cualquier archivo para ver su ficha técnica, dependientes directos/indirectos y riesgos de regresión.</p>
+
+  <div class="mb-4">
+    <label class="text-xs text-slate-400 mb-1 block">Seleccionar Archivo</label>
+    <select id="impactSelect" class="sim-input" style="width:100%;max-width:460px;font-size:0.82rem">
+      <option value="">— Elige un archivo —</option>
+    </select>
+  </div>
+
+  <div id="impactResult" class="hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="glass rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-indigo-300 mb-3">Ficha Técnica</h3>
+        <div id="impactFicha"></div>
+      </div>
+      <div class="glass rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-yellow-300 mb-3">⚠️ Riesgos &amp; Recomendaciones</h3>
+        <div id="impactRisks"></div>
+      </div>
+    </div>
+    <div class="glass rounded-xl p-5 mt-4">
+      <h3 class="text-sm font-semibold text-green-300 mb-3">Dependientes con Snippets de Acoplamiento</h3>
+      <div id="impactDeps" class="scroll-panel" style="max-height:360px"></div>
+    </div>
+  </div>
+  <div id="impactPlaceholder" class="glass rounded-xl p-10 text-center text-slate-500 text-sm">
+    Selecciona un archivo para ver su análisis de impacto completo.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 4 — GUÍA & RECETAS
+═══════════════════════════════════════════════════════════ -->
+<section id="recipes" class="section px-4 py-6 max-w-7xl mx-auto">
+  <h2 class="text-xl font-bold mb-1 text-white">🛠️ Guía de Desarrollo &amp; Recetas Paso a Paso</h2>
+  <p class="text-slate-400 text-sm mb-5">Recetas de extensión más comunes del proyecto con código listo para copiar y pegar.</p>
+  <div id="recipesContainer"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 5 — REGLAS DE ORO
+═══════════════════════════════════════════════════════════ -->
+<section id="golden" class="section px-4 py-6 max-w-7xl mx-auto">
+  <h2 class="text-xl font-bold mb-1 text-white">🛡️ Reglas de Oro de Integridad</h2>
+  <p class="text-slate-400 text-sm mb-5">Matriz de anti-patrones fatales vs buenas prácticas obligatorias del sistema.</p>
+
+  <div id="goldenRules"></div>
+</section>
+
+<!-- ── Toast ── -->
+<div id="toast">✓ Copiado al portapapeles</div>
+
+<!-- ── App Script ── -->
+<script src="app.js"></script>
+</body>
+</html>
