@@ -165,14 +165,14 @@ router.post('/probar', autenticar, async (req, res) => {
     let destFinal = destinatario.trim();
     if (tipo === 'whatsapp') {
         destFinal = destFinal.replace(/[\s\-\(\)]/g, '');
-        if (!destFinal.startsWith('+')) {
-            if (/^\d{10}$/.test(destFinal)) destFinal = `+52${destFinal}`;
-            else if (/^52\d{10,11}$/.test(destFinal)) destFinal = `+${destFinal}`;
-            else destFinal = `+${destFinal}`;
-        }
+        if (/^\d{10}$/.test(destFinal)) destFinal = `+521${destFinal}`;
+        else if (/^\+52\d{10}$/.test(destFinal)) destFinal = destFinal.replace('+52', '+521');
+        else if (/^52\d{10}$/.test(destFinal)) destFinal = `+521${destFinal.slice(2)}`;
+        else if (!destFinal.startsWith('+')) destFinal = `+${destFinal}`;
+
         if (!/^\+[1-9]\d{7,14}$/.test(destFinal)) {
             return res.status(400).json({
-                error: 'Número de WhatsApp inválido. Usa 10 dígitos o formato internacional, ej: +528116054215',
+                error: 'Número de WhatsApp inválido. Usa 10 dígitos o formato internacional, ej: +5218116054215',
                 codigo: 'FORMATO_WHATSAPP_INVALIDO'
             });
         }

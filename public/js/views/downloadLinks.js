@@ -43,11 +43,10 @@ function inicializarEnlacesTemporales() {
             const emailDestino = document.getElementById('shareEmailDestino').value;
             const whatsappInput = document.getElementById('shareWhatsappDestino');
             let whatsappDestino = whatsappInput ? whatsappInput.value.trim().replace(/[\s\-\(\)]/g, '') : '';
-            if (whatsappDestino && !whatsappDestino.startsWith('+')) {
-                if (/^\d{10}$/.test(whatsappDestino)) whatsappDestino = `+52${whatsappDestino}`;
-                else if (/^52\d{10,11}$/.test(whatsappDestino)) whatsappDestino = `+${whatsappDestino}`;
-                else whatsappDestino = `+${whatsappDestino}`;
-            }
+            if (/^\d{10}$/.test(whatsappDestino)) whatsappDestino = `+521${whatsappDestino}`;
+            else if (/^\+52\d{10}$/.test(whatsappDestino)) whatsappDestino = whatsappDestino.replace('+52', '+521');
+            else if (/^52\d{10}$/.test(whatsappDestino)) whatsappDestino = `+521${whatsappDestino.slice(2)}`;
+            else if (whatsappDestino && !whatsappDestino.startsWith('+')) whatsappDestino = `+${whatsappDestino}`;
 
             if (!rfc) {
                 showToast('Selecciona un contribuyente.', 'warning');

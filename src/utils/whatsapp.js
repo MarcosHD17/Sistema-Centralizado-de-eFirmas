@@ -75,15 +75,11 @@ async function enviarWhatsapp(config, destinatario, mensaje, options = {}) {
     const payload = { from, to };
 
     // Soporte para Plantillas Aprobadas (ContentSid / ContentVariables de Twilio)
-    const contentSid = options.contentSid || process.env.TWILIO_CONTENT_SID;
-    if (contentSid) {
-        payload.contentSid = contentSid;
+    if (options.contentSid) {
+        payload.contentSid = options.contentSid;
         const vars = options.contentVariables || options.variables;
         if (vars) {
             payload.contentVariables = typeof vars === 'string' ? vars : JSON.stringify(vars);
-        } else {
-            // Variables por defecto de ejemplo si la plantilla las requiere {"1": "...", "2": "..."}
-            payload.contentVariables = JSON.stringify({ "1": "SAT Control", "2": mensaje || "Notificación" });
         }
     } else {
         payload.body = mensaje;

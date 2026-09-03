@@ -128,11 +128,10 @@ function inicializarConfigAlertas() {
 
             if (tipo === 'whatsapp') {
                 destinatario = destinatario.replace(/[\s\-\(\)]/g, '');
-                if (!destinatario.startsWith('+')) {
-                    if (/^\d{10}$/.test(destinatario)) destinatario = `+52${destinatario}`;
-                    else if (/^52\d{10,11}$/.test(destinatario)) destinatario = `+${destinatario}`;
-                    else destinatario = `+${destinatario}`;
-                }
+                if (/^\d{10}$/.test(destinatario)) destinatario = `+521${destinatario}`;
+                else if (/^\+52\d{10}$/.test(destinatario)) destinatario = destinatario.replace('+52', '+521');
+                else if (/^52\d{10}$/.test(destinatario)) destinatario = `+521${destinatario.slice(2)}`;
+                else if (!destinatario.startsWith('+')) destinatario = `+${destinatario}`;
             }
 
             try {

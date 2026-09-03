@@ -549,13 +549,13 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
 
         let whatsappResultado = null;
         if (whatsappDestino) {
-            // Normalizar número de teléfono (asume +52 para 10 dígitos en México si no trae lada int)
-            let whatsappDestinoNorm = String(whatsappDestino).replace(/[\s\-\(\)]/g, '').trim();
-            if (!whatsappDestinoNorm.startsWith('+')) {
-                if (/^\d{10}$/.test(whatsappDestinoNorm)) whatsappDestinoNorm = `+52${whatsappDestinoNorm}`;
-                else if (/^52\d{10,11}$/.test(whatsappDestinoNorm)) whatsappDestinoNorm = `+${whatsappDestinoNorm}`;
-                else whatsappDestinoNorm = `+${whatsappDestinoNorm}`;
-            }
+            let limpio = String(whatsappDestino).replace(/[\s\-\(\)]/g, '').trim();
+            if (/^\d{10}$/.test(limpio)) limpio = `+521${limpio}`;
+            else if (/^\+52\d{10}$/.test(limpio)) limpio = limpio.replace('+52', '+521');
+            else if (/^52\d{10}$/.test(limpio)) limpio = `+521${limpio.slice(2)}`;
+            else if (!limpio.startsWith('+')) limpio = `+${limpio}`;
+
+            const whatsappDestinoNorm = limpio;
 
             const wappResult = await enviarEnlaceTemporalWhatsApp({
                 numeroDestino: whatsappDestinoNorm,
