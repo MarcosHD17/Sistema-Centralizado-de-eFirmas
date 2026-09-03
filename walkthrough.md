@@ -1,60 +1,42 @@
-# Walkthrough - Implementación del Backend e Integración Criptográfica (v2.2.0)
+# Walkthrough - Implementación de Notificaciones Multicanal & Dashboard de Arquitectura (v2.3.1)
 
-Hemos completado exitosamente la transición de la plataforma **SAT Control Manager** de una interfaz estática interactiva (mockup) a una aplicación web conectada a una API REST real con base de datos relacional y robustas políticas de seguridad.
+Hemos completado la integración real de notificaciones multicanal (**Correo SMTP Yahoo + WhatsApp Twilio API**), la normalización automática de formatos de teléfono internacionales y el **Dashboard Interactivo de Arquitectura**.
 
 ---
 
 ## 🛠️ Cambios Realizados
 
-### 1. Base de Datos Relacional y Esquema
-* **Modelo Relacional:** Diseñamos e implementamos el archivo [schema.sql](file:///C:/Users/Marko/Documents/GitHub/Sistema%20Centralizado%20de%20eFirmas/schema.sql) que especifica la estructura relacional del proyecto en SQLite.
-* **Integridad Criptográfica (Ledger-Chain):** La tabla `bitacora_logs` calcula para cada registro un hash SHA-256 basado en el contenido del evento y el hash del registro anterior (`prev_hash`). Cualquier alteración manual en la BD romperá la firma de la cadena.
-* **Script de Inicialización y Semillas:** Creamos [init.js](file:///C:/Users/Marko/Documents/GitHub/Sistema%20Centralizado%20de%20eFirmas/src/db/init.js) que genera automáticamente la BD y crea las semillas por defecto si la base de datos está vacía:
-  * **Usuario Admin:** `admin@fiel.mx` / `Admin1234.`
-  * **Bitácora:** Registro de bloque génesis inicial de auditoría.
+### 1. Integración de WhatsApp vía Twilio SDK Oficial (`src/utils/whatsapp.js` & `src/services/whatsappService.js`)
+* **SDK Oficial Twilio:** Sustitución del cliente REST simulado por el SDK nativo `twilio`.
+* **Credenciales en `.env`:** Configuración mediante `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM` y `TWILIO_CONTENT_SID`.
+* **Soporte para Content Templates:** Compatibilidad nativa con plantillas aprobadas de Twilio (`contentSid` y `contentVariables`).
+* **Resiliencia de SSL Local:** Prevención de fallos por inspección de certificados en proxies corporativos (`UNABLE_TO_VERIFY_LEAF_SIGNATURE`).
 
-### 2. Capa de Backend (Node.js + Express)
-* **JWT y RBAC (Rol Based Access Control):** Configuramos tokens Bearer JWT firmados con expiración. Los middlewares en [auth.js](file:///C:/Users/Marko/Documents/GitHub/Sistema%20Centralizado%20de%20eFirmas/src/middleware/auth.js) validan los privilegios de los endpoints (`admin`, `supervisor`, `operador`) y registran las IPs.
-* **Control de Umbrales Semafóricos (UTC):** El motor en [semaforo.js](file:///C:/Users/Marko/Documents/GitHub/Sistema%20Centralizado%20de%20eFirmas/src/utils/semaforo.js) ejecuta el recálculo semafórico a las **00:00 UTC** en el servidor para evitar desfases horarios regionales de los clientes:
-  * **Verde (Vigente):** > 90 días restantes.
-  * **Amarillo (Preventivo):** 31 a 90 días restantes.
-  * **Rojo (Crítico):** 1 a 30 días restantes.
-  * **Negro (Expirado):** ≤ 0 días restantes.
-* **Límites de Consulta Diario (CU-04):** El backend restringe a un máximo de **10 consultas diarias** de claves privadas por operador. Toda consulta valida que el usuario tenga el token **2FA (TOTP)** configurado y activo.
-* **Simulador de Alertas con Backoff Exponencial:** El endpoint `/api/alertas/probar` simula la caída de proveedores SMTP o WhatsApp y reintenta el envío en intervalos exponenciales (ej. 100ms, 200ms, 400ms...) antes de reportar un fallo inmutable en la bitácora.
+### 2. Normalización Automática de Números Celulares de México (`+521`)
+* **Identificación del Estándar Meta/WhatsApp:** WhatsApp exige la lada `+521` para números celulares mexicanos de 10 dígitos (ej. `8116054215` $\rightarrow$ `+5218116054215`).
+* **Formateador Transparente:** Implementado en frontend (`downloadLinks.js`, `alertas.js`) y backend (`contribuyentes.js`, `alertas.js`) para limpiar espacios, guiones y paréntesis, garantizando entregas exitosas sin errores `63015`.
 
-### 3. Frontend Integrado (index.html)
-* **Criptografía del Lado del Cliente (Nativa):** En lugar de transmitir contraseñas en texto plano al servidor, la SPA utiliza la API nativa **Web Crypto** en el navegador para generar un Salt y IV aleatorios, derivar una clave PBKDF2 de la contraseña y cifrar con **AES-GCM de 256 bits** el archivo de clave privada `.key` antes de enviarlo al backend.
-* **Login Overlay Elegante:** Inyectamos un modal de inicio de sesión premium con efecto glassmorphism al inicio de la página que requiere autenticación.
-* **Sincronización Completa con la API:** Enlazamos los KPI del tablero, gráficos SVG de dona, tablas de contribuyentes, registros de bitácora, configuraciones semafóricas y creación de usuarios a la API local.
-* **Modo Demostración Offline (Resiliencia):** Si la SPA no detecta el servidor backend local corriendo, activa de forma transparente el modo demostración local (in memory), haciendo que el frontend siga siendo 100% funcional si se despliega en GitHub Pages sin backend.
+### 3. Transporte SMTP Real de Correo (`src/utils/mailer.js`)
+* **Conexión Yahoo SMTP:** Configurado en puerto `587` con STARTTLS (`secure: false`).
+* **Fallback a Variables de Entorno:** Si la BD no contiene datos SMTP custom, el sistema utiliza de forma segura los valores de `.env`.
+
+### 4. Dashboard Interactivo de Arquitectura (`docs/index.html` & `docs/app.js`)
+* **Simulador Reactivo en Vivo:** Proporciona un sandbox para simular los 7 flujos principales (login, registro de contribuyentes, KPIs, consulta de clave cifrada, pruebas de alerta, tokens de descarga y recálculo semafórico).
+* **Catálogo de Módulos:** Mapeo interactivo de los 22 archivos del proyecto organizados por capa arquitectónica con búsqueda en vivo.
+* **Analizador de Impacto:** Ficha técnica, riesgos de regresión y snippets de acoplamiento.
+* **Recetas & Reglas de Oro:** Guías paso a paso con bloques de código copiables y matriz de buenas prácticas.
 
 ---
 
 ## 🧪 Pruebas de Funcionamiento Realizadas
 
-1. **Creación de la base de datos:** `npm run init-db` inicializó las tablas y semillas.
-2. **Arranque del servidor backend:** Levantó en `http://localhost:3001` sin advertencias de dependencias.
-3. **Petición HTTP de inicio de sesión:**
-   ```powershell
-   Invoke-RestMethod -Uri http://localhost:3001/api/auth/login -Method Post -Body (@{email='admin@fiel.mx'; password='Admin1234.'} | ConvertTo-Json) -ContentType "application/json"
-   ```
-   **Resultado:** Regresó exitosamente el Token JWT generado.
+1. **Prueba de Correo SMTP Yahoo:**
+   - **Resultado:** `✅ CORREO ENVIADO CON ÉXITO. MessageID: <b6f68b0e-2e26-a390-c976-5bd1ecb8042d@yahoo.com>`
 
----
+2. **Prueba de WhatsApp Twilio API:**
+   - **Número enviado:** `8116054215` $\rightarrow$ `+5218116054215`
+   - **Twilio SID:** `SMaccb70eb4901f83ba075475beeddfcab`
+   - **Estado Meta/WhatsApp:** **`delivered` (ENTREGADO)**, ErrorCode: `null`
 
-## 🚀 Cómo ejecutar localmente
-
-1. Ejecuta la instalación de dependencias en la terminal si descargas el repositorio:
-   ```bash
-   npm install
-   ```
-2. Inicializa la base de datos de desarrollo:
-   ```bash
-   npm run init-db
-   ```
-3. Arranca el servidor Express:
-   ```bash
-   npm run dev
-   ```
-4. Abre [index.html](file:///C:/Users/Marko/Documents/GitHub/Sistema%20Centralizado%20de%20eFirmas/index.html) directamente en tu navegador.
+3. **Prueba de Cola de Alertas Persistente:**
+   - **Procesadas:** 2 | **Enviadas:** 2 | **Fallidas:** 0

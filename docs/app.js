@@ -226,10 +226,10 @@ const MODULES = [
     layer: 'util',
     badge: 'util',
     icon: '💬',
-    what: 'Envío de mensajes WhatsApp vía API externa (CallMeBot / similar). Descifra el token de la configuración, llama al endpoint HTTP y propaga errores al llamador (colaAlertas).',
-    why: 'Mismo patrón que mailer.js: desacopla el canal de la lógica de reintentos. Cambiar de proveedor WhatsApp solo requiere modificar este archivo.',
-    critical: 'El número debe estar en formato E.164 (+521234567890). Validación de formato se hace en POST /alertas/probar ANTES de encolar.',
-    deps: ['src/utils/crypto.js']
+    what: 'Envío de mensajes WhatsApp vía Twilio SDK oficial. Soporta mensajes de texto y plantillas aprobadas (ContentSid / ContentVariables). Auto-normaliza formato internacional de México (+521).',
+    why: 'Desacopla la API de Twilio de la lógica de reintentos en colaAlertas.js. Maneja TLS preventivo para evitar fallos por proxies SSL locales.',
+    critical: 'En México (+52), WhatsApp exige el prefijo +521 antes de los 10 dígitos. Omitir el 1 genera el error 63015 de Twilio.',
+    deps: ['twilio']
   },
   // ── SERVICES ──
   {
@@ -239,10 +239,10 @@ const MODULES = [
     layer: 'service',
     badge: 'service',
     icon: '✉️',
-    what: 'Servicio de correo de alto nivel para el flujo de enlaces temporales. Usa credenciales de .env (SMTP real) o genera automáticamente una cuenta Ethereal para desarrollo/pruebas. Retorna la URL de preview de Ethereal cuando está en modo sandbox.',
-    why: 'Separado de mailer.js porque usa credenciales del .env directamente (no de alertas_config). Sirve para el flujo de generación de tokens de descarga, que es independiente del motor de alertas semafóricas.',
-    critical: 'No confundir con mailer.js: este servicio tiene su propia lógica de transporte (Ethereal fallback). Nunca pasar credenciales SMTP_PASS en texto plano a funciones que loggen.',
-    deps: []
+    what: 'Servicio de correo de alto nivel para enlaces temporales de descarga. Usa credenciales SMTP de .env (Yahoo / custom) con fallback a Ethereal sandbox.',
+    why: 'Separado de mailer.js porque se usa para la generación bajo demanda de tokens de descarga temporal.',
+    critical: 'No loggear contraseñas SMTP en consola. Retorna { success, previewUrl } para integración fluida con la UI.',
+    deps: ['nodemailer']
   },
   {
     id: 'svc_whatsapp',
@@ -251,10 +251,10 @@ const MODULES = [
     layer: 'service',
     badge: 'service',
     icon: '📱',
-    what: 'Servicio WhatsApp de alto nivel para notificaciones de enlaces temporales. Similar a emailService.js pero para el canal de WhatsApp. Envuelve la llamada a la API externa con manejo de errores y retorna { success, error }.',
-    why: 'Mismo patrón que emailService.js: abstrae el canal de la lógica de la ruta. La ruta de contribuyentes no necesita saber cómo funciona WhatsApp.',
-    critical: 'El formato de retorno { success, error } es un contrato con contribuyentes.js. Si se cambia, la ruta de generación de tokens rompe el log de acciones.',
-    deps: []
+    what: 'Servicio WhatsApp de alto nivel para notificación de enlaces temporales vía Twilio. Formatea plantilla con Razón Social, RFC y enlace de autodestrucción.',
+    why: 'Mismo contrato que emailService.js ({ success, sid, error }). Normaliza a +521 y retorna el Twilio SID para auditoría.',
+    critical: 'El destinatario se normaliza automáticamente a +521 en México para asegurar la entrega sin errores 63015.',
+    deps: ['src/utils/whatsapp.js']
   },
   // ── FRONTEND / UI ──
   {
