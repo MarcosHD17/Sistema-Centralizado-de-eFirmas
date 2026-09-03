@@ -1,24 +1,18 @@
 // ============================================================
-// Versión: v2.3.0
+// Versión: v2.3.1
 // Archivo: src/utils/whatsapp.js
 // Descripción: Envío REAL de WhatsApp vía Twilio SDK oficial.
+// Soporta tanto mensajes de texto libre (body) como Plantillas Aprobadas (ContentSid / ContentVariables).
 //
 // Requiere en .env:
 //   TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 //   TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//   TWILIO_CONTENT_SID=HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (Opcional: ID plantilla aprobada)
 //
-// El número de origen (whatsapp_numero_origen en alertas_config)
+// El número de origen (whatsapp_numero_origen en alertas_config o TWILIO_WHATSAPP_FROM)
 // debe ser el Sandbox o el número aprobado de Twilio en formato:
 //   whatsapp:+14155238886   ← Sandbox de Twilio
 //   whatsapp:+521XXXXXXXXXX ← Número propio aprobado
-//
-// El campo whatsapp_api_token_cifrado en alertas_config ya no se
-// usa para la autenticación de Twilio (que usa Account SID + Auth
-// Token desde el .env). Se mantiene el campo para compatibilidad
-// con la UI de configuración, pero puede dejarse vacío.
-//
-// Formato de número destinatario (formato E.164):
-//   +521234567890  →  El SDK lo prefija como "whatsapp:+521234567890"
 // ============================================================
 
 'use strict';
@@ -27,14 +21,14 @@ require('dotenv').config();
 
 /**
  * Envía un mensaje de WhatsApp usando el SDK oficial de Twilio.
- * Propaga el error al llamador (colaAlertas) para que gestione
- * el backoff y los reintentos — no captura excepciones internamente.
+ * Soporta tanto texto libre (body) como plantillas aprobadas (contentSid + contentVariables).
  *
  * @param {object} config - Fila de alertas_config (de la BD)
  * @param {string} destinatario - Número en formato E.164, ej: +521234567890
- * @param {string} mensaje - Texto del mensaje
+ * @param {string} mensaje - Texto del mensaje (usado si no hay contentSid)
+ * @param {object} [options] - Opciones adicionales ({ contentSid, contentVariables, variables })
  */
-async function enviarWhatsapp(config, destinatario, mensaje) {
+async function enviarWhatsapp(config, destinatario, mensaje, options = {}) {
     if (config.whatsapp_activo === 0 && !process.env.TWILIO_WHATSAPP_FROM) {
         throw new Error('El canal de WhatsApp está desactivado en la configuración de alertas.');
     }
@@ -60,8 +54,6 @@ async function enviarWhatsapp(config, destinatario, mensaje) {
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
     }
 
-    // Importación dinámica para no romper el servidor si twilio no está instalado
-    // (falla claro en el momento de envío, no al arrancar)
     let twilioClient;
     try {
         const twilio = require('twilio');
@@ -72,9 +64,6 @@ async function enviarWhatsapp(config, destinatario, mensaje) {
         );
     }
 
-    // Twilio exige el prefijo "whatsapp:" en ambos números.
-    // Si el usuario ya lo incluyó en la config, lo respetamos;
-    // si solo puso el número plano, lo normalizamos aquí.
     const from = numeroOrigen.startsWith('whatsapp:')
         ? numeroOrigen
         : `whatsapp:${numeroOrigen}`;
@@ -83,14 +72,25 @@ async function enviarWhatsapp(config, destinatario, mensaje) {
         ? destinatario
         : `whatsapp:${destinatario}`;
 
-    const message = await twilioClient.messages.create({
-        from,
-        to,
-        body: mensaje
-    });
+    const payload = { from, to };
 
-    // El SDK lanza una excepción en caso de error HTTP (4xx/5xx de Twilio),
-    // lo que propaga el error hacia procesarColaAlertas() para el backoff.
+    // Soporte para Plantillas Aprobadas (ContentSid / ContentVariables de Twilio)
+    const contentSid = options.contentSid || process.env.TWILIO_CONTENT_SID;
+    if (contentSid) {
+        payload.contentSid = contentSid;
+        const vars = options.contentVariables || options.variables;
+        if (vars) {
+            payload.contentVariables = typeof vars === 'string' ? vars : JSON.stringify(vars);
+        } else {
+            // Variables por defecto de ejemplo si la plantilla las requiere {"1": "...", "2": "..."}
+            payload.contentVariables = JSON.stringify({ "1": "SAT Control", "2": mensaje || "Notificación" });
+        }
+    } else {
+        payload.body = mensaje;
+    }
+
+    const message = await twilioClient.messages.create(payload);
+
     return { sid: message.sid, status: message.status };
 }
 
