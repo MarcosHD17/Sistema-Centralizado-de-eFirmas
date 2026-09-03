@@ -572,7 +572,7 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
                 usuario_id: req.user.id,
                 usuario_email: req.user.email,
                 accion: wappResult.success ? 'ENVIO_WHATSAPP_ENLACE_TEMPORAL' : 'ENVIO_WHATSAPP_ENLACE_FALLO',
-                detalle: `RFC: ${rfc} | Destino: ${whatsappDestinoNorm}${wappResult.error ? ' | Error: ' + wappResult.error : ''}`,
+                detalle: `RFC: ${rfc} | Destino: ${whatsappDestinoNorm} | Modo: ${wappResult.modo_envio}${wappResult.sid ? ' | SID: ' + wappResult.sid : ''}${wappResult.error ? ' | Error: ' + wappResult.error : ''}`,
                 ip_origen: ip_creacion
             });
 
