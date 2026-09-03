@@ -89,8 +89,21 @@ async function mockRequest(endpoint, options = {}) {
 // --- MANEJADOR DE PETICIONES HTTP (FETCH WRAPPER) ---
 async function apiFetch(endpoint, options = {}) {
     if (modoOffline) {
-        console.warn('[Offline] Petición simulada:', endpoint);
-        return mockRequest(endpoint, options);
+        try {
+            const check = await fetch(`${API_URL}/health`, { signal: AbortSignal.timeout(1500) });
+            if (check.ok) {
+                modoOffline = false;
+                console.log('[API] Backend reconectado exitosamente.');
+                const titleSpan = document.querySelector('.navbar-title span');
+                if (titleSpan) {
+                    titleSpan.textContent = 'SAT Control Manager';
+                    titleSpan.style.color = '';
+                }
+            }
+        } catch (e) {
+            console.warn('[Offline] Petición simulada:', endpoint);
+            return mockRequest(endpoint, options);
+        }
     }
 
     const url = `${API_URL}${endpoint}`;
