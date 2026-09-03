@@ -547,27 +547,36 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
             }
         }
 
-        // Si se provee un número de WhatsApp, enviar notificación por ese canal
+        let whatsappResultado = null;
         if (whatsappDestino) {
+            // Normalizar número de teléfono (asume +52 para 10 dígitos en México si no trae lada int)
+            let whatsappDestinoNorm = String(whatsappDestino).replace(/[\s\-\(\)]/g, '').trim();
+            if (!whatsappDestinoNorm.startsWith('+')) {
+                if (/^\d{10}$/.test(whatsappDestinoNorm)) whatsappDestinoNorm = `+52${whatsappDestinoNorm}`;
+                else if (/^52\d{10,11}$/.test(whatsappDestinoNorm)) whatsappDestinoNorm = `+${whatsappDestinoNorm}`;
+                else whatsappDestinoNorm = `+${whatsappDestinoNorm}`;
+            }
+
             const wappResult = await enviarEnlaceTemporalWhatsApp({
-                numeroDestino: whatsappDestino,
+                numeroDestino: whatsappDestinoNorm,
                 rfc,
                 razonSocial: contribuyente.razon_social,
                 fileType: file_type.toUpperCase(),
                 downloadUrl: req.protocol + '://' + req.get('host') + downloadUrl,
                 expiresAt: fechaExpiracion
             });
+            whatsappResultado = wappResult;
 
             registrarLog({
                 usuario_id: req.user.id,
                 usuario_email: req.user.email,
                 accion: wappResult.success ? 'ENVIO_WHATSAPP_ENLACE_TEMPORAL' : 'ENVIO_WHATSAPP_ENLACE_FALLO',
-                detalle: `RFC: ${rfc} | Destino: ${whatsappDestino}${wappResult.error ? ' | Error: ' + wappResult.error : ''}`,
+                detalle: `RFC: ${rfc} | Destino: ${whatsappDestinoNorm}${wappResult.error ? ' | Error: ' + wappResult.error : ''}`,
                 ip_origen: ip_creacion
             });
 
             if (!wappResult.success) {
-                console.error(`[Token WhatsApp] Falló el envío a ${whatsappDestino}: ${wappResult.error}`);
+                console.error(`[Token WhatsApp] Falló el envío a ${whatsappDestinoNorm}: ${wappResult.error}`);
             }
         }
 
@@ -577,7 +586,8 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
             download_url: downloadUrl,
             expires_at: fechaExpiracion,
             file_type: file_type.toUpperCase(),
-            preview_url: previewUrl
+            preview_url: previewUrl,
+            whatsapp_resultado: whatsappResultado
         });
     } catch (err) {
         console.error(`[Token ZIP] Error interno al generar token para ${rfc}:`, err);

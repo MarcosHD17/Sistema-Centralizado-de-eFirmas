@@ -122,9 +122,18 @@ function inicializarConfigAlertas() {
             const tipoSelect = document.getElementById('testAlertTipo');
             const destinoInput = document.getElementById('testAlertDestino');
             const tipo = tipoSelect ? tipoSelect.value : 'correo';
-            const destinatario = destinoInput && destinoInput.value.trim()
+            let destinatario = destinoInput && destinoInput.value.trim()
                 ? destinoInput.value.trim()
-                : (tipo === 'whatsapp' ? '+521234567890' : 'contacto@despacho.com');
+                : (tipo === 'whatsapp' ? '+528116054215' : 'contacto@despacho.com');
+
+            if (tipo === 'whatsapp') {
+                destinatario = destinatario.replace(/[\s\-\(\)]/g, '');
+                if (!destinatario.startsWith('+')) {
+                    if (/^\d{10}$/.test(destinatario)) destinatario = `+52${destinatario}`;
+                    else if (/^52\d{10,11}$/.test(destinatario)) destinatario = `+${destinatario}`;
+                    else destinatario = `+${destinatario}`;
+                }
+            }
 
             try {
                 showToast(`Enviando prueba por ${tipo}...`, 'info');

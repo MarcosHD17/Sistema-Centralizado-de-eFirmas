@@ -162,13 +162,22 @@ router.post('/probar', autenticar, async (req, res) => {
 
     // Fix hallazgo #2 ALTA: validar formato del destinatario según el canal
     // antes de encolar para no desperdiciar reintentos con datos mal formados.
-    if (tipo === 'whatsapp' && !/^\+[1-9]\d{7,14}$/.test(destinatario)) {
-        return res.status(400).json({
-            error: 'Número de WhatsApp inválido. Usa formato E.164 internacional, ej: +521234567890',
-            codigo: 'FORMATO_WHATSAPP_INVALIDO'
-        });
+    let destFinal = destinatario.trim();
+    if (tipo === 'whatsapp') {
+        destFinal = destFinal.replace(/[\s\-\(\)]/g, '');
+        if (!destFinal.startsWith('+')) {
+            if (/^\d{10}$/.test(destFinal)) destFinal = `+52${destFinal}`;
+            else if (/^52\d{10,11}$/.test(destFinal)) destFinal = `+${destFinal}`;
+            else destFinal = `+${destFinal}`;
+        }
+        if (!/^\+[1-9]\d{7,14}$/.test(destFinal)) {
+            return res.status(400).json({
+                error: 'Número de WhatsApp inválido. Usa 10 dígitos o formato internacional, ej: +528116054215',
+                codigo: 'FORMATO_WHATSAPP_INVALIDO'
+            });
+        }
     }
-    if (tipo === 'correo' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destinatario)) {
+    if (tipo === 'correo' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destFinal)) {
         return res.status(400).json({
             error: 'Dirección de correo electrónico inválida.',
             codigo: 'FORMATO_CORREO_INVALIDO'
@@ -179,7 +188,7 @@ router.post('/probar', autenticar, async (req, res) => {
 
     const idCola = encolarAlerta({
         tipo,
-        destinatario,
+        destinatario: destFinal,
         asunto: 'SAT Control Manager — Mensaje de prueba',
         mensaje: `Este es un mensaje de prueba de canal (${tipo}) generado desde la configuración de alertas.`,
         max_intentos: config.max_reintentos || 3

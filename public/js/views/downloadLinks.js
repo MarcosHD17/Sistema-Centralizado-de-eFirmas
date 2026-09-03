@@ -42,16 +42,20 @@ function inicializarEnlacesTemporales() {
             const ttl = document.getElementById('shareTtl').value;
             const emailDestino = document.getElementById('shareEmailDestino').value;
             const whatsappInput = document.getElementById('shareWhatsappDestino');
-            const whatsappDestino = whatsappInput ? whatsappInput.value.trim() : '';
+            let whatsappDestino = whatsappInput ? whatsappInput.value.trim().replace(/[\s\-\(\)]/g, '') : '';
+            if (whatsappDestino && !whatsappDestino.startsWith('+')) {
+                if (/^\d{10}$/.test(whatsappDestino)) whatsappDestino = `+52${whatsappDestino}`;
+                else if (/^52\d{10,11}$/.test(whatsappDestino)) whatsappDestino = `+${whatsappDestino}`;
+                else whatsappDestino = `+${whatsappDestino}`;
+            }
 
             if (!rfc) {
                 showToast('Selecciona un contribuyente.', 'warning');
                 return;
             }
 
-            // Fix hallazgo #6 BAJA + validación E.164 en frontend
             if (whatsappDestino && !/^\+[1-9]\d{7,14}$/.test(whatsappDestino)) {
-                showToast('Número de WhatsApp inválido. Usa formato internacional, ej: +521234567890', 'warning');
+                showToast('Número de WhatsApp inválido. Usa 10 dígitos o formato internacional, ej: +528116054215', 'warning');
                 return;
             }
 
@@ -88,7 +92,15 @@ function inicializarEnlacesTemporales() {
                     }
                 }
 
-                showToast('Enlace de único uso generado correctamente.', 'success');
+                if (data.whatsapp_resultado) {
+                    if (data.whatsapp_resultado.success) {
+                        showToast('Enlace generado y mensaje de WhatsApp enviado.', 'success');
+                    } else {
+                        showToast(`Enlace generado, pero WhatsApp falló: ${data.whatsapp_resultado.error}`, 'warning');
+                    }
+                } else {
+                    showToast('Enlace de único uso generado correctamente.', 'success');
+                }
             } catch (err) {
                 showToast(err.message || 'Error al generar el enlace', 'danger');
             } finally {
