@@ -1,18 +1,9 @@
 // ============================================================
-// Versión: v2.3.0
+// Versión: v2.3.1
 // Archivo: src/services/whatsappService.js
 // Descripción: Servicio de alto nivel para enviar enlaces temporales
 // de descarga por WhatsApp usando Twilio SDK (vía src/utils/whatsapp.js).
-//
-// Equivalente a emailService.js pero para el canal de WhatsApp.
-// Usa la config de alertas_config de la BD + credenciales Twilio del .env.
-//
-// Requiere en .env:
-//   TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-//   TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-// Y en alertas_config (vía PUT /api/alertas/config):
-//   whatsapp_activo=1
-//   whatsapp_numero_origen=whatsapp:+14155238886  (o tu número aprobado)
+// Soporta tanto mensajería en texto libre como plantillas aprobadas (TWILIO_CONTENT_SID).
 // ============================================================
 
 'use strict';
@@ -32,7 +23,7 @@ function nombreArchivo(fileType) {
  * Siempre retorna { success, error? } — nunca lanza excepción.
  *
  * @param {object} params
- * @param {string} params.numeroDestino - Formato E.164, ej: +521234567890
+ * @param {string} params.numeroDestino - Formato E.164 o 10 dígitos, ej: 8116054215 / +5218116054215
  * @param {string} params.rfc
  * @param {string} params.razonSocial
  * @param {string} params.fileType - 'CER' | 'KEY' | 'ZIP'
@@ -42,10 +33,24 @@ function nombreArchivo(fileType) {
  */
 async function enviarEnlaceTemporalWhatsApp({ numeroDestino, rfc, razonSocial, fileType, downloadUrl, expiresAt }) {
     try {
-        if (!numeroDestino || !/^\+[1-9]\d{7,14}$/.test(numeroDestino)) {
+        if (!numeroDestino) {
             return {
                 success: false,
-                error: 'Número de WhatsApp inválido. Usa formato internacional (ej. +521234567890).'
+                error: 'Número de WhatsApp destino es requerido.'
+            };
+        }
+
+        // Normalizar formato internacional México (+521)
+        let limpio = String(numeroDestino).replace(/[\s\-\(\)]/g, '').trim();
+        if (/^\d{10}$/.test(limpio)) limpio = `+521${limpio}`;
+        else if (/^\+52\d{10}$/.test(limpio)) limpio = limpio.replace('+52', '+521');
+        else if (/^52\d{10}$/.test(limpio)) limpio = `+521${limpio.slice(2)}`;
+        else if (!limpio.startsWith('+')) limpio = `+${limpio}`;
+
+        if (!/^\+[1-9]\d{7,14}$/.test(limpio)) {
+            return {
+                success: false,
+                error: 'Número de WhatsApp inválido. Usa 10 dígitos o formato internacional, ej: +5218116054215'
             };
         }
 
@@ -56,7 +61,7 @@ async function enviarEnlaceTemporalWhatsApp({ numeroDestino, rfc, razonSocial, f
             timeStyle: 'short'
         });
 
-        const mensaje =
+        const mensajeText =
             `📄 *SAT Control Manager*\n\n` +
             `Se generó un enlace de descarga seguro para:\n\n` +
             `🏢 *Razón Social:* ${razonSocial}\n` +
@@ -67,7 +72,16 @@ async function enviarEnlaceTemporalWhatsApp({ numeroDestino, rfc, razonSocial, f
             `tras la primera descarga exitosa, o expira el ${expiraTexto}.\n\n` +
             `_No compartas este enlace con terceros._`;
 
-        const resultado = await enviarWhatsapp(config, numeroDestino, mensaje);
+        const options = {};
+        if (process.env.TWILIO_CONTENT_SID) {
+            options.contentSid = process.env.TWILIO_CONTENT_SID;
+            options.contentVariables = JSON.stringify({
+                "1": rfc,
+                "2": downloadUrl
+            });
+        }
+
+        const resultado = await enviarWhatsapp(config, limpio, mensajeText, options);
 
         return { success: true, sid: resultado?.sid };
     } catch (error) {
