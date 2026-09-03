@@ -20,23 +20,33 @@ const { descifrar } = require('./crypto');
  * @returns {import('nodemailer').Transporter}
  */
 function construirTransporte(config) {
-    if (!config.correo_activo) {
+    if (config.correo_activo === 0) {
         throw new Error('El canal de correo está desactivado en la configuración de alertas.');
     }
-    if (!config.correo_smtp_host || !config.correo_smtp_usuario || !config.correo_smtp_pass_cifrado) {
-        throw new Error('Faltan credenciales SMTP (host, usuario o contraseña) en la configuración de alertas.');
+    const host = config.correo_smtp_host || process.env.SMTP_HOST;
+    const puerto = config.correo_smtp_puerto || parseInt(process.env.SMTP_PORT) || 587;
+    const usuario = config.correo_smtp_usuario || process.env.SMTP_USER;
+    const passPlano = config.correo_smtp_pass_cifrado
+        ? descifrar(config.correo_smtp_pass_cifrado)
+        : process.env.SMTP_PASS;
+
+    if (!host || !usuario || !passPlano) {
+        throw new Error('Faltan credenciales SMTP (host, usuario o contraseña) en la configuración de alertas o en .env.');
     }
 
-    const passPlano = descifrar(config.correo_smtp_pass_cifrado);
+    const isSecure = process.env.SMTP_SECURE !== undefined
+        ? process.env.SMTP_SECURE === 'true'
+        : puerto === 465;
 
     return nodemailer.createTransport({
-        host: config.correo_smtp_host,
-        port: config.correo_smtp_puerto || 587,
-        secure: (config.correo_smtp_puerto || 587) === 465,
+        host: host,
+        port: puerto,
+        secure: isSecure,
         auth: {
-            user: config.correo_smtp_usuario,
+            user: usuario,
             pass: passPlano
-        }
+        },
+        tls: { rejectUnauthorized: false }
     });
 }
 
@@ -50,8 +60,9 @@ function construirTransporte(config) {
  */
 async function enviarCorreo(config, destinatario, asunto, mensaje) {
     const transporte = construirTransporte(config);
+    const remitente = process.env.EMAIL_FROM || config.correo_smtp_usuario || process.env.SMTP_USER;
     return transporte.sendMail({
-        from: config.correo_smtp_usuario,
+        from: remitente,
         to: destinatario,
         subject: asunto || 'SAT Control Manager — Notificación',
         text: mensaje

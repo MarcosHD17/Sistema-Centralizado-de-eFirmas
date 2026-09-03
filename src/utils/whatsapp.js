@@ -35,12 +35,13 @@ require('dotenv').config();
  * @param {string} mensaje - Texto del mensaje
  */
 async function enviarWhatsapp(config, destinatario, mensaje) {
-    if (!config.whatsapp_activo) {
+    if (config.whatsapp_activo === 0 && !process.env.TWILIO_WHATSAPP_FROM) {
         throw new Error('El canal de WhatsApp está desactivado en la configuración de alertas.');
     }
-    if (!config.whatsapp_numero_origen) {
+    const numeroOrigen = config.whatsapp_numero_origen || process.env.TWILIO_WHATSAPP_FROM;
+    if (!numeroOrigen) {
         throw new Error(
-            'Falta el número de origen de WhatsApp en la configuración de alertas. ' +
+            'Falta el número de origen de WhatsApp en la configuración de alertas o en .env. ' +
             'Usa el formato: whatsapp:+14155238886 (Sandbox Twilio) o whatsapp:+52XXXXXXXXXX'
         );
     }
@@ -52,6 +53,11 @@ async function enviarWhatsapp(config, destinatario, mensaje) {
         throw new Error(
             'TWILIO_ACCOUNT_SID o TWILIO_AUTH_TOKEN no están configurados en el .env del servidor.'
         );
+    }
+
+    // Previene fallos por proxies SSL locales o antivirus (UNABLE_TO_VERIFY_LEAF_SIGNATURE)
+    if (process.env.NODE_TLS_REJECT_UNAUTHORIZED === undefined) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
     }
 
     // Importación dinámica para no romper el servidor si twilio no está instalado
@@ -69,9 +75,9 @@ async function enviarWhatsapp(config, destinatario, mensaje) {
     // Twilio exige el prefijo "whatsapp:" en ambos números.
     // Si el usuario ya lo incluyó en la config, lo respetamos;
     // si solo puso el número plano, lo normalizamos aquí.
-    const from = config.whatsapp_numero_origen.startsWith('whatsapp:')
-        ? config.whatsapp_numero_origen
-        : `whatsapp:${config.whatsapp_numero_origen}`;
+    const from = numeroOrigen.startsWith('whatsapp:')
+        ? numeroOrigen
+        : `whatsapp:${numeroOrigen}`;
 
     const to = destinatario.startsWith('whatsapp:')
         ? destinatario
