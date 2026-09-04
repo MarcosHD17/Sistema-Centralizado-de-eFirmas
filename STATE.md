@@ -44,3 +44,14 @@
 - **2026-09-03:** Identificación de requerimiento de red Meta/WhatsApp para números móviles de México: los números de 10 dígitos requieren la secuencia de lada internacional **`+521`** (ej. `+5218116054215` en lugar de `+528116054215`). Implementación de auto-normalización transparente en frontend (`downloadLinks.js`, `alertas.js`) y backend (`contribuyentes.js`, `alertas.js`).
 - **2026-09-03:** Soporte para Twilio Content Templates (`contentSid` / `contentVariables`). Adición de la variable opcional `TWILIO_CONTENT_SID` en `.env` y lógica dinámica en `src/utils/whatsapp.js`.
 - **2026-09-03:** Verificación de entrega exitosa devuelta por WhatsApp Meta / Twilio API (`Status: delivered` / `Status: read`, ErrorCode `null`).
+- **2026-09-04:** **Corrección de Envío de WhatsApp desde Interfaz Web (Enlaces Temporales)**
+  - *Estado*: Resuelto y Verificado E2E.
+  - *Problema Reportado*: Al generar enlaces de descarga segura desde el panel web, no se disparaban los mensajes por WhatsApp, aunque las pruebas por consola/script funcionaban correctamente.
+  - *Causas Raíz*:
+    1. *Fallo Silencioso en Backend (`src/utils/whatsapp.js`)*: La guarda `config.whatsapp_activo === 0` no contemplaba valores nulos/indefinidos cuando la tabla de alertas no tenía configuración inicial en BD, silenciando la excepción en un try/catch y respondiendo HTTP 201 sin enviar el mensaje.
+    2. *Discrepancia de Payload en Frontend (`index.html`)*: Un listener inline sobre `shareForm` omitía el valor del input `shareWhatsappDestino`, enviando un JSON incompleto al endpoint `POST /api/contribuyentes/:rfc/download-token`.
+  - *Acciones Realizadas*:
+    - `src/utils/whatsapp.js`: Evaluación defensiva (`!config.whatsapp_activo`) con fallback transparente hacia `TWILIO_WHATSAPP_FROM`.
+    - `src/routes/contribuyentes.js`: Soporte de alias múltiples en `req.body` y telemetría explícita para errores de Sandbox Twilio (código 63015).
+    - `index.html`: Captura de `shareWhatsappDestino`, sanitización (.trim()) y normalización automática a formato internacional E.164 (+521...).
+  - *Validación*: Sandbox de Twilio enlazado (`join appropriate-completely`), notificación recibida de inmediato en WhatsApp móvil con token SHA-256 y descarga de un solo uso validada.
