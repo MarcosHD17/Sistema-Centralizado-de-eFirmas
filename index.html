@@ -3359,10 +3359,22 @@
                 const rfc = document.getElementById('shareRfcSelect').value;
                 const fileType = document.getElementById('shareFileType').value;
                 const ttl = document.getElementById('shareTtl').value;
-                const emailDestino = document.getElementById('shareEmailDestino').value;
+                const emailDestino = document.getElementById('shareEmailDestino').value.trim();
+                const whatsappInput = document.getElementById('shareWhatsappDestino');
+                let whatsappDestino = whatsappInput ? whatsappInput.value.trim().replace(/[\s\-\(\)]/g, '') : '';
                 
+                if (/^\d{10}$/.test(whatsappDestino)) whatsappDestino = `+521${whatsappDestino}`;
+                else if (/^\+52\d{10}$/.test(whatsappDestino)) whatsappDestino = whatsappDestino.replace('+52', '+521');
+                else if (/^52\d{10}$/.test(whatsappDestino)) whatsappDestino = `+521${whatsappDestino.slice(2)}`;
+                else if (whatsappDestino && !whatsappDestino.startsWith('+')) whatsappDestino = `+${whatsappDestino}`;
+
                 if (!rfc) {
                     showToast('Selecciona un contribuyente.', 'warning');
+                    return;
+                }
+
+                if (whatsappDestino && !/^\+[1-9]\d{7,14}$/.test(whatsappDestino)) {
+                    showToast('Número de WhatsApp inválido. Usa 10 dígitos o formato internacional.', 'warning');
                     return;
                 }
                 
@@ -3373,6 +3385,7 @@
 
                     const payload = { file_type: fileType, ttl_minutes: ttl };
                     if (emailDestino) payload.email_destino = emailDestino;
+                    if (whatsappDestino) payload.whatsappDestino = whatsappDestino;
 
                     const data = await apiFetch(`/contribuyentes/${rfc}/download-token`, {
                         method: 'POST',
@@ -3391,7 +3404,15 @@
                         previewContainer.style.display = 'none';
                     }
 
-                    showToast('Enlace de único uso generado correctamente.', 'success');
+                    if (data.whatsapp_resultado) {
+                        if (data.whatsapp_resultado.success) {
+                            showToast('Enlace generado y mensaje de WhatsApp enviado.', 'success');
+                        } else {
+                            showToast(`Enlace generado, pero WhatsApp falló: ${data.whatsapp_resultado.error}`, 'warning');
+                        }
+                    } else {
+                        showToast('Enlace de único uso generado correctamente.', 'success');
+                    }
                 } catch (err) {
                     showToast(err.message || 'Error al generar el enlace', 'danger');
                 } finally {
