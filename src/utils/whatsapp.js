@@ -29,8 +29,11 @@ require('dotenv').config();
  * @param {object} [options] - Opciones adicionales ({ contentSid, contentVariables, variables })
  */
 async function enviarWhatsapp(config, destinatario, mensaje, options = {}) {
-    if (config.whatsapp_activo === 0 && !process.env.TWILIO_WHATSAPP_FROM) {
-        throw new Error('El canal de WhatsApp está desactivado en la configuración de alertas.');
+    // FIX: Antes usaba `=== 0` (strict), fallando silenciosamente cuando whatsapp_activo
+    // era null/undefined (configuración vacía). Ahora usa `!` para capturar cualquier valor falsy.
+    if (!config.whatsapp_activo && !process.env.TWILIO_WHATSAPP_FROM) {
+        throw new Error('El canal de WhatsApp está desactivado en la configuración de alertas. ' +
+            'Actívalo en Configuración → Alertas, o define TWILIO_WHATSAPP_FROM en el .env.');
     }
     const numeroOrigen = config.whatsapp_numero_origen || process.env.TWILIO_WHATSAPP_FROM;
     if (!numeroOrigen) {

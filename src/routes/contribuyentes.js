@@ -474,6 +474,8 @@ router.post('/:rfc/key', autenticar, requerirRol('admin', 'supervisor'), (req, r
 // ─────────────────────────────────────────────────
 router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor', 'operador'), async (req, res) => {
     const rfc = req.params.rfc.toUpperCase();
+    // [DIAG] Log completo del body para detectar discrepancias de nombres de campo frontend→backend
+    console.log(`[Token] POST /${rfc}/download-token | body:`, JSON.stringify(req.body));
     const { file_type, ttl_minutes = 60, email_destino, whatsappDestino } = req.body;
     const { generarTokenSeguro, hashToken, calcularExpiracion } = require('../utils/token');
     const { enviarEnlaceTemporal } = require('../services/emailService');
@@ -547,7 +549,13 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
             }
         }
 
-    const whatsappDestinoRaw = req.body.whatsappDestino || req.body.whatsapp_destino || req.body.whatsapp || req.body.whatsappNumero || req.body.whatsapp_numero;
+    // Fallback defensivo: acepta cualquier nombre de campo que el frontend pueda enviar
+    const whatsappDestinoRaw = req.body.whatsappDestino || req.body.whatsapp_destino ||
+        req.body.whatsapp || req.body.whatsappNumero || req.body.whatsapp_numero ||
+        req.body.telefono || req.body.celular;
+    // [DIAG] Log del valor resuelto del campo WhatsApp
+    console.log(`[Token] whatsappDestinoRaw resuelto: "${whatsappDestinoRaw || '(vacío — no se enviará WA)'}"`);
+
         let whatsappResultado = null;
         if (whatsappDestinoRaw) {
             let limpio = String(whatsappDestinoRaw).replace(/[\s\-\(\)]/g, '').trim();
@@ -557,6 +565,7 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
             else if (!limpio.startsWith('+')) limpio = `+${limpio}`;
 
             const whatsappDestinoNorm = limpio;
+            console.log(`[Token] Enviando WhatsApp a: ${whatsappDestinoNorm}`);
 
             const wappResult = await enviarEnlaceTemporalWhatsApp({
                 numeroDestino: whatsappDestinoNorm,
@@ -577,7 +586,11 @@ router.post('/:rfc/download-token', autenticar, requerirRol('admin', 'supervisor
             });
 
             if (!wappResult.success) {
-                console.error(`[Token WhatsApp] Falló el envío a ${whatsappDestinoNorm}: ${wappResult.error}`);
+                // [DIAG] Error detallado de Twilio para diagnosticar errores de Sandbox
+                console.error(`[Token WhatsApp] ❌ Fallo al enviar a ${whatsappDestinoNorm}:`, wappResult.error);
+                console.error(`[Token WhatsApp] ℹ️  Si el error es 63015 o similar, el número NO está registrado en el Sandbox de Twilio.`);
+            } else {
+                console.log(`[Token WhatsApp] ✅ Enviado correctamente. SID: ${wappResult.sid}`);
             }
         }
 
