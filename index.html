@@ -3042,27 +3042,47 @@
                 });
             });
 
-            // Enviar alerta de prueba (CU-02b v1.1) con simulación de reintentos
+            // Enviar alerta de prueba — lee el select de tipo y el input de destinatario
             btnTestAlert.addEventListener('click', async () => {
+                const tipoSelect = document.getElementById('testAlertTipo');
+                const destinoInput = document.getElementById('testAlertDestino');
+                const tipo = tipoSelect ? tipoSelect.value : 'correo';
+                let destinatario = destinoInput && destinoInput.value.trim()
+                    ? destinoInput.value.trim()
+                    : (tipo === 'whatsapp' ? '8116054215' : 'contacto@despacho.com');
+
+                // Normalizar número México +521
+                if (tipo === 'whatsapp') {
+                    destinatario = destinatario.replace(/[\s\-\(\)]/g, '');
+                    if (/^\d{10}$/.test(destinatario)) destinatario = `+521${destinatario}`;
+                    else if (/^\+52\d{10}$/.test(destinatario)) destinatario = destinatario.replace('+52', '+521');
+                    else if (/^52\d{10}$/.test(destinatario)) destinatario = `+521${destinatario.slice(2)}`;
+                    else if (!destinatario.startsWith('+')) destinatario = `+${destinatario}`;
+                }
+
                 try {
-                    showToast('Iniciando prueba del motor de alertas...', 'info');
+                    btnTestAlert.disabled = true;
+                    btnTestAlert.textContent = 'Enviando…';
+                    showToast(`📤 Enviando prueba por ${tipo}...`, 'info');
 
                     const data = await apiFetch('/alertas/probar', {
                         method: 'POST',
-                        body: JSON.stringify({
-                            tipo: 'correo',
-                            destinatario: 'contacto@despacho.com'
-                        })
+                        body: JSON.stringify({ tipo, destinatario })
                     });
 
-                    // Mostrar logs de intentos en la consola/alert
-                    const logs = data.intentos.map(i => `Intento ${i.intento}: ${i.estatus.toUpperCase()} (${i.backoff_delay_ms}ms)`).join('\n');
-                    alert(`[Simulación del Motor de Alertas]\n\n${logs}\n\n${data.mensaje}`);
-                    showToast(data.mensaje, 'success');
+                    let detalle = data.mensaje || 'Mensaje de prueba enviado.';
+                    if (data.sid) detalle += ` (SID: ${data.sid})`;
+                    if (data.modo_envio) detalle += ` · ${data.modo_envio}`;
+
+                    showToast(detalle, 'success');
                 } catch (err) {
-                    showToast('Error al procesar la prueba de alertas.', 'danger');
+                    showToast(`❌ ${err.message || 'Error al procesar la prueba de alertas.'}`, 'danger');
+                } finally {
+                    btnTestAlert.disabled = false;
+                    btnTestAlert.textContent = 'Enviar Alerta de Prueba';
                 }
             });
+
 
             // --- GESTIÓN DE USUARIOS (MÓDULO 4) ---
             const userTableBody = document.querySelector('#userTable tbody');

@@ -117,37 +117,8 @@ function inicializarConfigAlertas() {
         });
     }
 
-    if (btnTestAlert) {
-        btnTestAlert.addEventListener('click', async () => {
-            const tipoSelect = document.getElementById('testAlertTipo');
-            const destinoInput = document.getElementById('testAlertDestino');
-            const tipo = tipoSelect ? tipoSelect.value : 'correo';
-            let destinatario = destinoInput && destinoInput.value.trim()
-                ? destinoInput.value.trim()
-                : (tipo === 'whatsapp' ? '+528116054215' : 'contacto@despacho.com');
-
-            if (tipo === 'whatsapp') {
-                destinatario = destinatario.replace(/[\s\-\(\)]/g, '');
-                if (/^\d{10}$/.test(destinatario)) destinatario = `+521${destinatario}`;
-                else if (/^\+52\d{10}$/.test(destinatario)) destinatario = destinatario.replace('+52', '+521');
-                else if (/^52\d{10}$/.test(destinatario)) destinatario = `+521${destinatario.slice(2)}`;
-                else if (!destinatario.startsWith('+')) destinatario = `+${destinatario}`;
-            }
-
-            try {
-                showToast(`Enviando prueba por ${tipo}...`, 'info');
-
-                const data = await apiFetch('/alertas/probar', {
-                    method: 'POST',
-                    body: JSON.stringify({ tipo, destinatario })
-                });
-
-                showToast(data.mensaje, 'success');
-            } catch (err) {
-                showToast(err.message || 'Error al procesar la prueba de alertas.', 'danger');
-            }
-        });
-    }
+    // NOTA: el listener de btnTestAlert está gestionado en index.html
+    // para garantizar una única fuente de verdad y evitar doble disparo.
 }
 
 async function guardarUmbrales(critico, preventivo) {
