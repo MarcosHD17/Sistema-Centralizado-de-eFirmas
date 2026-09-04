@@ -141,17 +141,13 @@ router.put('/config', autenticar, requerirRol('admin', 'supervisor'), (req, res)
 
 // ─────────────────────────────────────────────────
 // POST /api/alertas/probar
-// Fix hallazgos QA #12, #13 y #8: ya no simula el envío con
-// Math.random(). Encola la alerta en 'cola_alertas' (persiste ante
-// una caída del servidor) e intenta procesarla de inmediato contra
-// el proveedor SMTP/WhatsApp real configurado en alertas_config. El
-// resultado que se reporta es el resultado real de esa conexión —
-// determinístico, no aleatorio — y cualquier reintento pendiente
-// queda agendado con backoff real (5/15/30 min) para que lo recoja
-// el cron de server.js.
+// Envía un mensaje de prueba real por WhatsApp (Twilio SDK) o Correo (SMTP).
+// — WhatsApp: usa el mismo mensaje rico con emojis y formato Markdown que se usa
+//   al generar enlaces temporales, con normalización automática +521 para México.
+// — Correo: envía HTML estructurado con asunto y firma de la plataforma.
 // ─────────────────────────────────────────────────
 router.post('/probar', autenticar, async (req, res) => {
-    const { tipo, destinatario } = req.body; // tipo: 'correo' o 'whatsapp'
+    const { tipo, destinatario } = req.body;
 
     if (!tipo || !destinatario) {
         return res.status(400).json({ error: 'Tipo de prueba (correo/whatsapp) y destinatario son requeridos.' });
@@ -160,10 +156,10 @@ router.post('/probar', autenticar, async (req, res) => {
         return res.status(400).json({ error: "Tipo inválido. Usa 'correo' o 'whatsapp'." });
     }
 
-    // Fix hallazgo #2 ALTA: validar formato del destinatario según el canal
-    // antes de encolar para no desperdiciar reintentos con datos mal formados.
     let destFinal = destinatario.trim();
+
     if (tipo === 'whatsapp') {
+        // Normalizar número México +521
         destFinal = destFinal.replace(/[\s\-\(\)]/g, '');
         if (/^\d{10}$/.test(destFinal)) destFinal = `+521${destFinal}`;
         else if (/^\+52\d{10}$/.test(destFinal)) destFinal = destFinal.replace('+52', '+521');
@@ -176,7 +172,66 @@ router.post('/probar', autenticar, async (req, res) => {
                 codigo: 'FORMATO_WHATSAPP_INVALIDO'
             });
         }
+
+        // Enviar directamente con Twilio (mismo estilo rico que el enlace temporal)
+        try {
+            const { enviarWhatsapp } = require('../utils/whatsapp');
+            const config = db.prepare('SELECT * FROM alertas_config WHERE id = 1').get() || {};
+
+            const ahora = new Date().toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Monterrey' });
+
+            const mensaje =
+                `🧪 *SAT Control Manager — Prueba de Canal*\n\n` +
+                `✅ La integración de WhatsApp está funcionando correctamente.\n\n` +
+                `📅 *Fecha y hora:* ${ahora}\n` +
+                `📲 *Canal:* WhatsApp (Twilio Sandbox)\n` +
+                `🔔 *Tipo:* Mensaje de prueba manual\n\n` +
+                `_Puedes cerrar este mensaje. Ninguna acción es requerida._`;
+
+            const options = {};
+            if (process.env.TWILIO_CONTENT_SID) {
+                options.contentSid = process.env.TWILIO_CONTENT_SID;
+                options.contentVariables = JSON.stringify({ "1": "PRUEBA", "2": "http://localhost:3001" });
+            }
+
+            const resultado = await enviarWhatsapp(config, destFinal, mensaje, options);
+
+            const modoEnvio = options.contentSid
+                ? `Content Template (${process.env.TWILIO_CONTENT_SID})`
+                : 'Mensaje Formateado Original';
+
+            registrarLog({
+                usuario_id: req.user.id,
+                usuario_email: req.user.email,
+                accion: 'ALERTAS_PRUEBA_ENVIADA',
+                detalle: `Prueba WhatsApp → ${destFinal} | Modo: ${modoEnvio} | SID: ${resultado.sid}`,
+                ip_origen: obtenerIP(req)
+            });
+
+            return res.json({
+                ok: true,
+                mensaje: `✅ Mensaje de prueba WhatsApp enviado a ${destFinal}`,
+                sid: resultado.sid,
+                modo_envio: modoEnvio,
+                destinatario_normalizado: destFinal
+            });
+        } catch (err) {
+            registrarLog({
+                usuario_id: req.user.id,
+                usuario_email: req.user.email,
+                accion: 'ALERTAS_PRUEBA_FALLIDA',
+                detalle: `Fallo prueba WhatsApp → ${destFinal}: ${err.message}`,
+                ip_origen: obtenerIP(req)
+            });
+
+            return res.status(502).json({
+                error: err.message || `Fallo al enviar mensaje WhatsApp a ${destFinal}.`,
+                codigo: 'FALLO_TWILIO_WHATSAPP'
+            });
+        }
     }
+
+    // Correo: usar cola de alertas con mensaje HTML estructurado
     if (tipo === 'correo' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destFinal)) {
         return res.status(400).json({
             error: 'Dirección de correo electrónico inválida.',
@@ -189,8 +244,14 @@ router.post('/probar', autenticar, async (req, res) => {
     const idCola = encolarAlerta({
         tipo,
         destinatario: destFinal,
-        asunto: 'SAT Control Manager — Mensaje de prueba',
-        mensaje: `Este es un mensaje de prueba de canal (${tipo}) generado desde la configuración de alertas.`,
+        asunto: '🧪 SAT Control Manager — Prueba de Canal (Correo)',
+        mensaje: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto">
+  <h2 style="color:#10b981">✅ Prueba de Canal — SAT Control Manager</h2>
+  <p>La integración de <strong>Correo Electrónico</strong> está funcionando correctamente.</p>
+  <p style="color:#8696a0;font-size:12px">Este mensaje fue generado de forma manual desde la sección <em>Configurar Alertas</em>.</p>
+  <hr style="border:1px solid #eee">
+  <p style="font-size:11px;color:#aaa">SAT Control Manager • Plataforma de e.firma</p>
+</div>`,
         max_intentos: config.max_reintentos || 3
     });
 
@@ -202,30 +263,28 @@ router.post('/probar', autenticar, async (req, res) => {
             usuario_id: req.user.id,
             usuario_email: req.user.email,
             accion: 'ALERTAS_PRUEBA_ENVIADA',
-            detalle: `Prueba de alertas (${tipo}) enviada a ${destinatario} en el intento ${alertaFinal.intentos_realizados}.`,
+            detalle: `Prueba de correo enviada a ${destFinal} en el intento ${alertaFinal.intentos_realizados}.`,
             ip_origen: obtenerIP(req)
         });
 
         return res.json({
             ok: true,
-            mensaje: `Mensaje de prueba enviado exitosamente a ${destinatario}.`,
+            mensaje: `✅ Correo de prueba enviado a ${destFinal}`,
             intentos_realizados: alertaFinal.intentos_realizados
         });
     }
 
-    // 'pendiente' significa que falló este intento pero aún hay reintentos
-    // programados (backoff real); 'fallido' significa que ya se agotaron.
     registrarLog({
         usuario_id: req.user.id,
         usuario_email: req.user.email,
         accion: 'ALERTAS_PRUEBA_FALLIDA',
-        detalle: `Fallo al enviar prueba de alertas (${tipo}) a ${destinatario}: ${alertaFinal.ultimo_error}`,
+        detalle: `Fallo al enviar prueba de correo a ${destFinal}: ${alertaFinal.ultimo_error}`,
         ip_origen: obtenerIP(req)
     });
 
     return res.status(502).json({
-        error: alertaFinal.ultimo_error || `Fallo al enviar mensaje a ${destinatario}.`,
-        codigo: 'FALLO_PROVEEDOR_ALERTAS',
+        error: alertaFinal.ultimo_error || `Fallo al enviar correo a ${destFinal}.`,
+        codigo: 'FALLO_SMTP_CORREO',
         estatus_cola: alertaFinal.estatus,
         proximo_reintento_en: alertaFinal.estatus === 'pendiente'
             ? new Date(alertaFinal.proximo_reintento_en * 1000).toISOString()
