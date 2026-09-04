@@ -1,4 +1,4 @@
-# Análisis de Pruebas y Reporte de Errores — SAT Control Manager v2.3.2
+# Análisis de Pruebas y Reporte de Errores — SAT Control Manager v2.3.3
 
 Se presenta el informe de análisis de pruebas, hallazgos verificados y resolución de errores para la plataforma **SAT Control Manager**, elaborado por el Arquitecto de Software y Programador Senior Polyglot.
 
@@ -81,3 +81,23 @@ Durante la puesta en marcha de los servicios, se detectaron y corrigieron de inm
 | **#18** | `index.html` | Funciones demo invocadas en modo offline ausentes. | **✅ Corregido:** Implementados datos demo locales en memoria. |
 | **#19** | `whatsapp.js` | Incompatibilidad con formato celular de México. | **✅ Corregido:** Auto-formato `+521` (evita Error 63015 de Twilio/Meta). |
 | **#20** | `whatsapp.js` | Notificaciones descartadas fuera de la ventana de 24 horas. | **✅ Corregido:** Integración de Twilio Content Templates (`contentSid` / `contentVariables`). |
+| **#21** | `whatsapp.js` | Guarda `config.whatsapp_activo === 0` fallaba silenciosamente cuando la tabla `alertas_config` no tenía fila inicial (valor `null`/`undefined` en lugar de `0`), tragando la excepción en el `try/catch` y devolviendo HTTP 201 sin enviar el mensaje. | **✅ Corregido:** Evaluación cambiada a `!config.whatsapp_activo` para capturar cualquier valor falsy, con fallback transparente a `TWILIO_WHATSAPP_FROM`. |
+| **#22** | `alertas.js` (ruta `/probar`) | El endpoint usaba `encolarAlerta()` con mensaje de texto plano simple. No usaba Twilio SDK directamente, por lo que WhatsApp fallaba aunque el correo funcionara. | **✅ Corregido:** `/probar` con `tipo=whatsapp` ahora llama a `enviarWhatsapp()` directamente con el mismo mensaje rico (emojis + Markdown) que el enlace temporal. Retorna `sid`, `modo_envio` y `destinatario_normalizado`. |
+| **#23** | `alertas.js` frontend (botón Enviar Prueba) | El botón no se desactivaba durante el envío y el toast solo mostraba el mensaje genérico, sin mostrar SID ni modo de envío. | **✅ Corregido:** El botón se deshabilita (`Enviando…`) durante la petición y el toast de éxito muestra `mensaje + SID + modo_envio`. |
+| **#24** | `config.js` (SPA) | La SPA se quedaba atrapada indefinidamente en Modo Demostración Offline si el servidor se reiniciaba, sin reconectarse al restablecerse la conexión. | **✅ Corregido:** `apiFetch()` verifica `/api/health` antes de simular en modo offline; al detectar el backend activo, sale del modo demo automáticamente. |
+
+---
+
+## ✅ Verificación End-to-End Completa (v2.3.3) — 6/6 Tests Pasados
+
+Ejecutada el **2026-09-04** contra el servidor local `http://localhost:3001`. Los 4 mensajes de WhatsApp se verificaron directamente en la consola de Twilio con **status `delivered`** y **sin códigos de error**.
+
+| # | Endpoint | Entrada | Normalización | HTTP | SID Twilio | Entregado |
+|---|---|---|---|---|---|---|
+| 1 | `POST /alertas/probar` | `8116054215` (10 dígitos) | `+5218116054215` | 200 | `SM0622bd73...` | ✅ `delivered` |
+| 2 | `POST /alertas/probar` | `+528116054215` (sin `1`) | `+5218116054215` | 200 | `SM755ba5b3...` | ✅ `delivered` |
+| 3 | `POST /contribuyentes/:rfc/download-token` | `8116054215` (10 dígitos) | `+5218116054215` | 201 | `SM824819592...` | ✅ `delivered` |
+| 4 | `POST /contribuyentes/:rfc/download-token` | `+528116054215` (sin `1`) | `+5218116054215` | 201 | `SMb162e4df...` | ✅ `delivered` |
+| 5 | `POST /alertas/probar` | `12345` (inválido) | — | 400 | — | ✅ Rechazado con error descriptivo |
+| 6 | `POST /alertas/probar` | Sin `destinatario` | — | 400 | — | ✅ Rechazado con error descriptivo |
+
