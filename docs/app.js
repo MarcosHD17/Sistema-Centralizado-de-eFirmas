@@ -1,5 +1,5 @@
 /* =============================================================
-   SAT Control Manager — Dashboard Arquitectura v2.2.3
+   SAT Control Manager — Dashboard Arquitectura v2.3.4
    docs/app.js — JavaScript modular puro (sin dependencias externas)
    ============================================================= */
 
@@ -1318,5 +1318,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Section 5: Reglas de Oro ──
   renderGoldenRules();
 
-  console.log('[SAT Docs] Dashboard de arquitectura cargado correctamente. v2.2.3');
+  console.log('[SAT Docs] Dashboard de arquitectura cargado correctamente. v2.3.4');
 });
