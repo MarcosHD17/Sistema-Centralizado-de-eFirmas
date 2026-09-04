@@ -1,14 +1,14 @@
 # STATE: Estado del Proyecto y Registro de Cambios
 
-## Proyecto: SAT Control Manager (v2.3.1)
-## Feature Activa: Integración Twilio WhatsApp & Normalización E.164 (+521 México) — Merge en `main`.
+## Proyecto: SAT Control Manager (v2.3.4)
+## Feature Activa: Consolidación de Notificaciones Multicanal WhatsApp/Correo, Auto-reconexión SPA y Verificación End-to-End — Merge en `main`.
 
 ---
 
 #### 📌 Estado Actual
-- **Fase:** ✅ COMPLETADO — Integración de notificaciones multicanal (Correo SMTP Yahoo + Twilio WhatsApp API con Plantillas ContentSid y auto-formato +521 México).
+- **Fase:** ✅ COMPLETADO — Integración de notificaciones multicanal (Correo SMTP Yahoo + Twilio WhatsApp API con mensaje rico formateado u opción ContentSid, auto-formato `+521` México, auto-reconexión SPA y suite e2e verificada).
 - **Rama Git Activa:** `main` (estable)
-- **Última Actualización:** 2026-09-03
+- **Última Actualización:** 2026-09-04
 
 ---
 
@@ -33,25 +33,20 @@
 - [x] **Paso 17:** Integración real de notificaciones por WhatsApp vía **Twilio SDK oficial**.
 - [x] **Paso 18:** Dashboard Interactivo de Arquitectura y Simulador Reactivo en Vivo (`docs/index.html` + `docs/app.js`).
 - [x] **Paso 19:** Auto-normalización de números celulares de México (`+521`), soporte para Twilio Content Templates (`contentSid` / `contentVariables`) y verificación de entrega end-to-end (`Status: delivered`).
+- [x] **Paso 20:** Unificación y corrección de handlers del botón "Enviar Alerta de Prueba" en `index.html` y `public/js/views/alertas.js`, actualización del endpoint `/api/alertas/probar` a Twilio SDK directo con mensajes ricos y telemetría de auditoría en la bitácora.
+- [x] **Paso 21:** Implementación de auto-reconexión en la SPA (`public/js/config.js`) al re-detectar el servidor backend activo tras un reinicio o corte de conexión.
 
 ---
 
 ### 📝 Bitácora de Hallazgos y Decisiones
 - **2026-08-01 a 2026-08-31:** Hitos del 1 al 17 (Auditoría, DDL `download_tokens`, Ledger-chain, ZIP completo, SMTP Yahoo, modularización SPA).
-- **2026-09-02:** Construcción del Dashboard Interactivo de Arquitectura en `docs/index.html` y `docs/app.js` (Simulador en vivo, Catálogo de 22 módulos, Analizador de Impacto con snippets, 6 Recetas de código copiable y 16 Reglas de Oro).
-- **2026-09-03:** Migración del módulo WhatsApp (`src/utils/whatsapp.js`) al SDK oficial `twilio`. Integración de variables `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` y `TWILIO_WHATSAPP_FROM` en `.env`.
+- **2026-09-02:** Construcción del Dashboard Interactivo de Arquitectura en `docs/index.html` y `docs/app.js`.
+- **2026-09-03:** Migración del módulo WhatsApp (`src/utils/whatsapp.js`) al SDK oficial `twilio`.
 - **2026-09-03:** Solución del fallo por inspección SSL local (`UNABLE_TO_VERIFY_LEAF_SIGNATURE`) mediante manejo preventivo de TLS.
-- **2026-09-03:** Identificación de requerimiento de red Meta/WhatsApp para números móviles de México: los números de 10 dígitos requieren la secuencia de lada internacional **`+521`** (ej. `+5218116054215` en lugar de `+528116054215`). Implementación de auto-normalización transparente en frontend (`downloadLinks.js`, `alertas.js`) y backend (`contribuyentes.js`, `alertas.js`).
-- **2026-09-03:** Soporte para Twilio Content Templates (`contentSid` / `contentVariables`). Adición de la variable opcional `TWILIO_CONTENT_SID` en `.env` y lógica dinámica en `src/utils/whatsapp.js`.
-- **2026-09-03:** Verificación de entrega exitosa devuelta por WhatsApp Meta / Twilio API (`Status: delivered` / `Status: read`, ErrorCode `null`).
-- **2026-09-04:** **Corrección de Envío de WhatsApp desde Interfaz Web (Enlaces Temporales)**
-  - *Estado*: Resuelto y Verificado E2E.
-  - *Problema Reportado*: Al generar enlaces de descarga segura desde el panel web, no se disparaban los mensajes por WhatsApp, aunque las pruebas por consola/script funcionaban correctamente.
-  - *Causas Raíz*:
-    1. *Fallo Silencioso en Backend (`src/utils/whatsapp.js`)*: La guarda `config.whatsapp_activo === 0` no contemplaba valores nulos/indefinidos cuando la tabla de alertas no tenía configuración inicial en BD, silenciando la excepción en un try/catch y respondiendo HTTP 201 sin enviar el mensaje.
-    2. *Discrepancia de Payload en Frontend (`index.html`)*: Un listener inline sobre `shareForm` omitía el valor del input `shareWhatsappDestino`, enviando un JSON incompleto al endpoint `POST /api/contribuyentes/:rfc/download-token`.
-  - *Acciones Realizadas*:
-    - `src/utils/whatsapp.js`: Evaluación defensiva (`!config.whatsapp_activo`) con fallback transparente hacia `TWILIO_WHATSAPP_FROM`.
-    - `src/routes/contribuyentes.js`: Soporte de alias múltiples en `req.body` y telemetría explícita para errores de Sandbox Twilio (código 63015).
-    - `index.html`: Captura de `shareWhatsappDestino`, sanitización (.trim()) y normalización automática a formato internacional E.164 (+521...).
-  - *Validación*: Sandbox de Twilio enlazado (`join appropriate-completely`), notificación recibida de inmediato en WhatsApp móvil con token SHA-256 y descarga de un solo uso validada.
+- **2026-09-03:** Identificación de requerimiento de red Meta/WhatsApp para números móviles de México: los números de 10 dígitos requieren la secuencia de lada internacional **`+521`** (ej. `+5218116054215` en lugar de `+528116054215`). Implementación de auto-normalización transparente en frontend y backend.
+- **2026-09-03:** Soporte para Twilio Content Templates (`contentSid` / `contentVariables`).
+- **2026-09-04:** **Restauración del Estilo de Mensaje Rico Original:** Se mantuvo el mensaje completo estructurado con formato Markdown, emojis, RFC, Razón Social, aviso de autodestrucción y enlace directo para el envío por defecto.
+- **2026-09-04:** **Actualización del Endpoint `/api/alertas/probar`:** Se desintegró el simulador con mensajes planos y se enlazó a Twilio SDK directo con mensajes ricos y normalización `+521`.
+- **2026-09-04:** **Resolución del Conflicto de Handlers en el Frontend:** Se eliminó el handler inline desactualizado de `index.html` que intentaba mapear el objeto `intentos` (causando crashes) y se unificó la lógica en una sola fuente de verdad con desactivación de botón durante el envío y retroalimentación con SID Twilio.
+- **2026-09-04:** **Auto-reconexión de la SPA:** Se agregó en `public/js/config.js` una comprobación periódica/previa a `/api/health` para evitar que la interfaz se quede atrapada permanentemente en el "Modo Demostración Offline" tras un reinicio del servidor.
+- **2026-09-04:** **Verificación End-to-End Completa (6/6 Tests Pasados):** 4 peticiones reales validadas en Twilio Console con estado **`delivered`** (ErrorCode `null`).
