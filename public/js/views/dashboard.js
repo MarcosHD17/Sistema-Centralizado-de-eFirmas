@@ -72,51 +72,60 @@ async function cargarTablero() {
 
 function actualizarGraficoDona(kpis) {
     const total = kpis.total || 1;
-    const pVigentes = ((kpis.vigentes / total) * 100).toFixed(1);
-    const pVencer = (((kpis.preventivos + kpis.criticos) / total) * 100).toFixed(1);
-    const pVencidas = ((kpis.expirados / total) * 100).toFixed(1);
+    const vigentes = kpis.vigentes || 0;
+    const porVencer = (kpis.preventivos || 0) + (kpis.criticos || 0);
+    const vencidas = kpis.expirados || 0;
 
-    const chartSvg = document.querySelector('.donut-chart');
-    if (chartSvg) {
-        chartSvg.innerHTML = `
-            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent"></circle>
-            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#1e294b" stroke-width="3.5"></circle>
-            
-            <!-- Segmento Verde -->
-            <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent"
-                stroke="var(--success)" stroke-width="3.5" stroke-dasharray="${pVigentes} ${100 - pVigentes}"
-                stroke-dashoffset="0"></circle>
-            <!-- Segmento Amarillo -->
-            <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent"
-                stroke="var(--warning)" stroke-width="3.5" stroke-dasharray="${pVencer} ${100 - pVencer}"
-                stroke-dashoffset="-${pVigentes}"></circle>
-            <!-- Segmento Rojo/Negro -->
-            <circle class="donut-segment" cx="21" cy="21" r="15.91549430918954" fill="transparent"
-                stroke="var(--danger)" stroke-width="3.5" stroke-dasharray="${pVencidas} ${100 - pVencidas}"
-                stroke-dashoffset="-${parseFloat(pVigentes) + parseFloat(pVencer)}"></circle>
-            
-            <g class="chart-text">
-                <text x="21" y="22" class="donut-text">${kpis.total}</text>
-                <text x="21" y="28" class="donut-subtext">Total</text>
-            </g>
+    const maxVal = Math.max(vigentes, porVencer, vencidas, 1);
+
+    const hVigentes = Math.max(Math.round((vigentes / maxVal) * 110), 8);
+    const hPorVencer = Math.max(Math.round((porVencer / maxVal) * 110), 8);
+    const hVencidas = Math.max(Math.round((vencidas / maxVal) * 110), 8);
+
+    const pVigentes = ((vigentes / total) * 100).toFixed(1);
+    const pPorVencer = ((porVencer / total) * 100).toFixed(1);
+    const pVencidas = ((vencidas / total) * 100).toFixed(1);
+
+    const chartContainer = document.querySelector('.chart-container');
+    if (chartContainer) {
+        chartContainer.innerHTML = `
+            <div style="display: flex; align-items: flex-end; justify-content: space-around; height: 150px; width: 220px; padding: 10px 5px; border-bottom: 2px solid var(--border-color, #222d34);">
+                <!-- Barra Vigentes -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 55px;">
+                    <span style="font-size: 8pt; font-weight: 700; color: var(--success, #10b981);">${vigentes} (${pVigentes}%)</span>
+                    <div style="width: 32px; height: ${hVigentes}px; background: linear-gradient(180deg, #10b981 0%, #059669 100%); border-radius: 4px 4px 0 0; transition: height 0.4s ease;" title="Vigentes: ${vigentes}"></div>
+                    <span style="font-size: 7.5pt; color: var(--text-muted); font-weight: 600;">Vigente</span>
+                </div>
+                <!-- Barra Por Vencer -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 55px;">
+                    <span style="font-size: 8pt; font-weight: 700; color: var(--warning, #f59e0b);">${porVencer} (${pPorVencer}%)</span>
+                    <div style="width: 32px; height: ${hPorVencer}px; background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); border-radius: 4px 4px 0 0; transition: height 0.4s ease;" title="Por Vencer: ${porVencer}"></div>
+                    <span style="font-size: 7.5pt; color: var(--text-muted); font-weight: 600;">Próxima</span>
+                </div>
+                <!-- Barra Vencidas -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; width: 55px;">
+                    <span style="font-size: 8pt; font-weight: 700; color: var(--danger, #ef4444);">${vencidas} (${pVencidas}%)</span>
+                    <div style="width: 32px; height: ${hVencidas}px; background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%); border-radius: 4px 4px 0 0; transition: height 0.4s ease;" title="Vencidas: ${vencidas}"></div>
+                    <span style="font-size: 7.5pt; color: var(--text-muted); font-weight: 600;">Vencida</span>
+                </div>
+            </div>
         `;
     }
 
-    // Leyenda del gráfico
     const legend = document.querySelector('.chart-legend');
     if (legend) {
         legend.innerHTML = `
             <div class="legend-item">
-                <div class="legend-color" style="background-color: var(--success);"></div>
-                <span>Vigentes (${kpis.vigentes})</span>
+                <div class="legend-color" style="background-color: var(--success, #10b981);"></div>
+                <span>Vigentes (${vigentes})</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: var(--warning);"></div>
-                <span>Por Vencer (${kpis.preventivos + kpis.criticos})</span>
+                <div class="legend-color" style="background-color: var(--warning, #f59e0b);"></div>
+                <span>Por Vencer (${porVencer})</span>
             </div>
             <div class="legend-item">
-                <div class="legend-color" style="background-color: var(--danger);"></div>
-                <span>Vencidas (${kpis.expirados})</span>
+                <div class="legend-color" style="background-color: var(--danger, #ef4444);"></div>
+                <span>Vencidas (${vencidas})</span>
             </div>
         `;
     }
