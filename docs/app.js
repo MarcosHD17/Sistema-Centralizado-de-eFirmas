@@ -1,5 +1,5 @@
 /* =============================================================
-   SAT Control Manager — Dashboard Arquitectura v2.4.1
+   SAT Control Manager — Dashboard Arquitectura v2.4.2
    docs/app.js — JavaScript modular puro (sin dependencias externas)
    ============================================================= */
 
@@ -336,9 +336,9 @@ const MODULES = [
     layer: 'ui',
     badge: 'ui',
     icon: '📊',
-    what: 'Vista principal del tablero ejecutivo. Carga KPIs desde GET /api/contribuyentes/dashboard/kpis (total, vigentes, preventivos, críticos, expirados, próximos a vencer). Ofrece selector dinámico de visualización (Gráfica de Dona con número recto vs Barras verticales). En la tabla de Atención Urgente integra accesos directos para [Compartir], [Historial] y consulta protegida de 🔑 Contraseña con 2FA.',
+    what: 'Vista principal del tablero ejecutivo. Carga KPIs desde GET /api/contribuyentes/dashboard/kpis (total, vigentes, preventivos, críticos, expirados, próximos a vencer). Ofrece selector dinámico de visualización (Dona con texto plano nivelado a 0° vs Barras). En la tabla de Atención Urgente expone handlers globales (window.consultarClavePrivada y window.abrirHistorialContribuyente) para permitir la interacción directa desde celdas HTML.',
     why: 'La vista solo consume el endpoint de KPIs (ya calculado en el servidor) en vez de calcular los conteos localmente, garantizando consistencia con el motor semafórico.',
-    critical: 'El endpoint /dashboard/kpis está declarado ANTES de /:rfc en el servidor (fix QA#1). Cambiar la URL del endpoint en el servidor requiere actualizar esta vista.',
+    critical: 'El endpoint /dashboard/kpis está declarado ANTES de /:rfc en el servidor (fix QA#1). Quitar transform: none !important en CSS volverá a rotar el texto del dona 90°.',
     deps: ['public/js/config.js']
   },
   {
@@ -1330,5 +1330,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Section 5: Reglas de Oro ──
   renderGoldenRules();
 
-  console.log('[SAT Docs] Dashboard de arquitectura cargado correctamente. v2.4.1');
+  console.log('[SAT Docs] Dashboard de arquitectura cargado correctamente. v2.4.2');
 });
