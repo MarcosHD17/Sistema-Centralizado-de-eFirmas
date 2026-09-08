@@ -1,12 +1,12 @@
 # STATE: Estado del Proyecto y Registro de Cambios
 
-## Proyecto: SAT Control Manager (v2.4.0)
-## Feature Activa: Mejoras de Dashboard, Redirección 2FA Perfil, Historial por Contribuyente y RBAC Diferenciado por Rol — Merge en `main`.
+## Proyecto: SAT Control Manager (v2.4.1)
+## Feature Activa: Selector Dinámico de Gráficas (Dona/Barras), Acceso Directo a Contraseñas, Historial de Contribuyente y RBAC — Merge en `main`.
 
 ---
 
 #### 📌 Estado Actual
-- **Fase:** ✅ COMPLETADO — Implementación integral de las 4 mejoras solicitadas en Reporte_Mejoras_Dashboard_RBAC_v1.md (Gráfica de barras de estatus, redirección 2FA a Mi Perfil con activación TOTP, endpoint/modal de historial por contribuyente y RBAC por rol en menú y rutas).
+- **Fase:** ✅ COMPLETADO — Implementación de selector interactivo de gráficos (Dona con texto recto / Barras), acceso directo a contraseña de contribuyente en el tablero ejecutivo, módulo de Mi Perfil con 2FA TOTP, modal de historial por RFC y RBAC diferenciado.
 - **Rama Git Activa:** `main` (estable)
 - **Última Actualización:** 2026-09-08
 
@@ -39,6 +39,8 @@
 - [x] **Paso 23:** **Rediseño de Gráfica a Barras Verticales (Mejora #1):** Sustitución de la dona SVG por gráfica de barras verticales estilizadas (Vigente / Próxima / Vencida) con conteos y porcentajes horizontales legibles.
 - [x] **Paso 24:** **Historial por Contribuyente (Mejora #2):** Nuevo endpoint `GET /api/contribuyentes/:rfc/historial` y modal interactivo de auditoría y operaciones cronológicas en el cliente (`window.abrirHistorialContribuyente`).
 - [x] **Paso 25:** **RBAC Diferenciado por Rol (Mejora #4):** Mapa de navegación por rol (`admin`, `supervisor`, `operador`) en `public/js/router.js` con visibilidad dinámica de sidebar y guards de navegación en el cliente y backend.
+- [x] **Paso 26:** **Selector Dinámico de Gráficas (Dona / Barras):** Implementación de controles interactivos `🍩 Dona` / `📊 Barras` en el encabezado de la tarjeta de estatus. Conserva el gráfico de dona original con el número central horizontal recto (`dominant-baseline="central"` y `writing-mode: horizontal-tb`).
+- [x] **Paso 27:** **Acceso Directo a Contraseñas en Tablero:** Enlace explícito `🔑 Contraseña` en cada fila de contribuyente de la tabla "Atención Urgente y Estatus de Clientes", manteniendo el flujo de validación 2FA y telemetría de auditoría.
 
 ---
 
@@ -52,3 +54,6 @@
   - Rediseño visual a barras verticales para la distribución de estatus semafórico.
   - Endpoint `GET /:rfc/historial` y modal de auditoría por contribuyente.
   - Control de acceso RBAC por rol en menú, rutas SPA y consultas de backend.
+- **2026-09-08:** **Experiencia de Usuario y Visualización Flexible (v2.4.1):**
+  - Selector dinámico entre vista de dona circular (con alineación horizontal de texto corregida) y barras verticales.
+  - Botón visible `🔑 Contraseña` en la tabla de Atención Urgente para agilizar consultas autorizadas.

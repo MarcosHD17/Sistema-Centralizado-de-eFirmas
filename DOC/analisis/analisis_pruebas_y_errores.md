@@ -89,6 +89,8 @@ Durante la puesta en marcha de los servicios, se detectaron y corrigieron de inm
 | **#26** | `dashboard.js` & `index.html` | La gráfica de dona tenía problemas de legibilidad/orientación en los textos del donut SVG central. | **✅ Corregido:** Rediseño visual sustituyendo la dona por gráfica de barras verticales estilizadas con porcentajes legibles. |
 | **#27** | `contribuyentes.js` | Ausencia de endpoint e interfaz para consultar el historial de auditoría y renovaciones de un contribuyente específico. | **✅ Corregido:** Creado endpoint `GET /api/contribuyentes/:rfc/historial` y ventana modal `#modalHistorial` con línea de tiempo. |
 | **#28** | `router.js` & `auth.js` | Todos los roles veían exactamente el mismo menú en el sidebar sin restricción de accesos por rol. | **✅ Corregido:** Implementado mapa `MENU_POR_ROL` (admin, supervisor, operador), ocultación dinámica de sidebar y guards de navegación. |
+| **#29** | `dashboard.js` & `index.html` | La sustitución total de la dona impedía al usuario ver el gráfico circular original, y el texto central requería mantenerse completamente recto y horizontal sin inclinaciones. | **✅ Corregido:** Selector interactivo dinámico (Dona / Barras). En modo dona se fuerza `dominant-baseline="central"` y `writing-mode: horizontal-tb` garantizando texto 100% horizontal. |
+| **#30** | `dashboard.js` | En la tabla "Atención Urgente y Estatus de Clientes" no existía un botón o enlace evidente para consultar contraseñas, dependiendo únicamente del click en el RFC. | **✅ Corregido:** Agregado botón explícito `🔑 Contraseña` en la fila de acciones junto a `[Compartir]` e `[Historial]`. |
 
 ---
 
