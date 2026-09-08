@@ -1085,7 +1085,7 @@ input:checked+.slider-switch:before {
 }
 
 .donut-chart {
-    transform: rotate(-90deg);
+    transform: none !important;
 }
 
 .donut-segment {
