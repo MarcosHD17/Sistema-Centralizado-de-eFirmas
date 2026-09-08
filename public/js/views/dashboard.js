@@ -49,6 +49,7 @@ async function cargarTablero() {
                     <strong style="cursor:pointer; color:var(--accent);" class="client-rfc-link" data-rfc="${c.rfc}">${c.rfc}</strong>
                     <span style="margin-left: 8px; font-size: 10px; color: var(--info); cursor: pointer;" onclick="window.abrirSeccionCompartir('${c.rfc}')">[Compartir]</span>
                     <span style="margin-left: 4px; font-size: 10px; color: var(--accent); cursor: pointer;" onclick="window.abrirHistorialContribuyente('${c.rfc}')">[Historial]</span>
+                    <span style="margin-left: 4px; font-size: 10px; color: #f59e0b; cursor: pointer;" onclick="consultarClavePrivada('${c.rfc}')">🔑 Contraseña</span>
                     <br><span style="color: var(--text-muted);">${c.razon_social}</span>
                 </td>
                 <td>${c.responsable_nombre || 'No asignado'}</td>
