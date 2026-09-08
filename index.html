@@ -1353,6 +1353,14 @@
                         Enlaces Temporales
                     </a>
                 </li>
+                <li class="sidebar-item" data-target="perfil">
+                    <a href="#perfil">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                        Mi Perfil (2FA)
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="sidebar-footer" style="flex-wrap: wrap; gap: 12px; justify-content: space-between;">
@@ -2237,6 +2245,84 @@
                         </table>
                     </div>
                 </div>
+        <!-- MÓDULO DE MI PERFIL Y 2FA -->
+        <section id="perfil" class="content-section">
+            <div class="page-header">
+                <h1>Mi Perfil y Seguridad (2FA)</h1>
+                <p>Administra la seguridad de tu cuenta y la Autenticación de Dos Factores para consultas críticas.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <!-- DATOS DEL USUARIO -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            Información de la Cuenta
+                        </h2>
+                    </div>
+                    <div style="padding: 15px; display: flex; flex-direction: column; gap: 12px; font-size: 9.5pt;">
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 8.5pt;">Nombre Completo:</span>
+                            <p style="font-weight: 700; font-size: 11pt; color: #fff;" id="perfilNombre">...</p>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 8.5pt;">Correo Electrónico:</span>
+                            <p style="font-weight: 600; color: var(--accent);" id="perfilEmail">...</p>
+                        </div>
+                        <div style="display: flex; gap: 20px;">
+                            <div>
+                                <span style="color: var(--text-muted); font-size: 8.5pt;">Rol Asignado:</span>
+                                <p style="font-weight: 700; color: var(--info);" id="perfilRol">...</p>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-muted); font-size: 8.5pt;">Estado:</span>
+                                <p style="font-weight: 700; color: var(--success);" id="perfilEstatus">...</p>
+                            </div>
+                        </div>
+                        <hr style="border-color: var(--border-color); margin: 6px 0;">
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 8.5pt;">Estado 2FA:</span>
+                            <div style="margin-top: 4px;"><span class="badge badge-warning" id="badge2FAStatus">Cargando...</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONFIGURACIÓN Y ACTIVACIÓN DE 2FA -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                            </svg>
+                            Autenticación de Dos Factores (TOTP)
+                        </h2>
+                    </div>
+                    <div style="padding: 15px;">
+                        <div id="info2FAActivo" style="display: none; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); border-radius: var(--radius-md); padding: 15px;">
+                            <p style="color: var(--success); font-weight: 700; margin-bottom: 6px;">🛡️ 2FA Activado y Operativo</p>
+                            <p style="font-size: 9pt; color: var(--text-muted);">Tu cuenta está totalmente protegida. Tienes acceso autorizado para consultar contraseñas y claves privadas de contribuyentes.</p>
+                        </div>
+
+                        <button type="button" class="btn" id="btnIniciar2FA" style="width: 100%;">🔐 Configurar / Activar 2FA</button>
+
+                        <div id="setup2FAContainer" style="display: none; margin-top: 15px; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+                            <p style="font-size: 9pt; font-weight: 600; margin-bottom: 8px;">1. Escanea este código QR con tu app de autenticación (Google Authenticator / Authy):</p>
+                            <div style="text-align: center; margin: 10px 0; background: #fff; padding: 10px; border-radius: var(--radius-md); display: inline-block;">
+                                <img id="totpQrImage" src="" alt="Código QR 2FA" style="width: 160px; height: 160px;">
+                            </div>
+                            <p style="font-size: 8.5pt; color: var(--text-muted); margin-bottom: 12px;">Clave secreta manual: <strong id="totpSecretText" style="color: var(--accent); font-family: monospace;">...</strong></p>
+
+                            <p style="font-size: 9pt; font-weight: 600; margin-bottom: 6px;">2. Ingresa el código de 6 dígitos generado por tu app:</p>
+                            <div class="form-group" style="margin-bottom: 10px;">
+                                <input type="text" id="totpVerifyCode" class="form-control" placeholder="123456" maxlength="6" style="font-size: 14pt; letter-spacing: 4px; text-align: center; font-weight: 700;">
+                            </div>
+                            <button type="button" class="btn btn-outline" id="btnVerificar2FA" style="width: 100%;">Verificar y Activar 2FA</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -2776,8 +2862,8 @@
                 } catch (err) {
                     if (err.message.includes('2FA')) {
                         showToast('Debes tener activado el 2FA en tu perfil para consultar claves privadas.', 'danger');
-                        // Redirigir a alertas/configuraciones
-                        document.querySelector('[data-target="alertas"]').click();
+                        const navPerfil = document.querySelector('[data-target="perfil"]');
+                        if (navPerfil) navPerfil.click();
                     } else {
                         showToast(err.message, 'danger');
                     }
@@ -3527,5 +3613,6 @@
         });
     </script>
 
+    <script src="public/js/views/perfil.js"></script>
 </body>
 </html>

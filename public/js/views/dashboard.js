@@ -165,8 +165,8 @@ async function consultarClavePrivada(rfc) {
     } catch (err) {
         if (err.message.includes('2FA')) {
             showToast('Debes tener activado el 2FA en tu perfil para consultar claves privadas.', 'danger');
-            const navAlertas = document.querySelector('[data-target="alertas"]');
-            if (navAlertas) navAlertas.click();
+            const navPerfil = document.querySelector('[data-target="perfil"]');
+            if (navPerfil) navPerfil.click();
         } else {
             showToast(err.message, 'danger');
         }

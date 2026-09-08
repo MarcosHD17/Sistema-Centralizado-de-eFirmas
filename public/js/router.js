@@ -28,6 +28,7 @@ function inicializarRouter() {
             if (targetId === 'bitacora' && typeof cargarBitacora === 'function') cargarBitacora();
             if (targetId === 'alertas' && typeof cargarAlertasConfig === 'function') cargarAlertasConfig();
             if (targetId === 'enlaces' && typeof cargarEnlacesDropdown === 'function') cargarEnlacesDropdown();
+            if (targetId === 'perfil' && typeof cargarPerfilUsuario === 'function') cargarPerfilUsuario();
         });
     });
 }

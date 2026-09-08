@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof inicializarGestionUsuarios === 'function') inicializarGestionUsuarios();
     if (typeof inicializarBitacoraLedger === 'function') inicializarBitacoraLedger();
     if (typeof inicializarEnlacesTemporales === 'function') inicializarEnlacesTemporales();
+    if (typeof inicializarPerfilUsuario === 'function') inicializarPerfilUsuario();
 
     console.log('[SPA] ✓ Módulos cargados e inicializados correctamente.');
 });
