@@ -1,5 +1,5 @@
 /* =============================================================
-   SAT Control Manager — Dashboard Arquitectura v2.3.4
+   SAT Control Manager — Dashboard Arquitectura v2.4.0
    docs/app.js — JavaScript modular puro (sin dependencias externas)
    ============================================================= */
 
@@ -279,6 +279,18 @@ const MODULES = [
     what: 'Lógica de autenticación del cliente: manejo del formulario de login, flujo de 2 pasos para TOTP, persistencia del JWT en localStorage, modo offline/demo cuando el backend no está disponible, logout y actualización del avatar/nombre en el sidebar.',
     why: 'Centraliza la gestión de sesión para que ninguna vista necesite conocer el flujo de login. El modo demo permite presentar el sistema sin backend real.',
     critical: 'El token se guarda en localStorage (no sessionStorage) para persistir entre pestañas. El health-check de /api/health activa el modo offline. Nunca exponer el JWT en logs de consola.',
+    deps: ['public/js/config.js']
+  },
+  {
+    id: 'fe_perfil',
+    file: 'perfil.js (view)',
+    path: 'public/js/views/perfil.js',
+    layer: 'ui',
+    badge: 'ui',
+    icon: '👤',
+    what: 'Gestión del perfil del usuario en sesión y activación de 2FA (TOTP). Muestra los datos de la cuenta, estado de 2FA y provee la interfaz para solicitar el secreto QR (/auth/totp/setup) y verificar el código de 6 dígitos (/auth/totp/verify).',
+    why: 'Requisito de seguridad (CU-04): las consultas de contraseñas y claves requieren 2FA activo. Al requerir 2FA, la SPA redirige automáticamente a esta sección.',
+    critical: 'El código TOTP debe verificarse contra el servidor antes de marcar totp_activado = 1. La hora del dispositivo cliente debe estar sincronizada.',
     deps: ['public/js/config.js']
   },
   {
@@ -1318,5 +1330,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Section 5: Reglas de Oro ──
   renderGoldenRules();
 
-  console.log('[SAT Docs] Dashboard de arquitectura cargado correctamente. v2.3.4');
+  console.log('[SAT Docs] Dashboard de arquitectura cargado correctamente. v2.4.0');
 });

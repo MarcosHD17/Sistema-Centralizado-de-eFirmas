@@ -1,51 +1,37 @@
-# Walkthrough - Notificaciones Multicanal WhatsApp/Correo & Auto-Reconexión SPA (v2.3.4)
+# Walkthrough - Mejoras de Dashboard, Auditoría, Perfil 2FA y RBAC (v2.4.0)
 
-Hemos completado la integración real de notificaciones multicanal (**Correo SMTP Yahoo + WhatsApp Twilio API**), la normalización automática de formatos de teléfono internacionales (+521 México), la reparación de los controladores de prueba de alertas en la SPA y el **Dashboard Interactivo de Arquitectura**.
+Hemos completado la implementación de las 4 mejoras detalladas en **Reporte_Mejoras_Dashboard_RBAC_v1.md**, incluyendo la corrección del flujo 2FA, el rediseño de gráficos del tablero, el historial por contribuyente y el control de acceso por rol.
 
 ---
 
 ## 🛠️ Cambios Realizados
 
-### 1. Integración de WhatsApp vía Twilio SDK Oficial (`src/utils/whatsapp.js` & `src/services/whatsappService.js`)
-* **SDK Oficial Twilio:** Sustitución del cliente REST simulado por el SDK nativo `twilio`.
-* **Credenciales en `.env`:** Configuración mediante `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM` y `TWILIO_CONTENT_SID` (opcional).
-* **Estilo de Mensaje Rico Estructurado:** Envío en formato Markdown con emojis, Razón Social, RFC, aviso de autodestrucción y enlace único de descarga.
-* **Resiliencia de SSL Local:** Prevención de fallos por inspección de certificados en proxies corporativos (`UNABLE_TO_VERIFY_LEAF_SIGNATURE`).
+### 1. Fix de Redirección 2FA & Módulo de Mi Perfil (`public/js/views/perfil.js` & `index.html`)
+* **Corrección de Ruteo:** Se corrigieron los handlers de consulta de clave privada (`dashboard.js` e `index.html`) para que, al requerir 2FA, redirijan a `[data-target="perfil"]` en lugar de `alertas`.
+* **Vista de Perfil y Activación TOTP:** Se creó la vista **Mi Perfil (2FA)** en la SPA. Permite ver la información del usuario en sesión, estado de 2FA y provee la interfaz para solicitar el secreto QR (`/api/auth/totp/setup`) y verificar el código de 6 dígitos (`/api/auth/totp/verify`) para activar la autenticación de dos factores.
 
-### 2. Normalización Automática de Números Celulares de México (`+521`)
-* **Identificación del Estándar Meta/WhatsApp:** WhatsApp exige la lada `+521` para números celulares mexicanos de 10 dígitos (ej. `8116054215` $\rightarrow$ `+5218116054215`).
-* **Formateador Transparente:** Implementado en frontend (`downloadLinks.js`, `alertas.js`, `index.html`) y backend (`contribuyentes.js`, `alertas.js`, `whatsappService.js`) para limpiar espacios, guiones y paréntesis, garantizando entregas exitosas sin errores `63015`.
+### 2. Rediseño de Gráfica "Distribución de Estatus" a Barras Verticales (`public/js/views/dashboard.js` & `index.html`)
+* **Sustitución del Donut SVG:** Se reemplazó el gráfico circular por una gráfica de **barras verticales proporcionales** (Vigentes - Verde, Por Vencer - Amarillo, Vencidas - Rojo).
+* **Mejora de Legibilidad:** Muestra de forma nítida y horizontal el número de contribuyentes y el porcentaje sobre cada columna, eliminando problemas de rotación de texto.
 
-### 3. Reparación y Unificación de Handler "Enviar Alerta de Prueba" (`index.html` & `public/js/views/alertas.js`)
-* **Unificación de Fuente de Verdad:** Se corrigió el handler inline en `index.html` que intentaba mapear una propiedad obsoleta `data.intentos`, provocando fallos silenciosos.
-* **Lectura Dinámica de Canal:** Lee dinámicamente el selector `<select id="testAlertTipo">` (Correo / WhatsApp) e input de destinatario.
-* **Telemetría en UI:** El botón se deshabilita durante el envío (`Enviando…`) y despliega un toast con el **SID de Twilio** y el modo de despacho (`Mensaje Formateado Original` o `Content Template`).
+### 3. Historial por Contribuyente & Línea de Tiempo (`src/routes/contribuyentes.js` & `public/js/views/contribuyentes.js`)
+* **Nuevo Endpoint Backend:** `GET /api/contribuyentes/:rfc/historial` unifica eventos de `bitacora_logs`, `historial_renovaciones` y `download_tokens` asociados al RFC.
+* **Modal Interactivo:** Se integró la función `window.abrirHistorialContribuyente(rfc)` y la ventana modal `#modalHistorial` en la SPA para visualizar la auditoría completa de un expediente.
 
-### 4. Auto-Reconexión en la SPA (`public/js/config.js`)
-* **Detección Dinámica de Backend:** Al intentar peticiones en modo offline, la SPA verifica primero `http://localhost:3001/api/health`. Al confirmar que el backend está activo, conmuta automáticamente a modo online y procesa las peticiones REST reales.
+### 4. Interfaz Diferenciada por Rol - RBAC (`public/js/router.js`, `public/js/auth.js` & `src/routes/contribuyentes.js`)
+* **Mapa de Menú por Rol:**
+  - `admin`: Accesos completos (`dashboard`, `registro`, `alertas`, `usuarios`, `bitacora`, `enlaces`, `perfil`).
+  - `supervisor`: Accesos operativos y auditoría (`dashboard`, `registro`, `bitacora`, `enlaces`, `perfil`).
+  - `operador`: Accesos limitados a su cartera (`dashboard`, `registro`, `enlaces`, `perfil`).
+* **Guards de Navegación:** El router bloquea intentos de navegación a rutas no autorizadas por URL o script, redirigiendo a `dashboard` con aviso.
+* **Filtro de Backend:** Reforzado en `GET /api/contribuyentes` y `GET /api/contribuyentes/dashboard/kpis` para que los operadores solo vean sus contribuyentes asignados.
 
 ---
 
-## 🧪 Pruebas de Funcionamiento Realizadas (6/6 Tests Pasados)
+## 🧪 Pruebas de Funcionamiento Realizadas
 
-1. **`POST /alertas/probar` (10 dígitos `8116054215`):**
-   - **Formato normalizado:** `+5218116054215`
-   - **Twilio SID:** `SM0622bd738b619020a7e2ef1726f662e9`
-   - **Estado Meta/WhatsApp:** **`delivered` (ENTREGADO)**
+1. **Verificación de Sintaxis JS:**
+   - `node -e "new (require('vm').Script)(readFileSync('...'))"` ejecutado exitosamente en todos los módulos de vista y rutas.
 
-2. **`POST /alertas/probar` (`+528116054215`):**
-   - **Formato normalizado:** `+5218116054215`
-   - **Twilio SID:** `SM755ba5b30630e5314d9b44858ffbf765`
-   - **Estado Meta/WhatsApp:** **`delivered` (ENTREGADO)**
-
-3. **`POST /contribuyentes/SDT200101XYZ/download-token` (`8116054215`):**
-   - **Formato normalizado:** `+5218116054215`
-   - **Twilio SID:** `SM824819592a48a69ded898e2e7bd32527`
-   - **Estado Meta/WhatsApp:** **`delivered` (ENTREGADO)**
-
-4. **`POST /contribuyentes/SDT200101XYZ/download-token` (`+528116054215`):**
-   - **Formato normalizado:** `+5218116054215`
-   - **Twilio SID:** `SMb162e4dfdc54d6a9489a49285a3c8fa0`
-   - **Estado Meta/WhatsApp:** **`delivered` (ENTREGADO)**
-
-5. **Validaciones de Seguridad:** Peticiones mal formadas o números inválidos responden adecuadamente HTTP 400 con mensajes de error controlados.
+2. **Verificación de Enrutamiento y Permisos:**
+   - Pruebas de roles `admin`, `supervisor` y `operador` validadas contra el mapa `MENU_POR_ROL`.

@@ -1,4 +1,4 @@
-# Análisis de Pruebas y Reporte de Errores — SAT Control Manager v2.3.3
+# Análisis de Pruebas y Reporte de Errores — SAT Control Manager v2.4.0
 
 Se presenta el informe de análisis de pruebas, hallazgos verificados y resolución de errores para la plataforma **SAT Control Manager**, elaborado por el Arquitecto de Software y Programador Senior Polyglot.
 
@@ -85,6 +85,10 @@ Durante la puesta en marcha de los servicios, se detectaron y corrigieron de inm
 | **#22** | `alertas.js` (ruta `/probar`) | El endpoint usaba `encolarAlerta()` con mensaje de texto plano simple. No usaba Twilio SDK directamente, por lo que WhatsApp fallaba aunque el correo funcionara. | **✅ Corregido:** `/probar` con `tipo=whatsapp` ahora llama a `enviarWhatsapp()` directamente con el mismo mensaje rico (emojis + Markdown) que el enlace temporal. Retorna `sid`, `modo_envio` y `destinatario_normalizado`. |
 | **#23** | `alertas.js` frontend (botón Enviar Prueba) | El botón no se desactivaba durante el envío y el toast solo mostraba el mensaje genérico, sin mostrar SID ni modo de envío. | **✅ Corregido:** El botón se deshabilita (`Enviando…`) durante la petición y el toast de éxito muestra `mensaje + SID + modo_envio`. |
 | **#24** | `config.js` (SPA) | La SPA se quedaba atrapada indefinidamente en Modo Demostración Offline si el servidor se reiniciaba, sin reconectarse al restablecerse la conexión. | **✅ Corregido:** `apiFetch()` verifica `/api/health` antes de simular en modo offline; al detectar el backend activo, sale del modo demo automáticamente. |
+| **#25** | `dashboard.js` & `index.html` | El mensaje de advertencia 2FA al consultar clave privada redirigía al usuario a la sección `alertas` en vez de la sección de perfil del usuario. | **✅ Corregido:** Redirección corregida a `[data-target="perfil"]` y creada la vista `perfil.js` para activación de 2FA TOTP con QR. |
+| **#26** | `dashboard.js` & `index.html` | La gráfica de dona tenía problemas de legibilidad/orientación en los textos del donut SVG central. | **✅ Corregido:** Rediseño visual sustituyendo la dona por gráfica de barras verticales estilizadas con porcentajes legibles. |
+| **#27** | `contribuyentes.js` | Ausencia de endpoint e interfaz para consultar el historial de auditoría y renovaciones de un contribuyente específico. | **✅ Corregido:** Creado endpoint `GET /api/contribuyentes/:rfc/historial` y ventana modal `#modalHistorial` con línea de tiempo. |
+| **#28** | `router.js` & `auth.js` | Todos los roles veían exactamente el mismo menú en el sidebar sin restricción de accesos por rol. | **✅ Corregido:** Implementado mapa `MENU_POR_ROL` (admin, supervisor, operador), ocultación dinámica de sidebar y guards de navegación. |
 
 ---
 
