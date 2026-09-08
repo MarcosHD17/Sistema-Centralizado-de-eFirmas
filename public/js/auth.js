@@ -96,15 +96,8 @@ function iniciarSesionUsuario() {
                 userAvatarEl.textContent = iniciales;
             }
 
-            // Ocultar sección de gestión de usuarios si el operador no es admin
-            const navUsuarios = document.querySelector('[data-target="usuarios"]');
-            if (navUsuarios) {
-                if (user.rol === 'operador') {
-                    navUsuarios.style.display = 'none';
-                } else {
-                    navUsuarios.style.display = 'block';
-                }
-            }
+            // Aplicar menú diferenciado por rol (RBAC)
+            if (typeof aplicarPermisosPorRol === 'function') aplicarPermisosPorRol();
 
             if (loginOverlay) loginOverlay.classList.add('hidden');
             if (typeof cargarTablero === 'function') cargarTablero();

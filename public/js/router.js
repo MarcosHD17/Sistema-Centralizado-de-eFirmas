@@ -1,24 +1,63 @@
 // ============================================================
-// Versión: v2.2.3
+// Versión: v2.4.0
 // Archivo: public/js/router.js
-// Descripción: Enrutamiento en cliente para SPA (Single Page Application),
-//              conmutación de vistas en sidebar y hooks de navegación.
+// Descripción: Enrutamiento SPA con RBAC diferenciado por rol.
 // ============================================================
+
+const MENU_POR_ROL = {
+    admin:      ['dashboard', 'registro', 'alertas', 'usuarios', 'bitacora', 'enlaces', 'perfil'],
+    supervisor: ['dashboard', 'registro', 'bitacora', 'enlaces', 'perfil'],
+    operador:   ['dashboard', 'registro', 'enlaces', 'perfil']
+};
+
+function aplicarPermisosPorRol() {
+    const rol = (window.usuarioActual && window.usuarioActual.rol)
+        ? window.usuarioActual.rol.toLowerCase()
+        : 'admin';
+
+    const permitidos = MENU_POR_ROL[rol] || MENU_POR_ROL.admin;
+    const sidebarItems = document.querySelectorAll('.sidebar-item');
+
+    sidebarItems.forEach(item => {
+        const target = item.getAttribute('data-target');
+        if (permitidos.includes(target)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
 
 function inicializarRouter() {
     const sidebarItems = document.querySelectorAll('.sidebar-item');
     const sections = document.querySelectorAll('.content-section');
 
+    aplicarPermisosPorRol();
+
     sidebarItems.forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
+
+            const targetId = item.getAttribute('data-target');
+            const rol = (window.usuarioActual && window.usuarioActual.rol)
+                ? window.usuarioActual.rol.toLowerCase()
+                : 'admin';
+
+            const permitidos = MENU_POR_ROL[rol] || MENU_POR_ROL.admin;
+
+            // Guard RBAC en cliente: no permitir navegar a vistas fuera de su rol
+            if (!permitidos.includes(targetId)) {
+                showToast('Acceso denegado. Tu rol no tiene permisos para acceder a esta sección.', 'warning');
+                const dashItem = document.querySelector('[data-target="dashboard"]');
+                if (dashItem) dashItem.click();
+                return;
+            }
 
             // Remover clase activa de todos los ítems y secciones
             sidebarItems.forEach(si => si.classList.remove('active'));
             sections.forEach(sec => sec.classList.remove('active'));
 
             item.classList.add('active');
-            const targetId = item.getAttribute('data-target');
             const targetSection = document.getElementById(targetId);
             if (targetSection) targetSection.classList.add('active');
 
