@@ -1,6 +1,6 @@
-# Walkthrough - Mejoras de Dashboard, Auditoría, Perfil 2FA y RBAC (v2.4.1)
+# Walkthrough - Mejoras de Dashboard, Auditoría, Perfil 2FA y RBAC (v2.4.2)
 
-Hemos completado la implementación de las mejoras detalladas en **Reporte_Mejoras_Dashboard_RBAC_v1.md** y las solicitudes adicionales de personalización y experiencia de usuario del tablero ejecutivo.
+Hemos completado la implementación de las mejoras detalladas en **Reporte_Mejoras_Dashboard_RBAC_v1.md**, así como la resolución de los hallazgos de interfaz visual y handlers de interacción en el cliente.
 
 ---
 
@@ -30,6 +30,12 @@ Hemos completado la implementación de las mejoras detalladas en **Reporte_Mejor
 * **Botón Visible `🔑 Contraseña`:** Se agregó un botón de acción directa en la columna de cada contribuyente en la tabla "Atención Urgente y Estatus de Clientes", complementando a `[Compartir]` e `[Historial]`.
 * **Seguridad 2FA:** Se preserva el control estricto que valida si el usuario cuenta con 2FA activo y registra la auditoría correspondiente en bitácora.
 
+### 6. Fix de Rotación CSS en Gráfica de Dona (`public/css/main.css` & `index.html`)
+* **Remoción de Rotación Global SVG:** Se reemplazó `.donut-chart { transform: rotate(-90deg); }` por `transform: none !important;`, solucionando el defecto por el cual el texto central aparecía inclinado 90° de manera vertical.
+
+### 7. Exposición de Handlers Globales en `window` (`public/js/views/dashboard.js`, `contribuyentes.js` & `index.html`)
+* **Vincular Funciones a `window`:** `window.consultarClavePrivada` y `window.abrirHistorialContribuyente` fueron expuestas globalmente, solucionando la falta de respuesta al presionar los enlaces de la tabla.
+
 ---
 
 ## 🧪 Pruebas de Funcionamiento Realizadas
@@ -42,4 +48,4 @@ Hemos completado la implementación de las mejoras detalladas en **Reporte_Mejor
 
 3. **Verificación de la Interfaz del Tablero:**
    - Toggle dinámico dona/barras verificado con KPIs reactivos.
-   - Enlace `🔑 Contraseña` funcional vinculado al modal de consulta y verificación TOTP.
+   - Enlace `🔑 Contraseña` e `[Historial]` funcionales vinculados al modal de consulta y verificación TOTP.

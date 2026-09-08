@@ -1,12 +1,12 @@
 # STATE: Estado del Proyecto y Registro de Cambios
 
-## Proyecto: SAT Control Manager (v2.4.1)
-## Feature Activa: Selector Dinámico de Gráficas (Dona/Barras), Acceso Directo a Contraseñas, Historial de Contribuyente y RBAC — Merge en `main`.
+## Proyecto: SAT Control Manager (v2.4.2)
+## Feature Activa: Fix de Rotación de Dona CSS, Exposición de Handlers Globales en UI, Selector Dinámico de Gráficas y RBAC — Merge en `main`.
 
 ---
 
 #### 📌 Estado Actual
-- **Fase:** ✅ COMPLETADO — Implementación de selector interactivo de gráficos (Dona con texto recto / Barras), acceso directo a contraseña de contribuyente en el tablero ejecutivo, módulo de Mi Perfil con 2FA TOTP, modal de historial por RFC y RBAC diferenciado.
+- **Fase:** ✅ COMPLETADO — Eliminación de rotación global SVG en CSS para texto central nivelado a 0°, exposición de funciones `window` para habilitación de botones de historial y contraseña en la tabla del tablero ejecutivo.
 - **Rama Git Activa:** `main` (estable)
 - **Última Actualización:** 2026-09-08
 
@@ -41,6 +41,8 @@
 - [x] **Paso 25:** **RBAC Diferenciado por Rol (Mejora #4):** Mapa de navegación por rol (`admin`, `supervisor`, `operador`) en `public/js/router.js` con visibilidad dinámica de sidebar y guards de navegación en el cliente y backend.
 - [x] **Paso 26:** **Selector Dinámico de Gráficas (Dona / Barras):** Implementación de controles interactivos `🍩 Dona` / `📊 Barras` en el encabezado de la tarjeta de estatus. Conserva el gráfico de dona original con el número central horizontal recto (`dominant-baseline="central"` y `writing-mode: horizontal-tb`).
 - [x] **Paso 27:** **Acceso Directo a Contraseñas en Tablero:** Enlace explícito `🔑 Contraseña` en cada fila de contribuyente de la tabla "Atención Urgente y Estatus de Clientes", manteniendo el flujo de validación 2FA y telemetría de auditoría.
+- [x] **Paso 28:** **Fix de Rotación CSS de Dona (Hallazgó #31):** Eliminación de `transform: rotate(-90deg)` en `.donut-chart` para evitar la inclinación vertical del texto central, manteniéndolo a 0° horizontal nivelado.
+- [x] **Paso 29:** **Habilitación de Handlers Globales en UI (Hallazgo #32):** Exposición explícita de `window.consultarClavePrivada` y `window.abrirHistorialContribuyente` garantizando la ejecución directa al presionar los enlaces de la tabla.
 
 ---
 
@@ -57,3 +59,6 @@
 - **2026-09-08:** **Experiencia de Usuario y Visualización Flexible (v2.4.1):**
   - Selector dinámico entre vista de dona circular (con alineación horizontal de texto corregida) y barras verticales.
   - Botón visible `🔑 Contraseña` en la tabla de Atención Urgente para agilizar consultas autorizadas.
+- **2026-09-08:** **Resolución de Defectos Visuales e Interacción (v2.4.2):**
+  - Eliminación de `transform: rotate(-90deg)` en CSS para garantizar texto central plano a 0°.
+  - Exposición explícita en `window` de funciones de historial y consulta de clave privada.
