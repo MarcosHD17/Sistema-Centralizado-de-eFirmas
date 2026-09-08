@@ -1,5 +1,5 @@
 /* =============================================================
-   SAT Control Manager — Dashboard Arquitectura v2.4.0
+   SAT Control Manager — Dashboard Arquitectura v2.4.1
    docs/app.js — JavaScript modular puro (sin dependencias externas)
    ============================================================= */
 
@@ -336,7 +336,7 @@ const MODULES = [
     layer: 'ui',
     badge: 'ui',
     icon: '📊',
-    what: 'Vista principal del tablero ejecutivo. Carga KPIs desde GET /api/contribuyentes/dashboard/kpis (total, vigentes, preventivos, críticos, expirados, próximos a vencer). Renderiza las tarjetas con colores semafóricos y la tabla de próximos vencimientos.',
+    what: 'Vista principal del tablero ejecutivo. Carga KPIs desde GET /api/contribuyentes/dashboard/kpis (total, vigentes, preventivos, críticos, expirados, próximos a vencer). Ofrece selector dinámico de visualización (Gráfica de Dona con número recto vs Barras verticales). En la tabla de Atención Urgente integra accesos directos para [Compartir], [Historial] y consulta protegida de 🔑 Contraseña con 2FA.',
     why: 'La vista solo consume el endpoint de KPIs (ya calculado en el servidor) en vez de calcular los conteos localmente, garantizando consistencia con el motor semafórico.',
     critical: 'El endpoint /dashboard/kpis está declarado ANTES de /:rfc en el servidor (fix QA#1). Cambiar la URL del endpoint en el servidor requiere actualizar esta vista.',
     deps: ['public/js/config.js']
@@ -1330,5 +1330,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Section 5: Reglas de Oro ──
   renderGoldenRules();
 
-  console.log('[SAT Docs] Dashboard de arquitectura cargado correctamente. v2.4.0');
+  console.log('[SAT Docs] Dashboard de arquitectura cargado correctamente. v2.4.1');
 });
