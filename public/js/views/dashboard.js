@@ -210,7 +210,7 @@ function inicializarFiltrosDashboard() {
     });
 }
 
-async function consultarClavePrivada(rfc) {
+window.consultarClavePrivada = async function consultarClavePrivada(rfc) {
     if (usuarioActual && usuarioActual.rol === 'operador') {
         showToast('Acceso denegado. Solo Supervisores o Administradores pueden consultar claves.', 'danger');
         return;
