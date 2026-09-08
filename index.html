@@ -1456,7 +1456,7 @@
             <!-- Gráficos y Panel Corto -->
             <div class="dashboard-layout">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <h2 class="card-title">
                             <svg viewBox="0 0 24 24">
                                 <path
@@ -1464,6 +1464,10 @@
                             </svg>
                             Distribución de Estatus
                         </h2>
+                        <div style="display: flex; gap: 4px; background: rgba(255,255,255,0.06); padding: 3px; border-radius: 6px;">
+                            <button type="button" id="btnToggleDona" title="Ver Gráfica de Dona" style="padding: 3px 8px; font-size: 8pt; font-weight: 600; background: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer;">🍩 Dona</button>
+                            <button type="button" id="btnToggleBarras" title="Ver Gráfica de Barras" style="padding: 3px 8px; font-size: 8pt; font-weight: 600; background: transparent; color: var(--text-muted); border: none; border-radius: 4px; cursor: pointer;">📊 Barras</button>
+                        </div>
                     </div>
                     <div style="display: flex; gap: 30px; align-items: center; justify-content: center; height: 100%;">
                         <div class="chart-container">
