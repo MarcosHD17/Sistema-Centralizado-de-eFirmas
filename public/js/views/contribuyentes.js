@@ -174,3 +174,66 @@ function renderFiles() {
         });
     });
 }
+
+window.abrirHistorialContribuyente = async function(rfc) {
+    const modal = document.getElementById('modalHistorial');
+    const container = document.getElementById('historialTimelineContainer');
+    const subTitle = document.getElementById('modalHistorialSub');
+
+    if (!modal || !container) return;
+
+    modal.classList.add('active');
+    if (subTitle) subTitle.textContent = `Cargando operaciones registradas para RFC: ${rfc}...`;
+    container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px;">Cargando historial de auditoría...</p>';
+
+    try {
+        const res = await apiFetch(`/contribuyentes/${rfc}/historial`);
+        if (subTitle) subTitle.textContent = `${res.razon_social} (${res.rfc}) — Total de eventos: ${res.total_eventos}`;
+
+        if (!res.eventos || res.eventos.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px;">No se encontraron eventos registrados para este contribuyente.</p>';
+            return;
+        }
+
+        container.innerHTML = '';
+        res.eventos.forEach(evt => {
+            const item = document.createElement('div');
+            item.style.cssText = 'padding: 10px 14px; border-left: 3px solid var(--accent); background: rgba(255, 255, 255, 0.03); border-radius: 0 6px 6px 0; font-size: 9pt;';
+
+            let icon = '📌';
+            let color = 'var(--accent)';
+            if (evt.tipo === 'AUDITORIA') { icon = '🛡️'; color = '#3b82f6'; }
+            if (evt.tipo === 'RENOVACION') { icon = '🔄'; color = '#10b981'; }
+            if (evt.tipo === 'TOKEN_DESCARGA') { icon = '📥'; color = '#f59e0b'; }
+
+            item.style.borderLeftColor = color;
+
+            const fechaFormat = new Date(evt.fecha).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
+
+            item.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span style="font-weight: 700; color: ${color}; font-size: 9pt;">${icon} ${evt.titulo}</span>
+                    <span style="font-size: 7.5pt; color: var(--text-muted);">${fechaFormat}</span>
+                </div>
+                <p style="color: #e2e8f0; margin-bottom: 4px; font-size: 8.5pt;">${evt.descripcion}</p>
+                <div style="font-size: 7.5pt; color: var(--text-muted);">Usuario/IP: <strong style="color:#aaa;">${evt.usuario || 'Sistema'}</strong></div>
+            `;
+            container.appendChild(item);
+        });
+    } catch (err) {
+        container.innerHTML = `<p style="text-align: center; color: var(--danger); padding: 20px;">Error al cargar el historial: ${err.message}</p>`;
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('modalHistorial');
+    const btnClose = document.getElementById('btnCloseHistorialModal');
+    const btnCerrar = document.getElementById('btnCerrarHistorial');
+
+    const cerrarModal = () => {
+        if (modal) modal.classList.remove('active');
+    };
+
+    if (btnClose) btnClose.addEventListener('click', cerrarModal);
+    if (btnCerrar) btnCerrar.addEventListener('click', cerrarModal);
+});

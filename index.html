@@ -2350,9 +2350,28 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="btnCancelUser"
                         style="width: auto;">Cancelar</button>
-                    <button type="submit" class="btn" id="btnSaveUser" style="width: auto;">Guardar Usuario</button>
-                </div>
             </form>
+        </div>
+    </div>
+
+    <!-- VENTANA MODAL: HISTORIAL DEL CONTRIBUYENTE -->
+    <div class="modal" id="modalHistorial" role="dialog" aria-modal="true" aria-labelledby="modalHistorialTitle">
+        <div class="modal-card" style="max-width: 650px;">
+            <div class="modal-header">
+                <div>
+                    <h3 id="modalHistorialTitle">📜 Historial del Contribuyente</h3>
+                    <p style="font-size: 8.5pt; color: var(--text-muted); margin-top: 2px;" id="modalHistorialSub">Línea de tiempo de auditoría y operaciones</p>
+                </div>
+                <span class="close-modal" id="btnCloseHistorialModal" aria-label="Cerrar modal">&times;</span>
+            </div>
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto;">
+                <div id="historialTimelineContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                    <p style="text-align: center; color: var(--text-muted);">Cargando historial...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btnCerrarHistorial" style="width: auto;">Cerrar</button>
+            </div>
         </div>
     </div>
 

@@ -468,6 +468,107 @@ router.post('/:rfc/key', autenticar, requerirRol('admin', 'supervisor'), (req, r
         consultas_restantes: MAX - (consultas_hoy + 1)
     });
 });
+
+// ─────────────────────────────────────────────────
+// GET /api/contribuyentes/:rfc/historial
+// Consulta el historial cronológico completo de un contribuyente (Mejora #2)
+// (altas, renovaciones, descargas de tokens, consultas de clave privada, auditoría)
+// ─────────────────────────────────────────────────
+router.get('/:rfc/historial', autenticar, (req, res) => {
+    const rfc = req.params.rfc.toUpperCase();
+    const contribuyente = db.prepare(
+        'SELECT id, rfc, razon_social, responsable_id FROM contribuyentes WHERE rfc = ? AND activo = 1'
+    ).get(rfc);
+
+    if (!contribuyente) {
+        return res.status(404).json({ error: `Contribuyente con RFC ${rfc} no encontrado.` });
+    }
+
+    // RBAC: Si es operador, debe ser el responsable asignado
+    if (req.user.rol === 'operador' && contribuyente.responsable_id !== req.user.id) {
+        return res.status(403).json({
+            error: 'Acceso denegado. Este contribuyente no está asignado a tu cartera.',
+            codigo: 'ACCESO_DENIED_OPERADOR'
+        });
+    }
+
+    // 1. Logs de auditoría bitacora_logs asociados al RFC
+    const logsBitacora = db.prepare(`
+        SELECT id, timestamp_utc, usuario_email, accion, detalle
+        FROM bitacora_logs
+        WHERE detalle LIKE ? OR detalle LIKE ?
+        ORDER BY id DESC LIMIT 50
+    `).all(`%RFC: ${rfc}%`, `%${rfc}%`);
+
+    // 2. Historial de renovaciones
+    const renovaciones = db.prepare(`
+        SELECT id, fecha_renovacion, cer_numero_serie, creado_en, creado_por
+        FROM historial_renovaciones
+        WHERE rfc = ?
+        ORDER BY id DESC
+    `).all(rfc);
+
+    // 3. Tokens de descarga generados
+    const downloadTokens = db.prepare(`
+        SELECT id, file_type, is_used, expires_at, created_at, ip_creacion
+        FROM download_tokens
+        WHERE contribuyente_id = ?
+        ORDER BY id DESC LIMIT 30
+    `).all(contribuyente.id);
+
+    // Unificar eventos
+    const eventos = [];
+
+    logsBitacora.forEach(l => {
+        const fechaIso = new Date(l.timestamp_utc * 1000).toISOString();
+        eventos.push({
+            tipo: 'AUDITORIA',
+            fuente: 'bitacora_logs',
+            fecha: fechaIso,
+            timestamp: l.timestamp_utc,
+            usuario: l.usuario_email,
+            titulo: l.accion,
+            descripcion: l.detalle
+        });
+    });
+
+    renovaciones.forEach(r => {
+        const ts = Math.floor(new Date(r.fecha_renovacion || r.creado_en || Date.now()).getTime() / 1000);
+        eventos.push({
+            tipo: 'RENOVACION',
+            fuente: 'historial_renovaciones',
+            fecha: r.fecha_renovacion || r.creado_en,
+            timestamp: ts,
+            usuario: r.creado_por || 'Sistema',
+            titulo: 'RENOVACION_EFIRMA',
+            descripcion: `Renovación registrada. Serie .cer: ${r.cer_numero_serie || 'N/A'}`
+        });
+    });
+
+    downloadTokens.forEach(t => {
+        const ts = Math.floor(new Date(t.created_at || Date.now()).getTime() / 1000);
+        eventos.push({
+            tipo: 'TOKEN_DESCARGA',
+            fuente: 'download_tokens',
+            fecha: t.created_at,
+            timestamp: ts,
+            usuario: t.ip_creacion || 'Cliente',
+            titulo: 'GENERACION_TOKEN',
+            descripcion: `Archivo: ${t.file_type} | Descargado: ${t.is_used ? 'SÍ' : 'NO'} | Expira: ${t.expires_at}`
+        });
+    });
+
+    // Ordenar descendente por timestamp
+    eventos.sort((a, b) => b.timestamp - a.timestamp);
+
+    res.json({
+        ok: true,
+        rfc: contribuyente.rfc,
+        razon_social: contribuyente.razon_social,
+        total_eventos: eventos.length,
+        eventos
+    });
+});
 // ─────────────────────────────────────────────────
 // POST /api/contribuyentes/:rfc/download-token
 // Generar un token temporal para descarga segura de archivos (CER o KEY)
