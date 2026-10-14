@@ -10,12 +10,14 @@ const MENU_POR_ROL = {
     operador:   ['dashboard', 'registro', 'enlaces', 'perfil']
 };
 
-function aplicarPermisosPorRol() {
-    const rol = (window.usuarioActual && window.usuarioActual.rol)
-        ? window.usuarioActual.rol.toLowerCase()
-        : 'admin';
+function obtenerRolActual() {
+    const u = window.usuarioActual || (typeof usuarioActual !== 'undefined' ? usuarioActual : null);
+    return (u && u.rol) ? u.rol.toLowerCase() : 'operador';
+}
 
-    const permitidos = MENU_POR_ROL[rol] || MENU_POR_ROL.admin;
+function aplicarPermisosPorRol() {
+    const rol = obtenerRolActual();
+    const permitidos = MENU_POR_ROL[rol] || MENU_POR_ROL.operador;
     const sidebarItems = document.querySelectorAll('.sidebar-item');
 
     sidebarItems.forEach(item => {
@@ -39,11 +41,8 @@ function inicializarRouter() {
             e.preventDefault();
 
             const targetId = item.getAttribute('data-target');
-            const rol = (window.usuarioActual && window.usuarioActual.rol)
-                ? window.usuarioActual.rol.toLowerCase()
-                : 'admin';
-
-            const permitidos = MENU_POR_ROL[rol] || MENU_POR_ROL.admin;
+            const rol = obtenerRolActual();
+            const permitidos = MENU_POR_ROL[rol] || MENU_POR_ROL.operador;
 
             // Guard RBAC en cliente: no permitir navegar a vistas fuera de su rol
             if (!permitidos.includes(targetId)) {

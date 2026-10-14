@@ -211,12 +211,14 @@ function inicializarFiltrosDashboard() {
 }
 
 window.consultarClavePrivada = async function consultarClavePrivada(rfc) {
-    if (usuarioActual && usuarioActual.rol === 'operador') {
+    const usuario = window.usuarioActual || (typeof usuarioActual !== 'undefined' ? usuarioActual : null);
+    if (usuario && usuario.rol === 'operador') {
         showToast('Acceso denegado. Solo Supervisores o Administradores pueden consultar claves.', 'danger');
         return;
     }
 
-    if (modoOffline) {
+    const offline = typeof modoOffline !== 'undefined' ? modoOffline : (window.modoOffline || false);
+    if (offline) {
         showToast('Consulta de clave privada simulada. Contraseña SAT: Demo1234.', 'info');
         return;
     }

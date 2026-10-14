@@ -7,8 +7,9 @@
 async function cargarPerfilUsuario() {
     try {
         const u = await apiFetch('/auth/me');
-        if (usuarioActual) {
-            usuarioActual.totp_activado = u.totp_activado;
+        const usuario = window.usuarioActual || (typeof usuarioActual !== 'undefined' ? usuarioActual : null);
+        if (usuario) {
+            usuario.totp_activado = u.totp_activado;
         }
 
         const perfilEmail = document.getElementById('perfilEmail');

@@ -2242,6 +2242,9 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </section>
+
         <!-- MÓDULO DE MI PERFIL Y 2FA -->
         <section id="perfil" class="content-section">
             <div class="page-header">
@@ -2401,8 +2404,44 @@
             let usuarioActual = null;
             let modoOffline = false;
 
-            // Inicializar listeners de filtros y toggle dona/barras
-            setTimeout(() => { if (typeof inicializarFiltrosDashboard === 'function') inicializarFiltrosDashboard(); }, 100);
+            // Puente de estado: expone getters seguros de solo lectura para scripts externos (public/js/views/*.js)
+            Object.defineProperties(window, {
+                usuarioActual: { get: () => usuarioActual, configurable: true },
+                modoOffline:   { get: () => modoOffline,   configurable: true }
+            });
+            window.showToast = showToast;
+            window.apiFetch  = apiFetch;
+
+            // Inicializar listeners de filtros, toggle dona/barras y módulo de perfil
+            setTimeout(() => {
+                if (typeof inicializarFiltrosDashboard === 'function') inicializarFiltrosDashboard();
+                if (typeof inicializarPerfilUsuario === 'function') inicializarPerfilUsuario();
+            }, 100);
+
+            // --- RBAC Y CONTROL DE ACCESO ---
+            const MENU_POR_ROL = {
+                admin:      ['dashboard', 'registro', 'alertas', 'usuarios', 'bitacora', 'enlaces', 'perfil'],
+                supervisor: ['dashboard', 'registro', 'bitacora', 'enlaces', 'perfil'],
+                operador:   ['dashboard', 'registro', 'enlaces', 'perfil']
+            };
+
+            function obtenerPermitidos() {
+                const rol = (usuarioActual && usuarioActual.rol) ? usuarioActual.rol.toLowerCase() : 'operador';
+                return MENU_POR_ROL[rol] || MENU_POR_ROL.operador;
+            }
+
+            function aplicarPermisosPorRol() {
+                const permitidos = obtenerPermitidos();
+                const items = document.querySelectorAll('.sidebar-item');
+                items.forEach(item => {
+                    const target = item.getAttribute('data-target');
+                    if (permitidos.includes(target)) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
 
             // --- NAVEGACIÓN SPA ---
             const sidebarItems = document.querySelectorAll('.sidebar-item');
@@ -2412,13 +2451,24 @@
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
 
+                    const targetId = item.getAttribute('data-target');
+                    const permitidos = obtenerPermitidos();
+
+                    // Guard RBAC en cliente: no permitir navegar a vistas fuera de su rol
+                    if (!permitidos.includes(targetId)) {
+                        showToast('Acceso denegado. Tu rol no tiene permisos para acceder a esta sección.', 'warning');
+                        const dashItem = document.querySelector('[data-target="dashboard"]');
+                        if (dashItem) dashItem.click();
+                        return;
+                    }
+
                     // Remover activo de todos
                     sidebarItems.forEach(si => si.classList.remove('active'));
                     sections.forEach(sec => sec.classList.remove('active'));
 
                     item.classList.add('active');
-                    const targetId = item.getAttribute('data-target');
-                    document.getElementById(targetId).classList.add('active');
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) targetSection.classList.add('active');
 
                     // Cargar datos específicos al cambiar de sección
                     if (targetId === 'dashboard') cargarTablero();
@@ -2426,6 +2476,7 @@
                     if (targetId === 'bitacora') cargarBitacora();
                     if (targetId === 'alertas') cargarAlertasConfig();
                     if (targetId === 'enlaces') cargarEnlacesDropdown();
+                    if (targetId === 'perfil' && typeof cargarPerfilUsuario === 'function') cargarPerfilUsuario();
                 });
             });
 
@@ -2640,6 +2691,7 @@
                     document.querySelector('.navbar-title span').style.borderColor = 'var(--warning)';
                     document.querySelector('.navbar-title span').style.color = 'var(--warning)';
                     inicializarDatosDemo();
+                    iniciarSesionUsuario();
                 });
             }
 
@@ -2693,13 +2745,8 @@
                         const iniciales = user.nombre.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
                         document.getElementById('sidebarUserAvatar').textContent = iniciales;
 
-                        // Ocultar sección de gestión de usuarios si el operador no es admin
-                        const navUsuarios = document.querySelector('[data-target="usuarios"]');
-                        if (user.rol === 'operador') {
-                            navUsuarios.style.display = 'none';
-                        } else {
-                            navUsuarios.style.display = 'block';
-                        }
+                        // Aplicar menú diferenciado por rol (RBAC)
+                        aplicarPermisosPorRol();
 
                         loginOverlay.classList.add('hidden');
                         cargarTablero();
@@ -2715,6 +2762,7 @@
                 token = null;
                 usuarioActual = null;
                 localStorage.removeItem('sat_token');
+                aplicarPermisosPorRol();
                 loginOverlay.classList.remove('hidden');
                 document.getElementById('loginForm').reset();
                 totpField.style.display = 'none';
