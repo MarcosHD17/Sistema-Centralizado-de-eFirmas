@@ -1,4 +1,4 @@
-# Análisis de Pruebas y Reporte de Errores — SAT Control Manager v2.4.0
+# Análisis de Pruebas y Reporte de Errores — SAT Control Manager v2.4.3
 
 Se presenta el informe de análisis de pruebas, hallazgos verificados y resolución de errores para la plataforma **SAT Control Manager**, elaborado por el Arquitecto de Software y Programador Senior Polyglot.
 
@@ -93,6 +93,38 @@ Durante la puesta en marcha de los servicios, se detectaron y corrigieron de inm
 | **#30** | `dashboard.js` | En la tabla "Atención Urgente y Estatus de Clientes" no existía un botón o enlace evidente para consultar contraseñas, dependiendo únicamente del click en el RFC. | **✅ Corregido:** Agregado botón explícito `🔑 Contraseña` en la fila de acciones junto a `[Compartir]` e `[Historial]`. |
 | **#31** | `main.css` & `index.html` | La regla CSS `.donut-chart { transform: rotate(-90deg); }` rotaba todo el SVG 90° a la izquierda, provocando que los textos `<text>` centrales ("Total") se renderizaran verticalmente. | **✅ Corregido:** Cambiado a `transform: none !important;` manteniendo el texto central a 0° totalmente horizontal y nivelado. |
 | **#32** | `dashboard.js`, `contribuyentes.js` & `index.html` | Las funciones `consultarClavePrivada` y `abrirHistorialContribuyente` no estaban expuestas explícitamente en `window`, provocando que los eventos `onclick` HTML no ejecutaran ninguna acción. | **✅ Corregido:** Expuestas como `window.consultarClavePrivada` y `window.abrirHistorialContribuyente` con manejadores e inclusión de scripts. |
+| **#33** | `dashboard.js` & `index.html` | `ReferenceError: usuarioActual is not defined` al invocar `consultarClavePrivada()`. El estado de sesión vivía en el closure `DOMContentLoaded` del inline script y no era visible para scripts externos en `public/js/views/`. | **✅ Corregido:** Se expuso un puente de interoperabilidad seguro mediante `Object.defineProperties(window, ...)` con getters de solo lectura para `usuarioActual` y `modoOffline`, además de `window.showToast` y `window.apiFetch`. `dashboard.js` ahora resuelve `window.usuarioActual` sin errores. |
+| **#34** | `index.html` & `perfil.js` | Al navegar a la ruta `perfil` (`[data-target="perfil"]`), el contenedor aparecía en blanco. La sección `#tabSolicitudes` y el módulo `#enlaces` carecían de etiquetas de cierre `</div>` y `</section>`, dejando `#perfil` anidado dentro de una vista inactiva (`display: none`). Adicionalmente, el router inline no invocaba `cargarPerfilUsuario()` ni `inicializarPerfilUsuario()`. | **✅ Corregido:** Se cerraron las etiquetas estructurales en `index.html`, liberando `<section id="perfil">` en el primer nivel de `<main>`. Se integraron los hooks de carga de perfil y de registro de listeners 2FA (`btnIniciar2FA`, `btnVerificar2FA`). |
+| **#35** | `index.html` & `router.js` | El filtrado del menú lateral en el cliente solo evaluaba `user.rol === 'operador'` para ocultar `usuarios`, dejando visibles `alertas` y `bitacora` para operadores, y `alertas` y `usuarios` para supervisores. En `router.js`, ante roles desconocidos, el fallback por defecto otorgaba permisos de `admin`. | **✅ Corregido:** Se implementó la matriz `MENU_POR_ROL` completa en el router inline y un guard de navegación que intercepta clics y llamadas programáticas no autorizadas. En `router.js` se blindó el fallback al rol de menor privilegio (`operador`). |
+
+---
+
+## ⚠️ Deuda Técnica y Análisis Arquitectónico: Monolito Inline vs Frontend Modular
+
+Durante la resolución de los hallazgos #33, #34 y #35 se documentó de manera formal la principal deuda técnica del frontend:
+
+### 1. Diagnóstico del Acoplamiento
+- **Script Monolítico Inline:** `index.html` alberga un bloque `<script>` de ~1,400 líneas dentro de un listener `document.addEventListener('DOMContentLoaded', ...)`. Este script concentra la lógica de autenticación, router SPA, renderizado del dashboard, KPIs, modales y lógica de criptografía local.
+- **Frontend Modular en `public/js/`:** Paralelamente existen archivos desacoplados (`config.js`, `auth.js`, `router.js`, `app.js` y `views/*.js`). Sin embargo, `index.html` no incluye `config.js`, `auth.js` ni `router.js`; solo carga al final `contribuyentes.js`, `dashboard.js` y `perfil.js`.
+- **Consecuencia:** Los scripts externos esperan variables globales que en realidad están confinadas dentro del closure privado del script inline de `index.html`.
+
+### 2. Solución Aplicada en v2.4.3 (Mitigación Defensiva)
+- En lugar de realizar una refactorización masiva de alto riesgo en `index.html`, se construyó un **puente de interoperabilidad no destructivo**:
+  ```javascript
+  Object.defineProperties(window, {
+      usuarioActual: { get: () => usuarioActual, configurable: true },
+      modoOffline:   { get: () => modoOffline,   configurable: true }
+  });
+  window.showToast = showToast;
+  window.apiFetch  = apiFetch;
+  ```
+- Se aseguraron getters de solo lectura para evitar que scripts externos o extensiones muten directamente la sesión en memoria.
+
+### 3. Plan de Liquidación de Deuda Técnica (Roadmap)
+1. **Fase de Desacoplamiento Limpio:** Extraer gradualmente las funciones del script inline hacia sus respectivos módulos en `public/js/`.
+2. **Carga Orquestada:** Configurar `index.html` para cargar exclusivamente:
+   `config.js` → `crypto.js` → `auth.js` → `router.js` → `views/*.js` → `app.js`.
+3. **Eliminación Total del Bloque Inline:** Reducir el `<script>` de `index.html` a cero líneas de lógica de negocio.
 
 ---
 

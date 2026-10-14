@@ -26,4 +26,6 @@ certificados_prueba/
 scratch/
 
 # Archivos de documentación
-DOC/
+DOC/*
+!DOC/**/*.md
+!DOC/*.md

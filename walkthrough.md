@@ -1,6 +1,6 @@
-# Walkthrough - Mejoras de Dashboard, Auditoría, Perfil 2FA y RBAC (v2.4.2)
+# Walkthrough - Mejoras de Dashboard, Auditoría, Perfil 2FA y RBAC (v2.4.3)
 
-Hemos completado la implementación de las mejoras detalladas en **Reporte_Mejoras_Dashboard_RBAC_v1.md**, así como la resolución de los hallazgos de interfaz visual y handlers de interacción en el cliente.
+Hemos completado la implementación de las mejoras detalladas en **Reporte_Mejoras_Dashboard_RBAC_v1.md**, la resolución de los hallazgos de interfaz visual y handlers de interacción en el cliente, así como la estabilización estructural y de permisos de la versión **v2.4.3**.
 
 ---
 
@@ -36,16 +36,36 @@ Hemos completado la implementación de las mejoras detalladas en **Reporte_Mejor
 ### 7. Exposición de Handlers Globales en `window` (`public/js/views/dashboard.js`, `contribuyentes.js` & `index.html`)
 * **Vincular Funciones a `window`:** `window.consultarClavePrivada` y `window.abrirHistorialContribuyente` fueron expuestas globalmente, solucionando la falta de respuesta al presionar los enlaces de la tabla.
 
+### 8. Estabilización de Frontend y Control de Acceso (v2.4.3)
+* **Puente Seguro de Sesión en `window`:**
+  - `public/js/views/dashboard.js` lanzaba `ReferenceError: usuarioActual is not defined` porque el estado residía en el closure `DOMContentLoaded` de `index.html`.
+  - Se implementaron getters de solo lectura vía `Object.defineProperties(window, ...)` para `usuarioActual` y `modoOffline`, además de exponer `showToast` y `apiFetch`.
+  - Las vistas externas ahora leen `window.usuarioActual` de forma segura y sin riesgo de mutación no autorizada.
+* **Corrección Estructural del Árbol DOM para Perfil:**
+  - En `index.html`, la sección `#tabSolicitudes` y el módulo `#enlaces` carecían de las etiquetas de cierre `</div>` y `</section>`.
+  - Esto ocasionaba que `<section id="perfil">` quedara indebidamente anidada dentro de un contenedor inactivo, viéndose en blanco al navegar.
+  - Se añadieron las etiquetas de cierre correspondientes y se conectaron los hooks de carga de datos (`cargarPerfilUsuario()`) y listeners de verificación 2FA (`inicializarPerfilUsuario()`).
+* **Blindaje RBAC en Sidebar y Router:**
+  - El sidebar ahora oculta en tiempo real las secciones restringidas (`alertas`, `usuarios`, `bitacora`) según el rol del usuario autenticado.
+  - El handler de clic valida contra `MENU_POR_ROL` antes de activar cualquier sección, impidiendo la navegación no autorizada por consola o clic programático.
+  - En `public/js/router.js` se actualizó el fallback para que cualquier sesión sin rol explícito caiga en `operador` (principio de menor privilegio) en lugar de otorgar acceso total como `admin`.
+
 ---
 
 ## 🧪 Pruebas de Funcionamiento Realizadas
 
 1. **Verificación de Sintaxis JS:**
-   - `node -e "new (require('vm').Script)(readFileSync('...'))"` ejecutado exitosamente en todos los módulos de vista y rutas.
+   - `node -c public/js/router.js public/js/views/dashboard.js public/js/views/perfil.js` ejecutado sin errores.
 
 2. **Verificación de Enrutamiento y Permisos:**
    - Pruebas de roles `admin`, `supervisor` y `operador` validadas contra el mapa `MENU_POR_ROL`.
+   - Secciones `alertas` y `usuarios` verificadas como ocultas para `supervisor`.
+   - Secciones `alertas` y `bitacora` verificadas como ocultas para `operador`.
 
-3. **Verificación de la Interfaz del Tablero:**
-   - Toggle dinámico dona/barras verificado con KPIs reactivos.
-   - Enlace `🔑 Contraseña` e `[Historial]` funcionales vinculados al modal de consulta y verificación TOTP.
+3. **Verificación de la Interfaz de Perfil y 2FA:**
+   - Clic en "Mi Perfil" muestra el contenedor activo con la información de usuario y badge de 2FA.
+   - Botón "Configurar / Activar 2FA" genera el código QR e inicializa los handlers de verificación de 6 dígitos.
+
+4. **Verificación de Consulta de Clave Privada:**
+   - `window.consultarClavePrivada` resuelve `usuarioActual.rol` sin lanzar `ReferenceError`.
+   - Operadores reciben toast de advertencia por denegación de permisos y usuarios autorizados sin 2FA son redirigidos a la sección de perfil.
